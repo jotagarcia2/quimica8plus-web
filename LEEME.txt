@@ -1,0 +1,6 @@
+Química 8+ · versión 2026-10-01 (e7c78b5)
+
+Abrir index.html con un navegador (Chrome, Firefox, Edge o Safari).
+Funciona sin internet; con internet se ven además las tipografías de la serie.
+El progreso de la evaluación se guarda en el navegador.
+Capítulos incluidos: 1, 2, 3

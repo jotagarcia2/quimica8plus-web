@@ -1,0 +1,932 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>Química 8+ · Capítulo 1</title>
+<meta name="description" content="Química 8+ · Capítulo 1: ¿De qué está hecho todo? Materia, partículas y el átomo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a 16:9 "pizarra de laboratorio" stage (three.js + overlay), player controls and chapter map below. Single dark look on purpose: it is a screen. */
+:root{
+  --ink:#0c1318;      /* pizarra */
+  --slate:#15212a;
+  --line:#2a3a46;
+  --chalk:#ece7da;    /* tiza */
+  --dim:#8d9ba4;
+  --prof:#8fdcae;     /* Profe: verde tiza */
+  --est:#f2b84b;      /* Sofía: ámbar */
+  --doc:#c6b6f0;      /* Narrador: lavanda */
+  --proton:#f0685a; --neutron:#a9b4ba; --electron:#5cc8e6;
+  --warn:#ff7a59;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--ink);color:var(--chalk)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.5;padding:20px 16px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header.top h1{font-family:var(--f-display);font-weight:700;font-size:28px;letter-spacing:.02em;margin:0;text-wrap:balance}
+header.top h1 b{color:var(--prof);font-weight:700}
+header.top .meta{font-family:var(--f-mono);font-size:12px;color:var(--dim);letter-spacing:.04em}
+
+/* ---------- stage ---------- */
+.stage{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;background:var(--ink);overflow:hidden;border-radius:6px;container-type:inline-size;outline:1px solid var(--line);user-select:none}
+.stage canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block}
+.ov{position:absolute;inset:0;pointer-events:none}
+.sc{position:absolute;inset:0;opacity:0}
+.grain{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(0,0,0,.45) 100%)}
+.bug{position:absolute;left:2.2cqw;top:1.8cqw;font-family:var(--f-display);font-weight:600;font-size:1.55cqw;letter-spacing:.08em;color:var(--dim);display:flex;gap:.8cqw;align-items:center;text-transform:uppercase}
+.bug b{color:var(--chalk);letter-spacing:.02em}
+.sect{position:absolute;right:2.2cqw;top:1.6cqw;font-family:var(--f-display);font-weight:600;font-size:1.7cqw;letter-spacing:.12em;text-transform:uppercase;padding:.25cqw .9cqw;border:1px solid currentColor;border-radius:.3cqw;color:var(--chalk)}
+.cap{position:absolute;left:50%;bottom:3.2cqw;transform:translateX(-50%);width:78%;display:flex;gap:1.1cqw;align-items:flex-start;justify-content:center}
+.cap .who{flex:none;font-family:var(--f-display);font-weight:700;font-size:1.45cqw;letter-spacing:.12em;text-transform:uppercase;padding:.35cqw .7cqw;border-radius:.3cqw;background:var(--c);color:var(--ink);margin-top:.35cqw}
+.cap .txt{font-size:2.05cqw;line-height:1.32;text-wrap:balance;text-shadow:0 .15cqw .6cqw rgba(0,0,0,.9)}
+.cap .txt span{color:rgba(236,231,218,.42);transition:color .08s}
+.cap .txt span.on{color:var(--chalk)}
+.cap .txt span.now{color:var(--c)}
+.cap.doc .txt{font-style:italic}
+.off .cap{display:none}
+
+.kick{font-family:var(--f-display);font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.big{font-family:var(--f-display);font-weight:700;line-height:.95;letter-spacing:.01em}
+.mono{font-family:var(--f-mono)}
+.card{position:absolute;background:rgba(21,33,42,.86);border:1px solid var(--line);border-radius:.6cqw;padding:1.2cqw 1.6cqw;backdrop-filter:blur(4px)}
+.pick{background:transparent;cursor:pointer}.pick.sel{background:var(--slate);box-shadow:0 0 0 .25cqw var(--est)}.pick.ok{color:var(--prof)!important}
+.chip{display:inline-block;white-space:nowrap;font-family:var(--f-display);font-weight:600;font-size:1.9cqw;letter-spacing:.06em;padding:.3cqw 1cqw;border-radius:2cqw;border:1px solid currentColor}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.lbl{position:absolute;transform:translate(-50%,-50%);font-family:var(--f-display);font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:1.8cqw;text-align:center;white-space:nowrap}
+.lbl small{display:block;font-family:var(--f-body);font-weight:400;letter-spacing:0;text-transform:none;font-size:1.35cqw;color:var(--dim)}
+.tile{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:9cqw;height:9cqw;border:.2cqw solid var(--chalk);border-radius:.5cqw;background:rgba(12,19,24,.8)}
+.tile .z{font-family:var(--f-mono);font-size:1.4cqw;align-self:flex-start;margin-left:.8cqw;color:var(--dim)}
+.tile .sym{font-family:var(--f-display);font-weight:700;font-size:4.4cqw;line-height:1}
+.tile .nm{font-size:1.2cqw;color:var(--dim)}
+svg{overflow:visible}
+[hidden]{display:none!important}
+
+/* play veil */
+.veil{position:absolute;inset:0;display:flex;align-items:flex-end;padding-bottom:6cqw!important;justify-content:center;background:rgba(12,19,24,.35);cursor:pointer;border:0;padding:0;color:var(--chalk);font:inherit;width:100%;height:100%}
+.veil span{display:flex;align-items:center;gap:1.2cqw;font-family:var(--f-display);font-weight:700;font-size:2.4cqw;letter-spacing:.12em;text-transform:uppercase;background:var(--chalk);color:var(--ink);padding:1.1cqw 2.4cqw 1.1cqw 2cqw;border-radius:4cqw}
+.veil svg{width:2.2cqw;height:2.2cqw}
+.veil:focus-visible span{outline:3px solid var(--prof);outline-offset:4px}
+
+/* ---------- controls ---------- */
+.ctl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn{font:600 15px/1 var(--f-display);letter-spacing:.1em;text-transform:uppercase;color:var(--chalk);background:var(--slate);border:1px solid var(--line);border-radius:4px;padding:9px 14px;cursor:pointer}
+.btn:hover{border-color:var(--dim)}
+.btn:focus-visible,.seg:focus-visible,.chap button:focus-visible{outline:2px solid var(--prof);outline-offset:2px}
+.btn[aria-pressed="true"]{background:var(--chalk);color:var(--ink)}
+.time{font-family:var(--f-mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums;min-width:110px}
+.bar{position:relative;flex:1 1 320px;min-width:0;height:34px;cursor:pointer;display:flex;align-items:center}
+.bar .track{position:absolute;left:0;right:0;height:8px;display:flex;gap:2px}
+.bar .seg{height:100%;border-radius:2px;background:var(--bt,var(--line));opacity:.55}
+.bar .head{position:absolute;top:5px;width:2px;height:24px;background:var(--chalk);border-radius:1px;pointer-events:none}
+.bar .fill{position:absolute;left:0;height:8px;background:rgba(236,231,218,.35);border-radius:2px;pointer-events:none}
+
+.below{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:22px;margin-top:6px}
+@media (max-width:760px){.below{grid-template-columns:1fr}}
+.below h2{font-family:var(--f-display);font-weight:600;font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 8px}
+.chap{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
+.chap button{width:100%;text-align:left;display:flex;gap:10px;align-items:baseline;background:transparent;border:1px solid var(--line);border-left:4px solid var(--bt);border-radius:4px;color:var(--chalk);padding:7px 10px;cursor:pointer;font:15px/1.25 var(--f-body)}
+.chap button .t{font-family:var(--f-mono);font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.chap button.cur{background:var(--slate)}
+.notes p{margin:0 0 8px;color:var(--dim);max-width:62ch}
+.notes b{color:var(--chalk);font-weight:700}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--dim)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:-1px}
+@media (prefers-reduced-motion:reduce){.cap .txt span{transition:none}}
+.back{display:inline-block;font:500 13px/1 var(--f-mono);color:var(--dim);text-decoration:none;margin-bottom:10px;letter-spacing:.04em}.back:hover,.back:focus-visible{color:var(--chalk)}
+</style>
+
+<div class="wrap">
+  <a class="back" id="back" href="#" hidden>← Mapa del curso</a>
+  <header class="top">
+    <h1>Química<b>8+</b> · Capítulo 1 · ¿De qué está hecho todo?</h1>
+    <div class="meta">8.º GRADO · CAPÍTULO 1 · SUSTANCIAS Y MEZCLAS · <span id="dur"></span></div>
+  </header>
+
+  <div class="stage" id="stage">
+    <div class="ov" id="ov">
+      <!-- INTRO: loud/55 ident, then the series mark -->
+      <div class="sc" data-s="intro">
+        <div class="center" id="ident" style="background:#070707">
+          <div style="position:relative;display:flex;align-items:flex-end;gap:1.1cqw">
+            <div id="loud" class="big" style="font-size:9cqw;font-weight:600;color:#ece7e0;clip-path:inset(0 100% 0 0)">loud</div>
+            <svg viewBox="0 0 60 120" style="width:3.2cqw;height:6.4cqw;margin-bottom:.6cqw">
+              <line x1="12" y1="118" x2="48" y2="2" stroke="#6c6c6c" stroke-width="3"/>
+              <rect id="cap55" x="20" y="-5" width="26" height="10" fill="#f0402c" transform="translate(0,0)"/>
+            </svg>
+            <div id="ro" class="mono" style="font-size:3.2cqw;font-weight:500;color:#ece7e0;border:.18cqw solid #ece7e0;padding:0 .4cqw;line-height:1.15;margin-bottom:.3cqw;opacity:0">00</div>
+          </div>
+        </div>
+        <div class="center" id="mark" style="opacity:0">
+          <div style="display:flex;align-items:center;gap:1.6cqw">
+            <div class="big" style="font-size:10.5cqw">Química</div>
+            <svg viewBox="-60 -60 120 120" style="width:13cqw;height:13cqw">
+              <polygon id="hex" points="0,-52 45,-26 45,26 0,52 -45,26 -45,-26" fill="none" stroke="var(--prof)" stroke-width="5" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" stroke-linejoin="round"/>
+              <circle id="hexin" r="30" fill="none" stroke="var(--prof)" stroke-width="2.5" opacity=".45"/>
+              <text x="0" y="17" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="50" fill="var(--chalk)">8+</text>
+              <circle id="hexe" r="5" fill="var(--electron)"/>
+            </svg>
+          </div>
+          <div id="marktag" style="font-size:2.3cqw;color:var(--dim);margin-top:1cqw;font-style:italic">química de verdad, paso a paso</div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="frio">
+        <div class="center" id="qalgo" style="opacity:0"><div class="big" style="font-size:8cqw">¿Qué es<br>ese algo?</div></div>
+        <div class="lbl" id="gota" style="left:50%;top:16%;opacity:0">una gota de agua<small>≈ 1,7·10²¹ moléculas</small></div>
+        <div class="lbl" id="galax" style="left:50%;top:16%;opacity:0">la Vía Láctea<small>≈ 10¹¹ estrellas</small></div>
+      </div>
+
+      <div class="sc" data-s="titulo">
+        <div class="center">
+          <div class="kick" id="t1" style="font-size:2cqw">8.º grado · Capítulo 1 · Sustancias y mezclas</div>
+          <div class="big" id="t2" style="font-size:8.6cqw;margin:.8cqw 0 1.4cqw;text-wrap:balance">¿De qué está hecho todo?</div>
+          <div id="t3" style="display:flex;gap:1cqw">
+            <span class="chip" style="color:var(--chalk)">materia</span>
+            <span class="chip" style="color:var(--electron)">partículas</span>
+            <span class="chip" style="color:var(--proton)">átomo</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="repaso">
+        <div class="lbl" id="st0" style="left:22%;top:78%">sólido<small>hielo</small></div>
+        <div class="lbl" id="st1" style="left:50%;top:78%">líquido<small>agua líquida</small></div>
+        <div class="lbl" id="st2" style="left:78%;top:78%">gas<small>vapor</small></div>
+        <div class="card" id="rp2" style="left:50%;top:14%;transform:translateX(-50%);font-size:1.9cqw;white-space:nowrap">misma sustancia, H₂O · cambia el <b>orden</b> y el <b>movimiento</b></div>
+      </div>
+
+      <div class="sc" data-s="pregunta">
+        <div class="center" style="justify-content:flex-start;padding-top:9cqw">
+          <div class="big" id="pq" style="font-size:5.6cqw;max-width:70cqw;text-wrap:balance">¿De qué está hecho<br>ese <span style="color:var(--est)">algo</span>?</div>
+          <div id="agenda" style="display:flex;gap:2cqw;margin-top:4cqw">
+            <div class="card" style="position:relative;width:20cqw;text-align:left" id="ag0"><div class="kick" style="font-size:1.4cqw">1 · definir</div><div class="big" style="font-size:3cqw">la materia</div></div>
+            <div class="card" style="position:relative;width:20cqw;text-align:left" id="ag1"><div class="kick" style="font-size:1.4cqw">2 · evidencia</div><div class="big" style="font-size:3cqw">partículas</div></div>
+            <div class="card" style="position:relative;width:20cqw;text-align:left" id="ag2"><div class="kick" style="font-size:1.4cqw">3 · entrar en</div><div class="big" style="font-size:3cqw">un átomo</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="materia">
+        <div id="def" class="center" style="justify-content:flex-start;padding-top:8cqw">
+          <div class="kick" style="font-size:1.8cqw">definición</div>
+          <div class="big" style="font-size:6cqw;margin-top:.4cqw">MATERIA</div>
+          <div style="display:flex;gap:1.4cqw;margin-top:1.4cqw;align-items:center;font-size:2.4cqw">
+            <span>todo lo que</span>
+            <span class="chip" id="dm" style="color:var(--est)">tiene masa</span>
+            <span>y</span>
+            <span class="chip" id="dv" style="color:var(--electron)">ocupa volumen</span>
+          </div>
+        </div>
+        <div id="ex" style="position:absolute;left:0;right:0;top:40%;display:flex;justify-content:center;gap:5cqw;opacity:0">
+          <div class="exi" style="text-align:center"><svg viewBox="-50 -50 100 100" style="width:11cqw;height:11cqw"><path d="M-34,18 L-28,-10 L-8,-26 L18,-22 L34,-2 L30,20 L6,28 L-20,28Z" fill="#6f7a80" stroke="var(--chalk)" stroke-width="2"/><path d="M-10,-12 L6,-4 M10,8 L20,2" stroke="#3d464b" stroke-width="3"/></svg><div class="kick" style="font-size:1.7cqw">piedra ✓</div></div>
+          <div class="exi" style="text-align:center"><svg viewBox="-50 -50 100 100" style="width:11cqw;height:11cqw"><path d="M0,-40 C14,-18 28,-2 28,14 A28,28 0 0 1 -28,14 C-28,-2 -14,-18 0,-40Z" fill="#2f86b8" stroke="var(--chalk)" stroke-width="2"/><path d="M-12,8 A14,14 0 0 0 -2,24" stroke="#bfe6f7" stroke-width="3" fill="none"/></svg><div class="kick" style="font-size:1.7cqw">agua ✓</div></div>
+          <div class="exi" style="text-align:center">
+            <svg viewBox="-80 -50 160 100" style="width:17cqw;height:11cqw">
+              <g id="beam"><line x1="-60" y1="0" x2="60" y2="0" stroke="var(--chalk)" stroke-width="3"/>
+                <g transform="translate(-50,0)"><line x1="0" y1="0" x2="0" y2="-8" stroke="var(--dim)"/><circle cx="0" cy="-26" r="17" fill="var(--chalk)"/><path d="M0,-33 l6,4 -2,7 h-8 l-2,-7z" fill="#3d464b"/><path d="M-17,-26 h6 M11,-26 h6 M0,-43 v4" stroke="#3d464b" stroke-width="2"/></g>
+                <g transform="translate(50,0)"><line x1="0" y1="0" x2="0" y2="-8" stroke="var(--dim)"/><ellipse cx="0" cy="-14" rx="17" ry="6" fill="var(--chalk)" opacity=".75"/><path d="M-3,-17 l3,2 3,-2" stroke="#3d464b" stroke-width="2" fill="none"/></g>
+              </g>
+              <path d="M0,0 L-10,40 H10Z" fill="var(--dim)"/>
+            </svg>
+            <div class="kick" style="font-size:1.7cqw">aire ✓ <span style="text-transform:none;letter-spacing:0" class="mono">(balón inflado: unos gramos más)</span></div>
+          </div>
+        </div>
+        <div class="lbl" id="cuerpo" style="left:50%;top:67%;opacity:0;color:var(--chalk);text-align:center;transform:translateX(-50%)">todo cuerpo está formado por una o más sustancias<small>el clavo: sobre todo hierro</small></div>
+        <div id="nomat" style="position:absolute;left:0;right:0;top:40%;display:flex;justify-content:center;gap:9cqw;opacity:0">
+          <div style="text-align:center"><svg viewBox="-50 -50 100 100" style="width:11cqw;height:11cqw"><circle r="14" fill="#ffe08a"/><g stroke="#ffe08a" stroke-width="4" stroke-linecap="round"><line x1="0" y1="-24" x2="0" y2="-38"/><line x1="0" y1="24" x2="0" y2="38"/><line x1="-24" y1="0" x2="-38" y2="0"/><line x1="24" y1="0" x2="38" y2="0"/><line x1="17" y1="17" x2="27" y2="27"/><line x1="-17" y1="-17" x2="-27" y2="-27"/><line x1="17" y1="-17" x2="27" y2="-27"/><line x1="-17" y1="17" x2="-27" y2="27"/></g></svg>
+            <div class="kick" style="font-size:1.7cqw">luz</div><div class="chip" id="nm1" style="color:var(--warn);font-size:1.6cqw;margin-top:.5cqw">energía · no es materia</div></div>
+          <div style="text-align:center"><svg viewBox="-50 -50 100 100" style="width:11cqw;height:11cqw"><path d="M-30,10 C-40,-20 -10,-40 10,-34 C34,-30 40,-6 30,10 C24,22 8,20 0,28 C-10,20 -24,22 -30,10Z" fill="none" stroke="var(--doc)" stroke-width="3"/><path d="M-14,-10 q10,-8 18,2 q8,-10 16,0" fill="none" stroke="var(--doc)" stroke-width="2.5"/><circle cx="34" cy="-36" r="4" fill="var(--doc)"/><circle cx="42" cy="-46" r="2.5" fill="var(--doc)"/></svg>
+            <div class="kick" style="font-size:1.7cqw">pensamiento</div><div class="chip" id="nm2" style="color:var(--warn);font-size:1.6cqw;margin-top:.5cqw">no es materia</div></div>
+        </div>
+        <div class="lbl mono" id="frac" style="left:78%;top:30%;font-size:3.4cqw;opacity:0">1/2</div>
+        <div class="lbl" id="demo" style="left:50%;top:18%;opacity:0;font-size:2.4cqw">Demócrito · Grecia, h. 400 a. C.<small>“si sigues cortando, llegas a algo que ya no se corta”</small></div>
+        <div class="center" id="atomos" style="opacity:0;justify-content:flex-end;padding-bottom:16cqw">
+          <div class="big" style="font-size:6.5cqw">ἄτομος <span style="color:var(--dim);font-weight:500">· átomo</span></div>
+          <div style="font-size:2.2cqw;color:var(--dim)"><b style="color:var(--chalk)">a-</b> “sin” + <b style="color:var(--chalk)">tomos</b> “corte” = indivisible</div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="experimento">
+        <svg id="lab" viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <defs>
+            <linearGradient id="gw" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#58b6e8"/><stop offset="1" stop-color="#2a6f9e"/></linearGradient>
+            <linearGradient id="ga" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#d8cdf7"/><stop offset="1" stop-color="#9d8bd6"/></linearGradient>
+            <linearGradient id="gm" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#8fbfe8"/><stop offset="1" stop-color="#5f79b8"/></linearGradient>
+          </defs>
+          <line x1="120" y1="700" x2="1480" y2="700" stroke="var(--line)" stroke-width="4"/>
+          <!-- cylinder A: agua -->
+          <g id="cyA" transform="translate(420,700)">
+            <rect x="-55" y="-300" width="110" height="300" rx="6" fill="rgba(236,231,218,.05)" stroke="var(--chalk)" stroke-width="3"/>
+            <rect id="lqA" x="-52" y="-253" width="104" height="250" fill="url(#gw)" opacity=".9"/>
+            <g stroke="var(--dim)" stroke-width="2"><line x1="-55" y1="-253" x2="-25" y2="-253"/><line x1="-55" y1="-153" x2="-35" y2="-153"/><line x1="-55" y1="-53" x2="-35" y2="-53"/></g><text x="-62" y="-245" text-anchor="end" font-family="IBM Plex Mono" font-size="24" fill="var(--dim)">50</text>
+            <text x="0" y="45" text-anchor="middle" font-family="IBM Plex Mono" font-size="30" fill="var(--chalk)">agua · 50 mL</text>
+          </g>
+          <!-- cylinder B: alcohol -->
+          <g id="cyB" transform="translate(1180,700)">
+            <rect x="-55" y="-300" width="110" height="300" rx="6" fill="rgba(236,231,218,.05)" stroke="var(--chalk)" stroke-width="3"/>
+            <rect id="lqB" x="-52" y="-253" width="104" height="250" fill="url(#ga)" opacity=".9"/>
+            <g stroke="var(--dim)" stroke-width="2"><line x1="-55" y1="-253" x2="-25" y2="-253"/><line x1="-55" y1="-153" x2="-35" y2="-153"/><line x1="-55" y1="-53" x2="-35" y2="-53"/></g><text x="-62" y="-245" text-anchor="end" font-family="IBM Plex Mono" font-size="24" fill="var(--dim)">50</text>
+            <text x="0" y="45" text-anchor="middle" font-family="IBM Plex Mono" font-size="30" fill="var(--chalk)">etanol · 50 mL</text>
+          </g>
+          <!-- cylinder C: 100 mL graduated -->
+          <g id="cyC" transform="translate(800,700)">
+            <rect x="-60" y="-520" width="120" height="520" rx="6" fill="rgba(236,231,218,.05)" stroke="var(--chalk)" stroke-width="3"/>
+            <rect id="lqC" x="-57" y="-3" width="114" height="0" fill="url(#gm)" opacity=".92"/>
+            <g id="ticks" stroke="var(--dim)" stroke-width="2"><line x1="-60" y1="-253" x2="-30" y2="-253"/><line x1="-60" y1="-453" x2="-30" y2="-453"/><line x1="-60" y1="-153" x2="-40" y2="-153"/><line x1="-60" y1="-353" x2="-40" y2="-353"/></g><g font-family="IBM Plex Mono" font-size="24" fill="var(--dim)" text-anchor="end"><text x="-66" y="-245">50</text><text x="-66" y="-445">90</text></g>
+            <line id="mark100" x1="-60" y1="-500" x2="60" y2="-500" stroke="var(--est)" stroke-width="3" stroke-dasharray="10 8"/>
+            <text x="78" y="-490" font-family="IBM Plex Mono" font-size="28" fill="var(--est)">100 mL</text>
+            <text id="readC" x="-80" y="-470" text-anchor="end" font-family="IBM Plex Mono" font-size="44" font-weight="600" fill="var(--chalk)" opacity="0">96,5 mL</text>
+          </g>
+          <g id="pour" opacity="0"><path id="streamA" d="M0,0" stroke="url(#gw)" stroke-width="10" fill="none" stroke-linecap="round"/><path id="streamB" d="M0,0" stroke="url(#ga)" stroke-width="10" fill="none" stroke-linecap="round"/></g>
+        </svg>
+        <div id="pred" style="position:absolute;left:50%;top:6%;transform:translateX(-50%);display:flex;gap:1.4cqw;align-items:center;opacity:0">
+          <span class="kick" style="font-size:1.8cqw">predice:</span>
+          <button class="chip pick" id="p0" data-k="0" style="color:var(--chalk)">&lt; 100 mL</button>
+          <button class="chip pick" id="p1" data-k="1" style="color:var(--chalk)">= 100 mL</button>
+          <button class="chip pick" id="p2" data-k="2" style="color:var(--chalk)">&gt; 100 mL</button>
+          <span class="mono" id="think" style="font-size:1.8cqw;color:var(--est);min-width:6cqw">···</span>
+        </div>
+        <div class="lbl" id="falta" style="left:66%;top:34%;opacity:0;color:var(--warn);font-size:2.4cqw;text-transform:none;letter-spacing:.04em">faltan ≈ 3,5 mL</div>
+        <div class="card" id="masa" style="left:50%;top:5%;transform:translateX(-50%);opacity:0;font-size:2cqw;white-space:nowrap"><span class="mono">masa antes = masa después</span> ✓</div>
+        <div class="lbl" id="kA" style="left:24%;top:17%;opacity:0">etanol<small>moléculas más grandes</small></div>
+        <div class="lbl" id="kB" style="left:76%;top:17%;opacity:0">agua<small>moléculas más pequeñas</small></div>
+        <div class="lbl" id="kM" style="left:50%;top:14%;opacity:0">mezcla<small>se atraen y se acomodan más juntas</small></div>
+        <div class="card" id="vbar" style="right:3%;top:22%;opacity:0;width:17cqw;font-size:1.4cqw"><div class="kick" style="font-size:1.2cqw">volumen medido</div><div style="display:flex;gap:1.2cqw;align-items:flex-end;height:14cqw;margin-top:.6cqw"><div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%"><div style="height:50%;background:#b9a8ee"></div><div style="height:50%;background:#58b6e8"></div></div><div style="flex:1;height:96.5%;background:linear-gradient(#8fbfe8,#5f79b8)"></div></div><div class="mono" style="display:flex;justify-content:space-between;margin-top:.4cqw"><span>50 + 50</span><span>96,5 mL</span></div></div>
+        <div class="lbl" id="noesc" style="left:50%;top:9%;opacity:0;font-size:1.3cqw;color:var(--dim);text-transform:none;letter-spacing:0">modelo simplificado · no está a escala</div>
+        <div class="lbl" id="kC" style="left:50%;top:15%;opacity:0;font-size:2cqw">canicas + arena<small>la arena se cuela entre las canicas</small></div>
+        <div class="center" id="concl" style="opacity:0;background:rgba(12,19,24,.72)">
+          <div class="kick" style="font-size:1.9cqw;color:var(--prof)">conclusión</div>
+          <div class="big" style="font-size:5.4cqw;max-width:70cqw;text-wrap:balance;margin-top:.6cqw">La materia está hecha de <span style="color:var(--electron)">partículas</span>, con espacio entre ellas.</div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="atomo">
+        <div class="lbl" id="aH2O" style="left:50%;top:16%;opacity:0">una molécula de agua<small>H₂O · 2 átomos de hidrógeno + 1 de oxígeno</small></div>
+        <div class="lbl" id="aN" style="left:50%;top:14%;opacity:0">núcleo</div>
+        <div class="card" id="aLeg" style="left:4%;top:24%;opacity:0;font-size:1.9cqw;display:flex;flex-direction:column;gap:.5cqw">
+          <div id="lp"><span style="color:var(--proton)">●</span> protón <span class="mono">p⁺</span> · carga +1</div>
+          <div id="ln"><span style="color:var(--neutron)">●</span> neutrón <span class="mono">n⁰</span> · sin carga</div>
+          <div id="le"><span style="color:var(--electron)">●</span> electrón <span class="mono">e⁻</span> · carga −1</div>
+        </div>
+        <div class="card" id="aMass" style="right:4%;top:24%;opacity:0;width:26cqw">
+          <div class="kick" style="font-size:1.4cqw">masa</div>
+          <div style="display:flex;align-items:center;gap:.8cqw;margin-top:.4cqw"><span style="font-size:1.5cqw;width:6.5cqw">protón</span><div style="height:1.2cqw;flex:1;background:var(--proton);border-radius:.2cqw"></div></div>
+          <div style="display:flex;align-items:center;gap:.8cqw;margin-top:.4cqw"><span style="font-size:1.5cqw;width:6.5cqw">electrón</span><div style="height:1.2cqw;width:.3cqw;background:var(--electron)"></div><span class="mono" style="font-size:1.3cqw;color:var(--dim)">≈ 1/1 836</span></div>
+        </div>
+        <svg id="stadium" viewBox="-800 -450 1600 900" style="position:absolute;inset:0;width:100%;height:100%;opacity:0">
+          <ellipse rx="640" ry="330" fill="none" stroke="var(--dim)" stroke-width="3" stroke-dasharray="4 10"/>
+          <rect x="-430" y="-230" width="860" height="460" rx="8" fill="rgba(143,220,174,.07)" stroke="var(--prof)" stroke-width="2.5" opacity=".7"/>
+          <line x1="0" y1="-230" x2="0" y2="230" stroke="var(--prof)" stroke-width="2" opacity=".6"/>
+          <circle r="80" fill="none" stroke="var(--prof)" stroke-width="2" opacity=".6"/><circle r="4" fill="var(--proton)"/>
+          <line x1="14" y1="-12" x2="150" y2="-140" stroke="var(--chalk)" stroke-width="2"/>
+          <text x="160" y="-150" font-family="Atkinson Hyperlegible" font-size="36" fill="var(--chalk)">núcleo = cabeza de alfiler</text>
+          <text x="-620" y="-350" font-family="Atkinson Hyperlegible" font-size="36" fill="var(--dim)">átomo = estadio (de 10 000 a 100 000 veces más grande)</text>
+        </svg>
+        <div class="card" id="aZ" style="left:4%;top:22%;opacity:0">
+          <div class="kick" style="font-size:1.4cqw">número atómico</div>
+          <div class="big" style="font-size:6cqw"><span style="color:var(--proton)">Z</span> = n.º de protones</div>
+        </div>
+        <div id="aTiles" style="position:absolute;right:5%;top:22%;display:flex;flex-direction:column;gap:1cqw;opacity:0">
+          <div class="tile" id="tH"><span class="z">1</span><span class="sym">H</span><span class="nm">hidrógeno</span></div>
+          <div class="tile" id="tC"><span class="z">6</span><span class="sym">C</span><span class="nm">carbono</span></div>
+          <div class="tile" id="tO"><span class="z">8</span><span class="sym">O</span><span class="nm">oxígeno</span></div>
+        </div>
+        <div class="lbl" id="aScale" style="left:50%;top:6%;font-size:1.3cqw;color:var(--dim);text-transform:none;letter-spacing:0">modelo · no está a escala</div>
+        <div class="card" id="aBal" style="left:50%;top:10%;transform:translateX(-50%);opacity:0;font-size:2.6cqw;white-space:nowrap" >
+          <span class="mono"><span style="color:var(--proton)">+8</span> <span style="color:var(--electron)">−8</span> = 0</span> · átomo neutro: n.º e⁻ = n.º p⁺
+        </div>
+      </div>
+
+      <div class="sc" data-s="ojo">
+        <div id="stamp" style="position:absolute;left:6%;top:16%;opacity:0;transform:rotate(-8deg);border:.35cqw solid var(--warn);color:var(--warn);padding:.4cqw 1.4cqw;border-radius:.5cqw;font-family:var(--f-display);font-weight:700;font-size:4.2cqw;letter-spacing:.08em">¡OJO!</div>
+        <div class="lbl" id="oBohr" style="left:78%;top:20%;opacity:0">órbitas fijas<small>útil como dibujo, pero no es real</small></div>
+        <div class="lbl" id="oLev" style="left:78%;top:58%;opacity:0;color:var(--chalk)">niveles de energía<small>n = 1, 2, 3… del núcleo hacia afuera</small></div>
+        <div class="lbl" id="oCloud" style="left:78%;top:20%;opacity:0;color:var(--electron)">nube electrónica<small>zonas donde es más probable encontrar al electrón</small></div>
+      </div>
+
+      <div class="sc" data-s="reto">
+        <div class="center">
+          <div class="kick" style="font-size:2cqw;color:var(--est)">reto rápido</div>
+          <div class="big" style="font-size:4.6cqw;margin:.5cqw 0 2.4cqw">Átomo neutro con <span style="color:var(--proton)">8 protones</span></div>
+          <div style="display:flex;gap:6cqw;align-items:flex-start">
+            <div><div class="kick" style="font-size:1.6cqw">¿elemento?</div>
+              <div style="display:flex;gap:1cqw;margin-top:.8cqw"><span class="chip rq" data-ok="0">N</span><span class="chip rq" data-ok="1">O</span><span class="chip rq" data-ok="0">C</span></div></div>
+            <div><div class="kick" style="font-size:1.6cqw">¿electrones?</div>
+              <div style="display:flex;gap:1cqw;margin-top:.8cqw"><span class="chip rq" data-ok="0">0</span><span class="chip rq" data-ok="1">8</span><span class="chip rq" data-ok="0">16</span></div></div>
+            <svg viewBox="-50 -50 100 100" style="width:9cqw;height:9cqw" id="clock"><circle r="40" fill="none" stroke="var(--line)" stroke-width="8"/><circle id="clk" r="40" fill="none" stroke="var(--est)" stroke-width="8" pathLength="1" stroke-dasharray="1" stroke-dashoffset="0" transform="rotate(-90)"/><text id="clkn" y="14" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="38" fill="var(--chalk)">5</text></svg>
+          </div>
+          <div id="rsol" style="margin-top:2.6cqw;opacity:0;display:flex;gap:2cqw;align-items:center">
+            <div class="tile" style="border-color:var(--prof)"><span class="z">8</span><span class="sym">O</span><span class="nm">oxígeno</span></div>
+            <div style="font-size:2.4cqw;text-align:left"><span class="mono" style="color:var(--proton)">Z = 8</span> → oxígeno<br><span class="mono" style="color:var(--electron)">8 e⁻</span> porque es neutro</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="resumen">
+        <div class="center" style="justify-content:flex-start;padding-top:7cqw">
+          <div class="kick" style="font-size:2cqw">resumen · 3 ideas</div>
+          <div style="display:flex;gap:1.8cqw;margin-top:2.4cqw">
+            <div class="card rs" style="position:relative;width:25cqw;text-align:left"><div class="mono" style="font-size:2.6cqw;color:var(--prof)">1</div><div style="font-size:2cqw;line-height:1.3;margin-top:.4cqw"><b>Materia</b>: todo lo que tiene masa y ocupa volumen.</div></div>
+            <div class="card rs" style="position:relative;width:25cqw;text-align:left"><div class="mono" style="font-size:2.6cqw;color:var(--prof)">2</div><div style="font-size:2cqw;line-height:1.3;margin-top:.4cqw">Hecha de <b>partículas</b> con espacio entre ellas. <span style="color:var(--dim)">50 + 50 ≈ 96,5 mL</span></div></div>
+            <div class="card rs" style="position:relative;width:25cqw;text-align:left"><div class="mono" style="font-size:2.6cqw;color:var(--prof)">3</div><div style="font-size:2cqw;line-height:1.3;margin-top:.4cqw"><b>Átomo</b>: núcleo (p⁺, n⁰) + e⁻. <span style="color:var(--proton)">Z</span> define el elemento.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="proximo">
+        <svg viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <rect x="0" y="470" width="1600" height="430" fill="#1d4c6b" opacity=".55"/>
+          <path id="wave" d="" fill="none" stroke="#7fc4ea" stroke-width="3"/>
+          <g id="ship" transform="translate(1050,470)"><path d="M-190,-40 H190 L150,40 H-150Z" fill="#76828a" stroke="var(--chalk)" stroke-width="3"/><rect x="-60" y="-110" width="120" height="70" fill="#5b666d" stroke="var(--chalk)" stroke-width="3"/><rect x="10" y="-160" width="26" height="50" fill="var(--proton)"/></g>
+          <g id="nail" transform="translate(470,380)"><rect x="-8" y="-70" width="16" height="140" fill="#9aa4aa"/><rect x="-26" y="-80" width="52" height="12" rx="3" fill="#9aa4aa"/><path d="M-8,70 L0,95 L8,70Z" fill="#9aa4aa"/></g>
+          <text x="70" y="640" text-anchor="start" font-family="Barlow Condensed" font-weight="600" font-size="40" letter-spacing="3" fill="var(--chalk)">CLAVO DE HIERRO · SE HUNDE</text>
+          <text x="1050" y="640" text-anchor="middle" font-family="Barlow Condensed" font-weight="600" font-size="40" letter-spacing="3" fill="var(--chalk)">BARCO DE HIERRO · FLOTA</text>
+        </svg>
+        <div class="card" id="nx" style="left:50%;top:9%;transform:translateX(-50%);opacity:0;text-align:center;white-space:nowrap">
+          <div class="kick" style="font-size:1.6cqw">próximo capítulo</div>
+          <div class="big" style="font-size:3.6cqw">Cap. 2 · Propiedades físicas y <span style="color:var(--est)">densidad</span></div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="outro">
+        <div class="center">
+          <div style="display:flex;align-items:center;gap:1.2cqw">
+            <div class="big" style="font-size:7cqw">Química</div>
+            <svg viewBox="-60 -60 120 120" style="width:8.6cqw;height:8.6cqw"><polygon points="0,-52 45,-26 45,26 0,52 -45,26 -45,-26" fill="none" stroke="var(--prof)" stroke-width="5" stroke-linejoin="round"/><circle r="30" fill="none" stroke="var(--prof)" stroke-width="2.5" opacity=".45"/><text x="0" y="17" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="50" fill="var(--chalk)">8+</text></svg>
+          </div>
+          <div style="font-size:2.2cqw;margin-top:1.2cqw">Próximo: <b>Capítulo 2 · Propiedades físicas y densidad</b></div>
+          <div style="font-size:1.5cqw;color:var(--dim);margin-top:3cqw">Voces sintéticas (Kokoro-82M) · Profe, Sofía y Narrador · hecho con código</div>
+          <div style="display:flex;align-items:flex-end;gap:.4cqw;margin-top:1.4cqw;opacity:.85">
+            <span class="big" style="font-size:2.6cqw;font-weight:600">loud</span>
+            <svg viewBox="0 0 60 120" style="width:1cqw;height:2cqw;margin-bottom:.2cqw"><line x1="12" y1="118" x2="48" y2="2" stroke="#6c6c6c" stroke-width="5"/><rect x="26" y="4" width="26" height="12" fill="#f0402c"/></svg>
+            <span class="mono" style="font-size:1.1cqw;border:.12cqw solid var(--chalk);padding:0 .2cqw;margin-bottom:.2cqw">55</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grain"></div>
+      <div class="bug" id="bug"><b>Química 8+</b><span>Cap. 1</span></div>
+      <div class="sect" id="sect"></div>
+      <div class="cap" id="cap"><span class="who" id="who"></span><div class="txt" id="txt"></div></div>
+    </div>
+    <button class="veil" id="veil" aria-label="Reproducir capítulo"><span><svg viewBox="0 0 20 20"><path d="M4 2 L18 10 L4 18Z" fill="currentColor"/></svg>Ver capítulo</span></button>
+  </div>
+
+  <div class="ctl">
+    <button class="btn" id="play" aria-label="Reproducir o pausar">▶ Reproducir</button>
+    <div class="time" id="time">0:00 / 0:00</div>
+    <div class="bar" id="bar" role="slider" aria-label="Posición" tabindex="0" aria-valuemin="0"><div class="track" id="track"></div><div class="fill" id="fill"></div><div class="head" id="head"></div></div>
+    <button class="btn" id="spd" aria-label="Velocidad">1×</button>
+    <button class="btn" id="cc" aria-pressed="true">Subtítulos</button>
+  </div>
+
+  <div class="below">
+    <div>
+      <h2>Bloques del capítulo</h2>
+      <ul class="chap" id="chap"></ul>
+    </div>
+    <div class="notes">
+      <h2>Voces</h2>
+      <div class="legend" style="margin-bottom:10px"><span><i style="--c:var(--prof)"></i>Profe</span><span><i style="--c:var(--est)"></i>Sofía, estudiante</span><span><i style="--c:var(--doc)"></i>Narrador documental</span></div>
+      <p><b>Piloto.</b> Todo se dibuja en vivo en el navegador desde una sola línea de tiempo: la narración manda y cada animación se engancha a una palabra dicha. Espacio pausa, ← → salta 5 s.</p>
+      <p>Datos: 50 mL de agua + 50 mL de etanol puro dan ≈ 96,5 mL a 20 °C (CRC Handbook); m(p⁺)/m(e⁻) ≈ 1 836; diámetro del átomo / diámetro del núcleo ≈ 10⁴–10⁵. Gota ≈ 0,05 mL. Usar etanol al 96 % vol o absoluto y leer el volumen de nuevo a temperatura ambiente (la mezcla se calienta). Con alcohol antiséptico al 70 % la contracción es menor (≈ 1,5 mL).</p>
+    </div>
+  </div>
+</div>
+
+<audio id="au" src="mix.mp3" preload="auto"></audio>
+<script src="../vendor/three.min.js"></script>
+<script>
+const M = {"duration":279.135,"scenes":[{"id":"intro","start":0.0,"duration":8.0,"lines":[]},{"id":"frio","start":8.0,"duration":12.799,"lines":[{"t":"Todo lo que te rodea, el agua, el aire, tu propia mano, está hecho de algo.","s":8.48,"d":4.358,"v":"em_santa","w":[["Todo",8.5,8.74],["lo",8.746,8.84],["que",8.846,8.94],["te",8.946,9.04],["rodea,",9.046,9.54],["el",9.65,9.92],["agua,",9.926,10.25],["el",10.251,10.45],["aire,",10.451,10.69],["tu",10.78,10.9],["propia",10.95,11.33],["mano,",11.336,11.66],["está",11.76,12.12],["hecho",12.126,12.4],["de",12.401,12.55],["algo.",12.551,12.76]]},{"t":"Algo tan pequeño que en una gota de agua hay más partículas que estrellas en toda nuestra galaxia.","s":13.038,"d":5.537,"v":"em_santa","w":[["Algo",13.058,13.318],["tan",13.348,13.548],["pequeño",13.578,14.088],["que",14.118,14.238],["en",14.248,14.338],["una",14.348,14.488],["gota",14.498,14.788],["de",14.798,14.988],["agua",14.998,15.408],["hay",15.418,15.638],["más",15.648,15.818],["partículas",15.858,16.528],["que",16.568,16.668],["estrellas",16.673,17.268],["en",17.273,17.368],["toda",17.398,17.668],["nuestra",17.673,17.988],["galaxia.",17.998,18.498]]},{"t":"¿Qué es ese algo?","s":18.775,"d":1.344,"v":"em_santa","w":[["¿Qué",18.795,19.065],["es",19.069,19.335],["ese",19.344,19.715],["algo?",19.719,20.045]]}]},{"id":"titulo","start":20.799,"duration":3.0,"lines":[]},{"id":"repaso","start":23.799,"duration":13.242,"lines":[{"t":"Recuerda: la materia suele estar en estado sólido, líquido o gaseoso.","s":24.449,"d":4.054,"v":"em_alex","w":[["Recuerda:",24.469,24.999],["la",25.089,25.259],["materia",25.261,25.679],["suele",25.686,25.959],["estar",25.961,26.229],["en",26.236,26.309],["estado",26.311,26.729],["sólido,",26.736,27.169],["líquido",27.259,27.849],["o",27.856,27.929],["gaseoso.",27.931,28.429]]},{"t":"Hielo, agua líquida y vapor: la misma sustancia. Solo cambia cómo se ordenan y se mueven sus partículas.","s":28.703,"d":6.502,"v":"em_alex","w":[["Hielo,",28.723,29.163],["agua",29.164,29.413],["líquida",29.414,29.833],["y",29.839,29.883],["vapor:",29.889,30.253],["la",30.423,30.633],["misma",30.639,30.983],["sustancia.",30.989,31.803],["Solo",32.053,32.343],["cambia",32.383,32.713],["cómo",32.763,33.063],["se",33.064,33.183],["ordenan",33.189,33.713],["y",33.714,33.813],["se",33.814,33.963],["mueven",33.964,34.283],["sus",34.289,34.403],["partículas.",34.473,35.123]]},{"t":"Guarda esa idea.","s":35.405,"d":1.336,"v":"em_alex","w":[["Guarda",35.435,35.965],["esa",35.965,36.235],["idea.",36.24,36.665]]}]},{"id":"pregunta","start":37.041,"duration":13.205,"lines":[{"t":"Profe, si todo está hecho de algo… ¿de qué está hecho ese algo?","s":37.691,"d":3.557,"v":"ef_dora","w":[["Profe,",37.711,38.231],["si",38.24,38.261],["todo",38.351,38.581],["está",38.59,38.861],["hecho",38.865,39.131],["de",39.14,39.331],["algo…",39.34,39.791],["¿de",39.935,40.035],["qué",40.041,40.181],["está",40.185,40.431],["hecho",40.435,40.651],["ese",40.66,40.901],["algo?",40.91,41.171]]},{"t":"Esa es la pregunta de hoy. Tres pasos:","s":41.898,"d":2.434,"v":"em_alex","w":[["Esa",41.918,42.178],["es",42.185,42.258],["la",42.26,42.338],["pregunta",42.348,42.858],["de",42.86,43.078],["hoy.",43.085,43.278],["Tres",43.528,43.768],["pasos:",43.838,44.258]]},{"t":"definir la materia, mostrar con un experimento que está hecha de partículas, y entrar en un átomo.","s":44.532,"d":5.414,"v":"em_alex","w":[["definir",44.552,44.962],["la",44.969,45.062],["materia,",45.069,45.592],["mostrar",45.692,46.122],["con",46.162,46.362],["un",46.364,46.462],["experimento",46.464,47.102],["que",47.122,47.232],["está",47.239,47.512],["hecha",47.514,47.712],["de",47.714,47.752],["partículas,",47.772,48.622],["y",48.732,48.872],["entrar",48.874,49.292],["en",49.299,49.422],["un",49.424,49.572],["átomo.",49.574,49.872]]}]},{"id":"materia","start":50.246,"duration":52.669,"lines":[{"t":"Materia es todo lo que tiene masa y ocupa espacio, es decir, tiene volumen.","s":50.546,"d":4.224,"v":"em_alex","w":[["Materia",50.566,51.006],["es",51.008,51.056],["todo",51.106,51.356],["lo",51.358,51.426],["que",51.433,51.516],["tiene",51.556,51.856],["masa",51.858,52.226],["y",52.233,52.276],["ocupa",52.283,52.606],["espacio,",52.608,53.246],["es",53.356,53.536],["decir,",53.543,53.926],["tiene",54.026,54.266],["volumen.",54.273,54.696]]},{"t":"Una piedra es materia. El agua también. Y el aire, aunque no lo veas: un balón de fútbol bien inflado tiene unos gramos más que desinflado.","s":54.97,"d":7.669,"v":"em_alex","w":[["Una",54.99,55.11],["piedra",55.17,55.5],["es",55.507,55.6],["materia.",55.607,56.08],["El",56.33,56.53],["agua",56.532,56.68],["también.",56.71,57.15],["Y",57.39,57.53],["el",57.537,57.73],["aire,",57.737,58.09],["aunque",58.19,58.34],["no",58.342,58.44],["lo",58.442,58.56],["veas:",58.567,59.1],["un",59.17,59.34],["balón",59.347,59.64],["de",59.647,59.77],["fútbol",59.772,60.14],["bien",60.147,60.32],["inflado",60.322,60.72],["tiene",60.77,61.04],["unos",61.047,61.23],["gramos",61.24,61.64],["más",61.647,61.82],["que",61.85,61.97],["desinflado.",61.972,62.56]]},{"t":"Una piedra, un clavo, tu mano: son cuerpos. Todo cuerpo está formado por una o más sustancias: el clavo, sobre todo por hierro.","s":62.839,"d":7.368,"v":"em_alex","w":[["Una",62.859,62.979],["piedra,",63.039,63.539],["un",63.546,63.559],["clavo,",63.649,64.009],["tu",64.109,64.279],["mano:",64.286,64.729],["son",64.736,64.899],["cuerpos.",64.929,65.509],["Todo",65.819,66.049],["cuerpo",66.089,66.429],["está",66.436,66.629],["formado",66.636,67.049],["por",67.089,67.309],["una",67.311,67.459],["o",67.461,67.529],["más",67.536,67.729],["sustancias:",67.736,68.459],["el",68.569,68.709],["clavo,",68.759,69.159],["sobre",69.161,69.359],["todo",69.409,69.649],["por",69.679,69.879],["hierro.",69.886,70.129]]},{"t":"¿Y la luz? ¿O un pensamiento?","s":70.857,"d":1.932,"v":"ef_dora","w":[["¿Y",70.877,71.017],["la",71.023,71.167],["luz?",71.173,71.447],["¿O",71.687,71.867],["un",71.868,71.937],["pensamiento?",71.957,72.717]]},{"t":"Buena pregunta. La luz no es materia: es radiación, una forma de energía, sin masa. Un pensamiento tampoco, aunque ocurre en tu cerebro, que sí lo es.","s":73.44,"d":8.629,"v":"em_alex","w":[["Buena",73.46,73.69],["pregunta.",73.74,74.26],["La",74.5,74.66],["luz",74.666,74.89],["no",74.891,75.01],["es",75.016,75.11],["materia:",75.116,75.57],["es",75.74,75.94],["radiación,",75.941,76.54],["una",76.541,76.71],["forma",76.716,76.99],["de",76.991,77.09],["energía,",77.091,77.61],["sin",77.616,77.79],["masa.",77.791,78.3],["Un",78.58,78.71],["pensamiento",78.74,79.33],["tampoco,",79.36,80.03],["aunque",80.13,80.28],["ocurre",80.281,80.6],["en",80.606,80.66],["tu",80.68,80.85],["cerebro,",80.856,81.27],["que",81.36,81.54],["sí",81.546,81.69],["lo",81.696,81.87],["es.",81.871,81.99]]},{"t":"Ahora: si partes un trozo de materia a la mitad, y otra vez, y otra vez… ¿puedes seguir para siempre?","s":82.269,"d":5.506,"v":"em_alex","w":[["Ahora:",82.289,82.799],["si",82.806,82.839],["partes",82.939,83.299],["un",83.306,83.359],["trozo",83.379,83.699],["de",83.706,83.779],["materia",83.781,84.199],["a",84.206,84.249],["la",84.256,84.329],["mitad,",84.331,84.729],["y",84.809,84.949],["otra",84.956,85.149],["vez,",85.156,85.489],["y",85.579,85.719],["otra",85.721,85.919],["vez…",85.921,86.159],["¿puedes",86.399,86.729],["seguir",86.736,87.009],["para",87.059,87.309],["siempre?",87.311,87.699]]},{"t":"Hace unos dos mil cuatrocientos años, el griego Demócrito pensó que no: llegarías a un trozo que ya no se puede cortar.","s":88.425,"d":7.463,"v":"em_santa","w":[["Hace",88.445,88.825],["unos",88.825,89.095],["dos",89.1,89.345],["mil",89.35,89.515],["cuatrocientos",89.545,90.375],["años,",90.375,90.855],["el",90.955,91.155],["griego",91.155,91.525],["Demócrito",91.53,92.095],["pensó",92.115,92.515],["que",92.545,92.725],["no:",92.73,92.905],["llegarías",93.235,93.835],["a",93.84,93.915],["un",93.915,94.005],["trozo",94.035,94.395],["que",94.405,94.585],["ya",94.59,94.785],["no",94.79,94.965],["se",94.965,95.065],["puede",95.105,95.345],["cortar.",95.385,95.815]]},{"t":"Lo llamó átomo, que significa indivisible.","s":96.088,"d":2.715,"v":"em_santa","w":[["Lo",96.108,96.268],["llamó",96.272,96.668],["átomo,",96.672,97.058],["que",97.158,97.338],["significa",97.342,98.008],["indivisible.",98.017,98.728]]},{"t":"Durante siglos fue solo una idea. Pongámosla a prueba.","s":99.453,"d":3.162,"v":"em_alex","w":[["Durante",99.473,99.913],["siglos",99.915,100.313],["fue",100.315,100.513],["solo",100.515,100.783],["una",100.79,100.933],["idea.",100.94,101.283],["Pongámosla",101.523,102.113],["a",102.115,102.14],["prueba.",102.173,102.533]]}]},{"id":"experimento","start":102.915,"duration":47.715,"lines":[{"t":"Experimento. 50 mililitros de agua más 50 de alcohol etílico puro, o etanol. ¿Cuánto obtenemos?","s":103.275,"d":6.322,"v":"em_alex","w":[["Experimento.",103.295,104.095],["50",104.345,104.845],["mililitros",104.846,105.365],["de",105.371,105.495],["agua",105.496,105.745],["más",105.746,105.945],["50",105.946,106.365],["de",106.371,106.465],["alcohol",106.471,106.845],["etílico",106.846,107.235],["puro,",107.315,107.655],["o",107.755,107.925],["etanol.",107.965,108.385],["¿Cuánto",108.635,108.945],["obtenemos?",108.946,109.515]]},{"t":"Pues… ¿cien mililitros?","s":110.247,"d":1.411,"v":"ef_dora","w":[["Pues…",110.267,110.687],["¿cien",110.689,110.937],["mililitros?",110.939,111.577]]},{"t":"Predice tú. ¿Cien? ¿Más? ¿Menos?","s":112.308,"d":2.069,"v":"em_alex","w":[["Predice",112.328,112.738],["tú.",112.778,113.028],["¿Cien?",113.031,113.378],["¿Más?",113.381,113.608],["¿Menos?",113.868,114.298]]},{"t":"Mezclamos… y medimos. Unos noventa y seis y medio. Faltan unos tres y medio.","s":115.857,"d":4.989,"v":"em_alex","w":[["Mezclamos…",115.877,116.487],["y",116.494,116.537],["medimos.",116.544,117.047],["Unos",117.297,117.607],["noventa",117.609,118.027],["y",118.034,118.157],["seis",118.159,118.457],["y",118.459,118.527],["medio.",118.534,118.967],["Faltan",119.247,119.767],["unos",119.774,119.947],["tres",120.007,120.367],["y",120.374,120.447],["medio.",120.449,120.767]]},{"t":"¿Se perdió líquido?","s":121.496,"d":1.252,"v":"ef_dora","w":[["¿Se",121.516,121.646],["perdió",121.686,122.156],["líquido?",122.163,122.676]]},{"t":"No. Si lo pesamos, la masa es la misma. Acerquémonos mucho.","s":123.397,"d":3.309,"v":"em_alex","w":[["No.",123.417,123.657],["Si",123.659,123.757],["lo",123.759,123.807],["pesamos,",123.817,124.407],["la",124.409,124.507],["masa",124.509,124.757],["es",124.759,124.827],["la",124.834,124.927],["misma.",124.934,125.277],["Acerquémonos",125.537,126.307],["mucho.",126.309,126.627]]},{"t":"Las moléculas de agua y de alcohol tienen tamaños distintos y se atraen entre sí. Al mezclarse, se acomodan más juntas, ocupando huecos.","s":127.357,"d":8.276,"v":"em_santa","w":[["Las",127.377,127.567],["moléculas",127.572,128.067],["de",128.072,128.237],["agua",128.247,128.487],["y",128.497,128.537],["de",128.547,128.637],["alcohol",128.647,129.067],["tienen",129.107,129.377],["tamaños",129.387,129.867],["distintos",129.872,130.547],["y",130.587,130.737],["se",130.747,130.867],["atraen",130.872,131.237],["entre",131.247,131.537],["sí.",131.547,131.967],["Al",132.337,132.527],["mezclarse,",132.532,133.257],["se",133.262,133.297],["acomodan",133.387,133.827],["más",133.837,134.057],["juntas,",134.062,134.627],["ocupando",134.727,135.197],["huecos.",135.207,135.557]]},{"t":"Como mezclar canicas con arena: la arena se cuela entre las canicas. Es solo una comparación.","s":136.282,"d":5.354,"v":"em_alex","w":[["Como",136.302,136.492],["mezclar",136.494,136.882],["canicas",136.932,137.392],["con",137.442,137.642],["arena:",137.644,138.052],["la",138.152,138.342],["arena",138.349,138.692],["se",138.699,138.782],["cuela",138.832,139.172],["entre",139.174,139.372],["las",139.374,139.472],["canicas.",139.512,140.042],["Es",140.302,140.532],["solo",140.539,140.812],["una",140.814,140.902],["comparación.",140.922,141.562]]},{"t":"Si la materia fuera continua, sin huecos, esto sería muy difícil de explicar. Conclusión: la materia está hecha de partículas, con espacio entre ellas.","s":141.836,"d":8.434,"v":"em_alex","w":[["Si",141.856,141.946],["la",141.948,142.016],["materia",142.023,142.466],["fuera",142.473,142.656],["continua,",142.686,143.366],["sin",143.373,143.566],["huecos,",143.573,144.096],["esto",144.206,144.376],["sería",144.378,144.696],["muy",144.703,144.876],["difícil",144.878,145.326],["de",145.328,145.406],["explicar.",145.426,145.986],["Conclusión:",146.306,147.086],["la",147.206,147.366],["materia",147.368,147.786],["está",147.793,148.036],["hecha",148.043,148.236],["de",148.243,148.286],["partículas,",148.306,148.976],["con",149.076,149.246],["espacio",149.253,149.676],["entre",149.678,149.946],["ellas.",149.953,150.186]]}]},{"id":"atomo","start":150.63,"duration":44.238,"lines":[{"t":"Esas moléculas están formadas por átomos. Y aquí Demócrito se equivocó: el átomo sí se puede dividir.","s":150.99,"d":6.009,"v":"em_alex","w":[["Esas",151.01,151.27],["moléculas",151.277,151.9],["están",151.902,152.25],["formadas",152.252,152.71],["por",152.79,153.0],["átomos.",153.05,153.44],["Y",153.69,153.85],["aquí",153.852,154.05],["Demócrito",154.052,154.65],["se",154.652,154.75],["equivocó:",154.77,155.31],["el",155.4,155.62],["átomo",155.627,155.92],["sí",155.927,156.12],["se",156.127,156.21],["puede",156.27,156.52],["dividir.",156.527,156.92]]},{"t":"En el centro, el núcleo: protones, con carga positiva, y neutrones, sin carga.","s":157.199,"d":4.495,"v":"em_alex","w":[["En",157.219,157.309],["el",157.311,157.459],["centro,",157.461,157.859],["el",157.861,157.979],["núcleo:",157.986,158.519],["protones,",158.669,159.209],["con",159.319,159.479],["carga",159.509,159.789],["positiva,",159.819,160.469],["y",160.471,160.519],["neutrones,",160.521,161.089],["sin",161.096,161.239],["carga.",161.259,161.619]]},{"t":"Alrededor, en la envoltura, los electrones: carga negativa y muchísimo más livianos. Un protón tiene casi dos mil veces la masa de un electrón.","s":161.895,"d":8.25,"v":"em_alex","w":[["Alrededor,",161.915,162.475],["en",162.482,162.555],["la",162.557,162.655],["envoltura,",162.657,163.275],["los",163.282,163.455],["electrones:",163.457,164.155],["carga",164.285,164.575],["negativa",164.582,165.175],["y",165.182,165.255],["muchísimo",165.257,165.875],["más",165.882,166.075],["livianos.",166.082,166.755],["Un",166.995,167.155],["protón",167.175,167.575],["tiene",167.605,167.825],["casi",167.875,168.275],["dos",168.277,168.495],["mil",168.502,168.675],["veces",168.677,169.075],["la",169.077,169.175],["masa",169.177,169.425],["de",169.427,169.525],["un",169.527,169.625],["electrón.",169.627,170.065]]},{"t":"Casi toda la masa está en un núcleo diminuto. Si el átomo fuera un estadio, el núcleo sería la cabeza de un alfiler en el centro del campo.","s":170.795,"d":8.445,"v":"em_santa","w":[["Casi",170.815,171.105],["toda",171.145,171.385],["la",171.386,171.485],["masa",171.486,171.905],["está",171.911,172.185],["en",172.186,172.305],["un",172.311,172.435],["núcleo",172.436,172.805],["diminuto.",172.811,173.425],["Si",173.935,174.115],["el",174.121,174.265],["átomo",174.271,174.565],["fuera",174.571,174.815],["un",174.821,174.895],["estadio,",174.896,175.565],["el",175.675,175.875],["núcleo",175.876,176.325],["sería",176.326,176.675],["la",176.676,176.765],["cabeza",176.795,177.245],["de",177.251,177.345],["un",177.351,177.445],["alfiler",177.451,177.975],["en",177.976,178.075],["el",178.076,178.245],["centro",178.251,178.625],["del",178.626,178.735],["campo.",178.775,179.165]]},{"t":"Cada elemento se identifica por su número de protones: el número atómico, zeta.","s":179.889,"d":4.466,"v":"em_alex","w":[["Cada",179.909,180.169],["elemento",180.176,180.669],["se",180.676,180.769],["identifica",180.776,181.369],["por",181.409,181.599],["su",181.601,181.749],["número",181.751,182.069],["de",182.076,182.129],["protones:",182.159,182.829],["el",182.929,183.129],["número",183.131,183.449],["atómico,",183.456,183.999],["zeta.",184.006,184.279]]},{"t":"Un protón: hidrógeno. Seis: carbono. Ocho: oxígeno. Cambia el número de protones y cambias de elemento.","s":184.555,"d":6.689,"v":"em_alex","w":[["Un",184.575,184.675],["protón:",184.695,185.215],["hidrógeno.",185.217,185.715],["Seis:",185.965,186.295],["carbono.",186.395,186.895],["Ocho:",187.155,187.655],["oxígeno.",187.755,188.385],["Cambia",188.655,189.015],["el",189.022,189.145],["número",189.147,189.465],["de",189.472,189.525],["protones",189.555,190.115],["y",190.122,190.135],["cambias",190.195,190.615],["de",190.622,190.715],["elemento.",190.722,191.165]]},{"t":"En un átomo neutro hay tantos electrones como protones.","s":191.444,"d":3.064,"v":"em_alex","w":[["En",191.464,191.574],["un",191.581,191.704],["átomo",191.706,192.004],["neutro",192.006,192.454],["hay",192.464,192.664],["tantos",192.724,193.124],["electrones",193.131,193.654],["como",193.684,193.884],["protones.",193.914,194.434]]}]},{"id":"ojo","start":194.868,"duration":24.273,"lines":[{"t":"Entonces los electrones giran como planetas, ¿no?","s":195.518,"d":2.972,"v":"ef_dora","w":[["Entonces",195.538,196.108],["los",196.116,196.288],["electrones",196.291,196.938],["giran",196.941,197.288],["como",197.291,197.478],["planetas,",197.508,198.078],["¿no?",198.158,198.418]]},{"t":"Ojo, error muy común. El dibujo de órbitas es útil, pero no es lo que pasa en realidad.","s":199.14,"d":5.115,"v":"em_alex","w":[["Ojo,",199.16,199.5],["error",199.502,199.82],["muy",199.827,199.95],["común.",199.98,200.58],["El",200.82,201.01],["dibujo",201.012,201.38],["de",201.387,201.51],["órbitas",201.512,201.96],["es",201.962,202.16],["útil,",202.162,202.44],["pero",202.54,202.75],["no",202.757,202.88],["es",202.882,202.95],["lo",202.957,203.05],["que",203.057,203.13],["pasa",203.2,203.48],["en",203.482,203.6],["realidad.",203.607,204.0]]},{"t":"Los electrones no siguen caminos fijos. Se describen como una nube: solo sabemos dónde es más probable encontrarlos.","s":204.456,"d":6.936,"v":"em_alex","w":[["Los",204.476,204.636],["electrones",204.643,205.316],["no",205.318,205.486],["siguen",205.493,205.816],["caminos",205.818,206.286],["fijos.",206.293,206.906],["Se",207.126,207.296],["describen",207.303,207.826],["como",207.828,208.026],["una",208.028,208.196],["nube:",208.203,208.566],["solo",208.676,209.046],["sabemos",209.053,209.476],["dónde",209.478,209.796],["es",209.803,209.946],["más",209.953,210.086],["probable",210.166,210.626],["encontrarlos.",210.628,211.316]]},{"t":"Los electrones se distribuyen en niveles de energía: n igual a uno, dos, tres… Cuanto más lejos del núcleo, más energía.","s":211.591,"d":7.19,"v":"em_alex","w":[["Los",211.611,211.771],["electrones",211.778,212.301],["se",212.303,212.401],["distribuyen",212.403,213.051],["en",213.053,213.151],["niveles",213.153,213.551],["de",213.553,213.651],["energía:",213.653,214.121],["n",214.511,214.771],["igual",214.778,215.121],["a",215.128,215.301],["uno,",215.303,215.621],["dos,",215.628,215.911],["tres…",216.031,216.341],["Cuanto",216.591,216.911],["más",216.913,217.131],["lejos",217.138,217.461],["del",217.463,217.611],["núcleo,",217.613,218.061],["más",218.063,218.261],["energía.",218.263,218.701]]}]},{"id":"reto","start":219.141,"duration":19.126,"lines":[{"t":"Reto rápido. Un átomo neutro con ocho protones. ¿Qué elemento es? ¿Cuántos electrones tiene?","s":219.441,"d":5.739,"v":"em_alex","w":[["Reto",219.461,219.821],["rápido.",219.828,220.321],["Un",220.561,220.821],["átomo",220.828,221.121],["neutro",221.128,221.471],["con",221.491,221.701],["ocho",221.703,221.901],["protones.",221.931,222.591],["¿Qué",222.841,222.991],["elemento",222.998,223.491],["es?",223.498,223.671],["¿Cuántos",223.911,224.281],["electrones",224.283,224.761],["tiene?",224.801,225.101]]},{"t":"¡Oxígeno! Y ocho electrones.","s":230.83,"d":1.75,"v":"ef_dora","w":[["¡Oxígeno!",230.85,231.59],["Y",231.597,231.74],["ocho",231.747,231.94],["electrones.",231.947,232.5]]},{"t":"¡Correcto! Zeta igual a ocho: oxígeno. Y como es neutro, ocho electrones.","s":233.23,"d":4.677,"v":"em_alex","w":[["¡Correcto!",233.25,233.81],["Zeta",234.06,234.17],["igual",234.172,234.49],["a",234.497,234.59],["ocho:",234.597,234.92],["oxígeno.",235.02,235.79],["Y",236.04,236.14],["como",236.16,236.39],["es",236.397,236.54],["neutro,",236.547,237.01],["ocho",237.11,237.28],["electrones.",237.287,237.83]]}]},{"id":"resumen","start":238.267,"duration":18.831,"lines":[{"t":"Tres ideas.","s":238.567,"d":0.964,"v":"em_alex","w":[["Tres",238.587,238.927],["ideas.",238.929,239.457]]},{"t":"Uno: materia es todo lo que tiene masa y volumen.","s":239.731,"d":2.849,"v":"em_alex","w":[["Uno:",239.751,240.131],["materia",240.133,240.581],["es",240.583,240.661],["todo",240.711,240.951],["lo",240.958,241.041],["que",241.071,241.181],["tiene",241.231,241.581],["masa",241.583,241.981],["y",241.983,242.051],["volumen.",242.058,242.501]]},{"t":"Dos: la materia está hecha de partículas, con espacio entre ellas. El agua y el alcohol son una evidencia.","s":242.78,"d":5.824,"v":"em_alex","w":[["Dos:",242.8,243.11],["la",243.117,243.21],["materia",243.217,243.64],["está",243.642,243.89],["hecha",243.892,244.09],["de",244.092,244.13],["partículas,",244.15,244.83],["con",244.92,245.09],["espacio",245.092,245.51],["entre",245.517,245.79],["ellas.",245.792,246.09],["El",246.51,246.78],["agua",246.782,246.98],["y",246.982,247.03],["el",247.032,247.13],["alcohol",247.132,247.68],["son",247.682,247.9],["una",247.907,248.03],["evidencia.",248.032,248.53]]},{"t":"Tres: el átomo tiene un núcleo con protones y neutrones, y una envoltura con electrones. Zeta, el número de protones, define el elemento.","s":248.804,"d":7.814,"v":"em_alex","w":[["Tres:",248.824,249.184],["el",249.191,249.334],["átomo",249.341,249.574],["tiene",249.614,249.864],["un",249.866,249.964],["núcleo",249.966,250.324],["con",250.354,250.514],["protones",250.544,251.084],["y",251.091,251.134],["neutrones,",251.141,251.824],["y",251.934,252.064],["una",252.066,252.184],["envoltura",252.191,252.674],["con",252.714,252.914],["electrones.",252.916,253.514],["Zeta,",253.814,254.334],["el",254.341,254.464],["número",254.466,254.784],["de",254.791,254.844],["protones,",254.874,255.434],["define",255.524,255.994],["el",255.996,256.094],["elemento.",256.096,256.544]]}]},{"id":"proximo","start":257.098,"duration":15.037,"lines":[{"t":"Profe, un clavo de hierro se hunde en el agua… pero un barco de hierro flota. ¿Cómo?","s":257.748,"d":4.388,"v":"ef_dora","w":[["Profe,",257.768,258.298],["un",258.388,258.438],["clavo",258.442,258.708],["de",258.717,258.808],["hierro",258.817,259.158],["se",259.167,259.308],["hunde",259.317,259.488],["en",259.492,259.558],["el",259.567,259.708],["agua…",259.717,259.908],["pero",260.148,260.338],["un",260.347,260.438],["barco",260.447,260.738],["de",260.747,260.838],["hierro",260.847,261.088],["flota.",261.097,261.428],["¿Cómo?",261.708,262.058]]},{"t":"Lo vemos en el próximo capítulo: propiedades físicas y densidad.","s":262.786,"d":3.909,"v":"em_alex","w":[["Lo",262.806,262.916],["vemos",262.923,263.266],["en",263.273,263.346],["el",263.348,263.416],["próximo",263.456,263.906],["capítulo:",263.936,264.636],["propiedades",264.776,265.446],["físicas",265.448,266.016],["y",266.023,266.066],["densidad.",266.073,266.616]]},{"t":"Mientras tanto, mira a tu alrededor: toda la materia que te rodea está hecha de átomos.","s":266.895,"d":4.76,"v":"em_alex","w":[["Mientras",266.915,267.265],["tanto,",267.315,267.775],["mira",267.782,268.005],["a",268.007,268.015],["tu",268.055,268.225],["alrededor:",268.232,268.905],["toda",269.065,269.305],["la",269.307,269.405],["materia",269.407,269.815],["que",269.845,269.945],["te",269.985,270.155],["rodea",270.157,270.525],["está",270.532,270.825],["hecha",270.832,271.075],["de",271.082,271.205],["átomos.",271.255,271.575]]}]},{"id":"outro","start":272.135,"duration":7.0,"lines":[]}]};
+const DUR = M.duration;
+const S = {}; M.scenes.forEach(s => S[s.id] = s);
+const LABEL = {intro:'Apertura',frio:'Pregunta inicial',titulo:'Título',repaso:'Lo que ya sabes',pregunta:'La pregunta de hoy',materia:'¿Qué es materia?',experimento:'Experimento',atomo:'Dentro del átomo',ojo:'¡Ojo! Error común',reto:'Reto',resumen:'Resumen',proximo:'Próximo capítulo',outro:'Cierre'};
+const KIND = {intro:'--dim',frio:'--doc',titulo:'--dim',repaso:'--est',pregunta:'--est',materia:'--chalk',experimento:'--prof',atomo:'--chalk',ojo:'--warn',reto:'--est',resumen:'--electron',proximo:'--doc',outro:'--dim'};
+const SECT = {repaso:'Lo que ya sabes',pregunta:'La pregunta',materia:'Explicación',experimento:'Experimento',atomo:'Explicación',ojo:'¡Ojo!',reto:'Reto',resumen:'Resumen',proximo:'Próximo'};
+const WHO = {em_alex:['Profe','--prof',''],ef_dora:['Sofía','--est',''],em_santa:['Narrador','--doc','doc']};
+
+/* ---------- timing helpers: everything reads the manifest ---------- */
+const cl = x => Math.max(0, Math.min(1, x));
+const sm = x => { x = cl(x); return x * x * (3 - 2 * x); };
+const eo = x => 1 - Math.pow(1 - cl(x), 3);
+const r = (t, a, d = .5, f = sm) => f((t - a) / d);           // 0→1 ramp starting at a
+const win = (t, a, b, fi = .4, fo = .4) => Math.min(r(t, a, fi), 1 - r(t, b - fo, fo)); // visible between a and b
+const L = (id, i) => S[id].lines[i].s;
+const LE = (id, i) => { const l = S[id].lines[i]; return l.s + l.d; };
+const norm = w => w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
+function W(id, i, word, nth = 0) {
+  const ws = S[id].lines[i].w, k = norm(word); let n = 0;
+  for (const w of ws) if (norm(w[0]).startsWith(k)) { if (n++ === nth) return w[1]; }
+  console.warn('word not found', id, i, word); return S[id].lines[i].s;
+}
+const SS = id => S[id].start, SEND = id => S[id].start + S[id].duration;
+const q = s => document.querySelector(s);
+const $ = id => document.getElementById(id);
+function op(el, v) { el.style.opacity = v.toFixed(3); }
+
+/* ---------- three.js ---------- */
+const stage = $('stage');
+const R3 = new THREE.WebGLRenderer({antialias: true, alpha: false, preserveDrawingBuffer: true});
+R3.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+R3.setClearColor(0x0c1318, 1);
+stage.prepend(R3.domElement);
+const scn = new THREE.Scene();
+scn.fog = new THREE.Fog(0x0c1318, 14, 40);
+const cam = new THREE.PerspectiveCamera(35, 16 / 9, .05, 300);
+scn.add(new THREE.AmbientLight(0xffffff, .55));
+const key = new THREE.DirectionalLight(0xfff4e6, .85); key.position.set(4, 6, 8); scn.add(key);
+const rim = new THREE.DirectionalLight(0x6fc8ff, .45); rim.position.set(-6, -2, -4); scn.add(rim);
+function resize() { const w = stage.clientWidth, h = stage.clientHeight; R3.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(stage);
+
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const C = h => new THREE.Color(h);
+const COL = {proton: C('#f0685a'), neutron: C('#a9b4ba'), electron: C('#5cc8e6'), O: C('#e5484d'), H: C('#eef0f2'), water: C('#58b6e8'), alc: C('#b9a8ee'), chalk: C('#ece7da'), star: C('#fff3d6')};
+const sph = new THREE.SphereGeometry(1, 24, 16);
+const mat = (c, o = {}) => new THREE.MeshStandardMaterial(Object.assign({color: c, roughness: .45, metalness: .05}, o));
+const tmp = new THREE.Object3D();
+const groups = {};
+function G(name) { const g = new THREE.Group(); g.visible = false; scn.add(g); groups[name] = g; return g; }
+
+/* frio: drop ↔ galaxy particle field */
+const NP = 900;
+const gDrop = G('drop');
+const pMesh = new THREE.InstancedMesh(sph, mat(0xffffff, {roughness: .3}), NP);
+pMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(NP * 3), 3);
+gDrop.add(pMesh);
+const dropShell = new THREE.Mesh(new THREE.SphereGeometry(2.2, 48, 32), new THREE.MeshPhysicalMaterial({color: 0x7fc8f0, transparent: true, opacity: .35, roughness: .05, metalness: 0, clearcoat: 1}));
+dropShell.scale.set(1, 1.18, 1); gDrop.add(dropShell);
+const pA = [], pB = [], pIsO = [];
+for (let i = 0; i < NP; i++) {
+  // A: water molecules jiggling inside a drop (O at even, H near it)
+  const u = rnd(), v = rnd(), w = Math.cbrt(rnd()) * 2.0;
+  const th = 2 * Math.PI * u, ph = Math.acos(2 * v - 1);
+  pA.push(new THREE.Vector3(w * Math.sin(ph) * Math.cos(th), 1.18 * w * Math.cos(ph), w * Math.sin(ph) * Math.sin(th)));
+  pIsO.push(i % 3 === 0);
+  // B: a two-arm spiral galaxy
+  const arm = i % 2, rr = Math.pow(rnd(), .6) * 6.5, ang = rr * .9 + arm * Math.PI + (rnd() - .5) * .6;
+  pB.push(new THREE.Vector3(Math.cos(ang) * rr, (rnd() - .5) * .35 * (1.2 - rr / 7), Math.sin(ang) * rr));
+}
+// H atoms sit next to their O
+for (let i = 0; i < NP; i++) if (!pIsO[i]) { const o = pA[i - (i % 3)]; const k = (i % 3) === 1 ? 1 : -1; pA[i] = o.clone().add(new THREE.Vector3(.09 * k, -.07, .03 * k)); }
+
+/* repaso: three states of matter */
+const gStates = G('states');
+const boxEdges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(2.6, 2.6, 2.6)), new THREE.LineBasicMaterial({color: 0x5b6d79}));
+const stateMesh = [], stateBase = [];
+[-3.6, 0, 3.6].forEach((x, k) => {
+  const b = boxEdges.clone(); b.position.x = x; gStates.add(b);
+  const n = k === 0 ? 27 : k === 1 ? 27 : 12;
+  const m = new THREE.InstancedMesh(sph, mat(0x58b6e8), n); // same particle in every state: only order and motion change
+  gStates.add(m); stateMesh.push(m);
+  const base = [];
+  for (let i = 0; i < n; i++) {
+    if (k === 0) base.push(new THREE.Vector3(x + ((i % 3) - 1) * .72, (Math.floor(i / 3) % 3 - 1) * .72, (Math.floor(i / 9) - 1) * .72));
+    else if (k === 1) base.push(new THREE.Vector3(x + ((i % 3) - 1) * .7, -1.0 + Math.floor(i / 9) * .6, (Math.floor(i / 3) % 3 - 1) * .7));
+    else base.push(new THREE.Vector3(x + (rnd() - .5) * 2.0, (rnd() - .5) * 2.1, (rnd() - .5) * 2.0));
+  }
+  stateBase.push(base);
+});
+const tri = x => { x = x - Math.floor(x); return x < .5 ? 4 * x - 1 : 3 - 4 * x; }; // -1..1 bounce
+
+/* materia: cube that keeps being cut */
+const gCube = G('cube');
+const cubeM = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), mat(0x8c7b6b, {roughness: .8}));
+const cubeE = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(2, 2, 2)), new THREE.LineBasicMaterial({color: 0xece7da}));
+const halfA = new THREE.Group(), halfB = new THREE.Group();
+[halfA, halfB].forEach(h => { const m = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 2), mat(0x8c7b6b, {roughness: .8})); const e = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 2, 2)), new THREE.LineBasicMaterial({color: 0xece7da})); h.add(m, e); gCube.add(h); });
+gCube.add(cubeM, cubeE);
+const atomBall = new THREE.Mesh(sph, mat(0xece7da, {roughness: .35, emissive: 0x223038})); atomBall.scale.setScalar(.8); gCube.add(atomBall);
+const knife = new THREE.Mesh(new THREE.PlaneGeometry(.04, 3.2), new THREE.MeshBasicMaterial({color: 0xf2b84b, transparent: true})); gCube.add(knife);
+
+/* experimento: packing (alcohol large, water small) */
+const gPack = G('pack');
+const big = [], small = [];
+// ~3,2 moléculas de agua por cada una de etanol en volúmenes iguales; radios ~1,5 : 1 (volúmenes molares 58 y 18 mL/mol)
+for (let x = 0; x < 3; x++) for (let y = 0; y < 2; y++) for (let z = 0; z < 2; z++) big.push(new THREE.Vector3((x - 1) * .66, (y - .5) * .66, (z - .5) * .66));
+for (let x = 0; x < 4; x++) for (let y = 0; y < 3; y++) for (let z = 0; z < 3; z++) small.push(new THREE.Vector3((x - 1.5) * .44, (y - 1) * .44, (z - 1) * .44));
+const bigSite = [], smallSite = [];
+{ const sites = []; for (let x = 0; x < 6; x++) for (let y = 0; y < 4; y++) for (let z = 0; z < 4; z++) sites.push({p: new THREE.Vector3((x - 2.5) * .5, (y - 1.5) * .5, (z - 1.5) * .5), x, y, z, used: false});
+  sites.forEach(q => { if (q.x % 2 === 0 && q.y % 2 === 0 && q.z % 2 === 0 && bigSite.length < 12) { q.used = true; bigSite.push(q.p); } });
+  sites.filter(q => !q.used).sort((a, b) => a.p.length() - b.p.length()).slice(0, 36).forEach(q => smallSite.push(q.p)); }
+const bigM = new THREE.InstancedMesh(sph, mat(0xb9a8ee, {roughness: .5}), big.length);
+const smallM = new THREE.InstancedMesh(sph, mat(0x58b6e8, {roughness: .3}), small.length);
+gPack.add(bigM, smallM);
+
+/* atom */
+const gAtom = G('atom');
+const NUC = 16;
+const nucM = new THREE.InstancedMesh(sph, mat(0xffffff, {roughness: .35}), NUC);
+nucM.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(NUC * 3), 3);
+gAtom.add(nucM);
+const nucPos = n => { const out = []; const R = .23 * Math.cbrt(n) + .02; for (let i = 0; i < n; i++) { const y = 1 - 2 * (i + .5) / n, rr = Math.sqrt(1 - y * y), a = i * 2.39996; const d = n === 1 ? 0 : R * Math.cbrt((i + .6) / n) * 1.25; out.push(new THREE.Vector3(Math.cos(a) * rr * d, y * d, Math.sin(a) * rr * d)); } return out; };
+const NCL = 2600;
+const cloudGeo = new THREE.BufferGeometry(); const cp = new Float32Array(NCL * 3);
+for (let i = 0; i < NCL; i++) { const d = -Math.log(1 - rnd() * .985) * .75 + .25; const th = rnd() * 6.283, ph = Math.acos(2 * rnd() - 1); cp.set([d * Math.sin(ph) * Math.cos(th), d * Math.cos(ph), d * Math.sin(ph) * Math.sin(th)], i * 3); }
+cloudGeo.setAttribute('position', new THREE.BufferAttribute(cp, 3));
+const dotTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.4, 'rgba(255,255,255,.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
+const cloud = new THREE.Points(cloudGeo, new THREE.PointsMaterial({color: 0x5cc8e6, size: .09, map: dotTex, transparent: true, depthWrite: false, opacity: .5, blending: THREE.AdditiveBlending}));
+gAtom.add(cloud);
+const elec = []; for (let i = 0; i < 8; i++) { const e = new THREE.Mesh(sph, new THREE.MeshBasicMaterial({color: 0x5cc8e6})); e.scale.setScalar(.07); const glow = new THREE.Sprite(new THREE.SpriteMaterial({map: dotTex, color: 0x5cc8e6, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false})); glow.scale.setScalar(4); e.add(glow); gAtom.add(e); elec.push(e); }
+const rings = []; for (let i = 0; i < 2; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(1.1 + i * .9, .012, 8, 120), new THREE.MeshBasicMaterial({color: 0xece7da, transparent: true})); t.rotation.x = Math.PI / 2 - .35; gAtom.add(t); rings.push(t); }
+// water molecule for the zoom into the atom
+const h2o = new THREE.Group();
+const mO = new THREE.Mesh(sph, mat(0xe5484d)); mO.scale.setScalar(.66);
+const mH1 = new THREE.Mesh(sph, mat(0xeef0f2)); mH1.scale.setScalar(.4); mH1.position.set(-.62, -.48, 0);
+const mH2 = mH1.clone(); mH2.position.set(.62, -.48, 0);
+h2o.add(mO, mH1, mH2); gAtom.add(h2o);
+
+/* ---------- per-frame composition ---------- */
+function setInst(m, i, p, s, col) { tmp.position.copy(p); tmp.scale.setScalar(s); tmp.rotation.set(0, 0, 0); tmp.updateMatrix(); m.setMatrixAt(i, tmp.matrix); if (col) m.setColorAt(i, col); }
+const scs = {}; document.querySelectorAll('.sc').forEach(e => scs[e.dataset.s] = e);
+const cc = {v: 1};
+
+function render(t) {
+  for (const k in groups) groups[k].visible = false;
+  let camPos = new THREE.Vector3(0, 0, 10), look = new THREE.Vector3(0, 0, 0);
+  for (const s of M.scenes) {
+    const a = win(t, s.start, s.start + s.duration, .35, .35);
+    scs[s.id].style.opacity = a.toFixed(3);
+    scs[s.id].style.visibility = a > 0 ? 'visible' : 'hidden';
+  }
+
+  /* intro */
+  if (t < SEND('intro') + .5) {
+    const cap = $('cap55'); const fy = 1 - eo((t - .35) / 1.0);
+    cap.setAttribute('transform', `translate(${-22 * fy},${108 * fy})`);
+    $('loud').style.clipPath = `inset(0 ${100 - 100 * sm((t - 1.0) / .6)}% 0 0)`;
+    const ro = $('ro'); op(ro, r(t, 1.2, .15)); ro.textContent = String(Math.round(55 * eo((t - 1.25) / 1.1))).padStart(2, '0');
+    $('ident').style.opacity = t < 4.5 ? 1 : 0;
+    [...$('ident').children].forEach(c => c.style.opacity = (1 - r(t, 3.2, .35)).toFixed(3));
+    const mk = win(t, 4.7, 8.0, .6, .5); op($('mark'), mk);
+    $('hex').setAttribute('stroke-dashoffset', (1 - eo((t - 4.8) / 1.4)).toFixed(3));
+    const ang = (t - 4.8) * 2.2; $('hexe').setAttribute('cx', (58 * Math.cos(ang)).toFixed(1)); $('hexe').setAttribute('cy', (58 * Math.sin(ang)).toFixed(1));
+    op($('marktag'), r(t, 6.0, .6));
+  }
+
+  /* frio: drop → galaxy → one particle */
+  if (t > SS('frio') - .5 && t < SEND('frio') + .5) {
+    const g = groups.drop; g.visible = true;
+    const zin = r(t, W('frio', 1, 'gota') - .3, 2.2);            // dive into the drop
+    const gal = r(t, W('frio', 1, 'estrellas') - .4, 1.8);         // become a galaxy
+    const one = r(t, L('frio', 2) - .2, 1.2);                      // collapse to one
+    dropShell.material.opacity = .35 * (1 - zin) * (1 - gal);
+    dropShell.visible = dropShell.material.opacity > .01;
+    const sc = .2 + zin * 1.0;
+    for (let i = 0; i < NP; i++) {
+      const a = pA[i], b = pB[i]; const j = .04 * Math.sin(t * 3 + i);
+      const p = a.clone().multiplyScalar(1).add(new THREE.Vector3(j, j * .7, -j));
+      p.lerp(b, gal); p.multiplyScalar(1 - one * .999);
+      const baseS = pIsO[i] ? .07 : .04;
+      const s = (baseS * (.4 + .9 * zin)) * (1 - gal) + .03 * gal * (1 - one) + (i === 0 ? one * .35 : 0);
+      const col = pIsO[i] ? COL.O.clone() : COL.H.clone(); col.lerp(COL.star, gal);
+      if (i === 0) { col.lerp(COL.electron, one); p.y += one * 1.25; }
+      setInst(pMesh, i, p, i === 0 ? Math.max(s, one * .35) : s * (1 - one), col);
+    }
+    pMesh.instanceMatrix.needsUpdate = true; pMesh.instanceColor.needsUpdate = true;
+    g.rotation.y = t * .12 + gal * .4; g.rotation.x = gal * .55;
+    camPos.set(0, 0, 9.5 - zin * 4.5 + gal * 10 - one * 8);
+    op($('gota'), win(t, W('frio', 1, 'gota') - .2, W('frio', 1, 'estrellas') - .3, .4, .3));
+    op($('galax'), win(t, W('frio', 1, 'estrellas'), L('frio', 2) - .1, .4, .3));
+    op($('qalgo'), r(t, L('frio', 2) + .3, .5));
+  }
+
+  /* titulo */
+  if (t > SS('titulo') - .5 && t < SEND('titulo') + .5) {
+    const a = SS('titulo');
+    op($('t1'), r(t, a + .1, .4)); op($('t2'), r(t, a + .35, .5)); $('t2').style.transform = `translateY(${(1 - eo((t - a - .35) / .6)) * 2}cqw)`;
+    op($('t3'), r(t, a + 1.1, .5));
+  }
+
+  /* repaso: states */
+  if (t > SS('repaso') - .5 && t < SEND('repaso') + .5) {
+    const g = groups.states; g.visible = true;
+    const w0 = W('repaso', 0, 'solido'), w1 = W('repaso', 0, 'liquido'), w2 = W('repaso', 0, 'gaseoso');
+    const app = [r(t, w0 - .2, .5), r(t, w1 - .2, .5), r(t, w2 - .2, .5)];
+    const pre = r(t, SS('repaso'), .8) * .35;
+    stateMesh.forEach((m, k) => {
+      const base = stateBase[k]; const vis = Math.max(pre, app[k]);
+      for (let i = 0; i < base.length; i++) {
+        const b = base[i]; const p = b.clone();
+        if (k === 0) p.add(new THREE.Vector3(Math.sin(t * 17 + i) * .03, Math.cos(t * 13 + i * 2) * .03, 0));
+        else if (k === 1) { const layer = Math.floor(i / 9); const off = ((t * (.25 + .12 * layer) + layer * .3) % 1) * 2.1; let x = b.x - (-0) + 1.05 + off; const cx = 0; x = x - cx; x = x - Math.floor(x / 2.1) * 2.1 - 1.05 + cx; p.x = x; p.y = b.y + Math.sin(t * 2 + layer) * .03; }
+        else { const cx = 3.6; p.set(cx + tri(t * .23 + i * .137) * 1.08, tri(t * .31 + i * .291) * 1.08, tri(t * .19 + i * .411) * 1.08); }
+        setInst(m, i, p, .27 * vis, null);
+      }
+      m.instanceMatrix.needsUpdate = true;
+    });
+    g.rotation.y = Math.sin(t * .2) * .15 + .25; g.rotation.x = .18;
+    camPos.set(0, .6, 12.5);
+    ['st0', 'st1', 'st2'].forEach((id, k) => op($(id), app[k]));
+    op($('rp2'), win(t, W('repaso', 1, 'hielo') - .2, SEND('repaso'), .5, .4));
+  }
+
+  /* pregunta */
+  if (t > SS('pregunta') - .5 && t < SEND('pregunta') + .5) {
+    op($('pq'), r(t, W('pregunta', 0, 'que') - .3, .5));
+    op($('ag0'), r(t, W('pregunta', 2, 'definir') - .1, .4));
+    op($('ag1'), r(t, W('pregunta', 2, 'mostrar') - .1, .4));
+    op($('ag2'), r(t, W('pregunta', 2, 'entrar') - .1, .4));
+    ['ag0', 'ag1', 'ag2'].forEach((id, k) => { const a = W('pregunta', 2, ['definir', 'mostrar', 'entrar'][k]); $(id).style.transform = `translateY(${(1 - eo((t - a) / .5)) * 2}cqw)`; });
+  }
+
+  /* materia */
+  if (t > SS('materia') - .5 && t < SEND('materia') + .5) {
+    const defEnd = L('materia', 5) - .3;
+    op($('def'), win(t, SS('materia'), defEnd, .4, .4));
+    $('def').style.transform = `translateY(${-r(t, L('materia', 1) - .3, .6) * 3}cqw) scale(${1 - r(t, L('materia', 1) - .3, .6) * .12})`;
+    op($('dm'), r(t, W('materia', 0, 'masa') - .1, .3)); op($('dv'), r(t, W('materia', 0, 'volumen') - .1, .3));
+    op($('ex'), win(t, W('materia', 1, 'piedra') - .3, L('materia', 3) - .1, .4, .3));
+    op($('cuerpo'), win(t, W('materia', 2, 'cuerpos') - .2, L('materia', 3) - .1, .4, .3));
+    const exi = document.querySelectorAll('.exi');
+    [W('materia', 1, 'piedra'), W('materia', 1, 'agua'), W('materia', 1, 'aire')].forEach((a, k) => { op(exi[k], r(t, a - .2, .35)); exi[k].style.transform = `scale(${.85 + .15 * eo((t - a + .2) / .4)})`; });
+    $('beam').setAttribute('transform', `rotate(${-9 * r(t, W('materia', 1, 'inflado'), .9)})`);
+    op($('nomat'), win(t, L('materia', 3) - .1, defEnd, .4, .3));
+    op($('nm1'), r(t, W('materia', 4, 'energia'), .3)); op($('nm2'), r(t, W('materia', 4, 'pensamiento'), .3));
+    // the cutting cube
+    const c0 = L('materia', 5) - .2, cEnd = SEND('materia');
+    if (t > c0 - .3) {
+      const g = groups.cube; g.visible = true;
+      const cuts = [W('materia', 5, 'mitad'), W('materia', 5, 'otra'), W('materia', 5, 'otra', 1), W('materia', 5, 'siempre'), W('materia', 6, 'trozo'), W('materia', 6, 'cortar')];
+      let k = 0; while (k < cuts.length && t > cuts[k]) k++;
+      const lastCut = k > 0 ? cuts[k - 1] : c0; const ph = cl((t - lastCut) / .9);
+      const split = eo(ph / .6), regrow = sm((ph - .45) / .55);
+      const isAtom = r(t, L('materia', 7) - .1, .6);
+      const appear = r(t, c0, .5);
+      g.scale.setScalar(appear);
+      const cutting = k > 0 && ph < 1;
+      cubeM.visible = cubeE.visible = !cutting && isAtom < 1; halfA.visible = halfB.visible = cutting;
+      halfA.position.set(-.5 - .25 * split, 0, 0); halfB.position.set(.5 + 2.5 * split, -1.2 * split, 0);
+      halfB.children.forEach(c => { c.material.transparent = true; c.material.opacity = 1 - split; });
+      halfA.scale.set(1, 1, 1);
+      if (cutting && regrow > 0) { halfA.position.x = -.75 * (1 - regrow); halfA.scale.set(1 + regrow, 1, 1); }
+      knife.material.opacity = cutting ? (1 - cl(ph / .35)) : 0; knife.position.set(0, 1.6 - 1.6 * cl(ph / .3), 1.05);
+      [cubeM, cubeE].forEach(o => o.scale.setScalar(1 - isAtom));
+      atomBall.scale.setScalar(.9 * eo((t - L('materia', 7) + .1) / .6)); atomBall.visible = isAtom > 0; atomBall.position.y = .75;
+      g.rotation.set(.35, t * .3, 0);
+      camPos.set(0, 0, 9);
+      $('frac').textContent = k === 0 ? '1' : '1/' + Math.pow(2, k);
+      op($('frac'), win(t, cuts[0], L('materia', 7) - .3, .3, .3));
+      op($('demo'), win(t, L('materia', 6), L('materia', 7), .5, .3));
+      op($('atomos'), r(t, W('materia', 7, 'atomo') - .1, .5));
+    }
+  }
+
+  /* experimento */
+  if (t > SS('experimento') - .5 && t < SEND('experimento') + .5) {
+    const labEnd = L('experimento', 6) - .2;
+    op($('lab'), win(t, SS('experimento'), labEnd, .4, .5));
+    const pourA = W('experimento', 3, 'mezclamos') - .2, pourDur = 2.2;
+    const pa = cl((t - pourA) / pourDur);
+    const tilt = sm(pa / .2) * (1 - sm((pa - .85) / .15));
+    // move cylinders towards C and tilt
+    const ax = 420 + 290 * sm(pa / .2) * (1 - sm((pa - .9) / .1)), bx = 1180 - 290 * sm(pa / .2) * (1 - sm((pa - .9) / .1));
+    $('cyA').setAttribute('transform', `translate(${ax},${700 - 200 * tilt}) rotate(${100 * tilt},0,-300)`);
+    $('cyB').setAttribute('transform', `translate(${bx},${700 - 200 * tilt}) rotate(${-100 * tilt},0,-300)`);
+    const drain = sm((pa - .15) / .7);
+    $('lqA').setAttribute('y', -3 - 250 * (1 - drain)); $('lqA').setAttribute('height', 250 * (1 - drain));
+    $('lqB').setAttribute('y', -3 - 250 * (1 - drain)); $('lqB').setAttribute('height', 250 * (1 - drain));
+    const full = 500; const level = full * .965 * drain;
+    $('lqC').setAttribute('y', -3 - level); $('lqC').setAttribute('height', level);
+    op($('pour'), tilt > .9 && drain < .98 ? 1 : 0);
+    const topC = 700 - level - 3;
+    $('streamA').setAttribute('d', `M ${ax + 150} ${700 - 500} Q ${780} ${560} ${785} ${topC}`);
+    $('streamB').setAttribute('d', `M ${bx - 150} ${700 - 500} Q ${820} ${560} ${815} ${topC}`);
+    op($('readC'), r(t, W('experimento', 3, 'noventa') - .2, .4));
+    op($('falta'), win(t, W('experimento', 3, 'faltan') - .1, labEnd, .3, .3));
+    op($('pred'), win(t, W('experimento', 2, 'predice') - .2, W('experimento', 3, 'faltan') + 1.6, .4, .3));
+    $('pred').style.pointerEvents = +$('pred').style.opacity > .5 ? 'auto' : 'none';
+    $('p0').classList.toggle('ok', t > W('experimento', 3, 'noventa'));
+    $('p0').textContent = t > W('experimento', 3, 'noventa') ? '< 100 mL ✓' : '< 100 mL';
+    ['p0', 'p1', 'p2'].forEach((id, k) => op($(id), r(t, W('experimento', 2, ['menos', 'cien', 'mas'][k]) - .2, .3)));
+    const th0 = LE('experimento', 2), th1 = L('experimento', 3);
+    $('think').textContent = t > th0 && t < th1 ? '·'.repeat(1 + Math.floor((t - th0) * 3) % 3) + ' piensa' : '';
+    op($('masa'), win(t, W('experimento', 5, 'pesamos') - .2, L('experimento', 6) - .4, .4, .3));
+    // particles (3D)
+    const p0 = L('experimento', 6) - .4, pEnd = L('experimento', 8) + 3.2;
+    if (t > p0 - .3 && t < pEnd + .4) {
+      const g = groups.pack; g.visible = true;
+      const vis = win(t, p0, pEnd, .6, .5);
+      const mix = eo((t - W('experimento', 6, 'mezclarse')) / 2.6);
+      for (let i = 0; i < big.length; i++) { const home = big[i].clone(); home.x -= 2.6; const p = home.lerp(bigSite[i], mix).add(new THREE.Vector3(Math.sin(t * 2 + i) * .02, Math.cos(t * 2.3 + i) * .02, 0)); setInst(bigM, i, p, .30 * vis, null); }
+      for (let i = 0; i < small.length; i++) {
+        const home = small[i].clone(); home.x += 2.6;
+        const u = eo(cl(mix * 1.3 - (i % 7) * .04));
+        const p = home.lerp(smallSite[i], u).add(new THREE.Vector3(Math.sin(t * 3 + i) * .02, Math.cos(t * 2.7 + i) * .02, 0));
+        setInst(smallM, i, p, .20 * vis, null);
+      }
+      bigM.instanceMatrix.needsUpdate = smallM.instanceMatrix.needsUpdate = true;
+      g.rotation.set(.35, -.5 + Math.sin(t * .25) * .25 + mix * .3, 0);
+      camPos.set(0, .4, 11 - mix * 2);
+      op($('kA'), win(t, W('experimento', 6, 'alcohol') - .2, W('experimento', 6, 'mezclarse'), .4, .4));
+      op($('kB'), win(t, W('experimento', 6, 'agua') - .2, W('experimento', 6, 'mezclarse'), .4, .4));
+      op($('kM'), win(t, W('experimento', 6, 'mezclarse') + .8, L('experimento', 7), .4, .3));
+      op($('vbar'), win(t, W('experimento', 6, 'mezclarse') + .4, pEnd, .4, .4)); op($('noesc'), vis);
+      op($('kC'), win(t, W('experimento', 7, 'canicas') - .2, L('experimento', 8) + 2, .4, .4));
+    }
+    op($('concl'), r(t, W('experimento', 8, 'conclusion') - .2, .5));
+  }
+
+  /* atomo + ojo share the atom */
+  const aS = SS('atomo'), aE = SEND('ojo');
+  if (t > aS - .5 && t < aE + .5) {
+    const g = groups.atom; g.visible = true;
+    // stage 0: water molecule zooms into its O
+    const zoomO = r(t, W('atomo', 0, 'atomos') - .2, 2.2);
+    const nucIn = r(t, W('atomo', 0, 'dividir') - .3, .8);
+    h2o.visible = nucIn < 1; h2o.scale.setScalar(1);
+    mH1.position.set(-.62 * (1 + 3 * zoomO), -.48 * (1 + 3 * zoomO), 0); mH2.position.set(.62 * (1 + 3 * zoomO), -.48 * (1 + 3 * zoomO), 0);
+    [mH1, mH2].forEach(m => { m.material.transparent = true; m.material.opacity = 1 - zoomO; });
+    mO.material.transparent = true; mO.material.opacity = (1 - .8 * zoomO) * (1 - nucIn); mO.material.depthWrite = zoomO < .5; mO.scale.setScalar(.66 * (1 + 1.2 * zoomO));
+    h2o.rotation.y = Math.sin(t * .6) * .3;
+    op($('aH2O'), win(t, aS + .3, W('atomo', 0, 'atomos') + .6, .4, .4));
+    // element config
+    let Z = 8, N = 8;
+    const wH = W('atomo', 5, 'protón'), wC = W('atomo', 5, 'seis'), wO = W('atomo', 5, 'ocho');
+    if (t > wH - .1 && t < wC - .1) { Z = 1; N = 0; } else if (t > wC - .1 && t < wO - .1) { Z = 6; N = 6; }
+    const nucShow = r(t, W('atomo', 0, 'dividir') - .3, .8);
+    const pos = nucPos(Z + N);
+    const lastSwitch = [wH, wC, wO].filter(x => x - .1 < t).pop();
+    const pop = lastSwitch === undefined ? 1 : eo((t - lastSwitch + .1) / .35);
+    let pl = Z, nl = N;
+    for (let i = 0; i < NUC; i++) {
+      const on = i < Z + N;
+      let isP = false; if (on) { if ((i % 2 === 0 && pl > 0) || nl === 0) { isP = true; pl--; } else nl--; }
+      const p = on ? pos[i].clone() : new THREE.Vector3();
+      p.add(new THREE.Vector3(Math.sin(t * 9 + i) * .006, Math.cos(t * 8 + i) * .006, 0));
+      setInst(nucM, i, p, on ? .2 * nucShow * (.8 + .2 * pop) : 0, isP ? COL.proton : COL.neutron);
+    }
+    nucM.instanceMatrix.needsUpdate = true; nucM.instanceColor.needsUpdate = true;
+    const eShow = r(t, W('atomo', 2, 'electrones') - .3, .8);
+    // ojo: bohr rings first, then cloud
+    const bohr = win(t, W('ojo', 0, 'giran') - .3, W('ojo', 2, 'nube'), .5, .8);
+    const cloudOn = Math.max(eShow * (1 - bohr), 0);
+    const cloudBoost = r(t, W('ojo', 2, 'nube') - .2, 1.0);
+    const ne = Z;
+    const empty = win(t, L('atomo', 3), L('atomo', 4), .8, .6);
+    cloud.material.opacity = cloudOn * (.35 + .35 * cloudBoost) * (1 - empty * .7);
+    cloud.scale.setScalar((Z === 1 ? .6 : Z === 6 ? 1 : .9) * (1 + empty * 1.5));
+    elec.forEach((e, i) => {
+      const on = i < ne;
+      // cloud mode: quasi-random wander; bohr mode: fixed circles
+      const s1 = i * 1.93, rr = .8 + .9 * (.5 + .5 * Math.sin(t * .7 + s1 * 3));
+      
+      const ringR = i < 2 ? 1.1 : 2.0, ang = t * (i < 2 ? 1.6 : 1.0) + i * (i < 2 ? Math.PI : Math.PI / 3);
+      const orbit = new THREE.Vector3(Math.cos(ang) * ringR, 0, Math.sin(ang) * ringR).applyAxisAngle(new THREE.Vector3(1, 0, 0), -.35);
+      const k = Math.floor(((Math.sin(i * 91.7 + Math.floor(t * 5) * 13.3) * 43758.5) % 1 + 1) % 1 * NCL); const sc = cloud.scale.x;
+      const blink = new THREE.Vector3(cp[k * 3] * sc, cp[k * 3 + 1] * sc, cp[k * 3 + 2] * sc); // no fixed path: appears at probable points
+      e.position.copy(blink.lerp(orbit, bohr));
+      e.visible = on && Math.max(eShow, bohr) > .02;
+      e.scale.setScalar(.07 * Math.max(eShow, bohr));
+    });
+    rings.forEach(rg => { rg.material.opacity = bohr * .8; rg.visible = bohr > .01; });
+    g.rotation.set(.25, t * .15, 0);
+    // camera: zoom out for "estadio"
+    camPos.set(0, 0, 7.5 + empty * 30);
+    op($('aN'), win(t, W('atomo', 1, 'nucleo') - .2, L('atomo', 2), .3, .3));
+    op($('aLeg'), win(t, W('atomo', 1, 'protones') - .2, L('atomo', 3), .4, .4));
+    op($('lp'), r(t, W('atomo', 1, 'protones') - .2, .3)); op($('ln'), r(t, W('atomo', 1, 'neutrones') - .2, .3)); op($('le'), r(t, W('atomo', 2, 'electrones') - .2, .3));
+    op($('aMass'), win(t, W('atomo', 2, 'proton') - .2, L('atomo', 3), .4, .4));
+    op($('stadium'), win(t, W('atomo', 3, 'estadio') - .3, L('atomo', 4), .6, .5));
+    op($('aZ'), win(t, W('atomo', 4, 'numero') - .2, SEND('atomo'), .4, .4));
+    op($('aTiles'), win(t, wH - .3, SEND('atomo'), .4, .4));
+    [['tH', wH, wC], ['tC', wC, wO], ['tO', wO, SEND('atomo')]].forEach(([id, a, b]) => { const on = win(t, a - .1, b, .2, .2); $(id).style.borderColor = on > .5 ? 'var(--proton)' : 'var(--line)'; op($(id), .35 + .65 * on); });
+    op($('aBal'), win(t, L('atomo', 6) - .1, SEND('atomo'), .4, .3));
+    op($('stamp'), win(t, W('ojo', 1, 'ojo') - .1, W('ojo', 2, 'nube'), .2, .4)); $('stamp').style.transform = `rotate(-8deg) scale(${1.4 - .4 * eo((t - W('ojo', 1, 'ojo') + .1) / .25)})`;
+    op($('oBohr'), win(t, W('ojo', 0, 'giran'), W('ojo', 2, 'nube'), .4, .4));
+    op($('oCloud'), r(t, W('ojo', 2, 'nube') + .2, .5));
+    op($('oLev'), r(t, W('ojo', 3, 'niveles') - .1, .4));
+  }
+
+  /* reto */
+  if (t > SS('reto') - .5 && t < SEND('reto') + .5) {
+    const c0 = LE('reto', 0), c1 = L('reto', 1);
+    const k = cl((t - c0) / (c1 - c0));
+    $('clk').setAttribute('stroke-dashoffset', t < c0 ? 0 : k.toFixed(3));
+    $('clkn').textContent = t < c0 ? '5' : t < c1 ? String(Math.max(1, Math.ceil(5 * (1 - k)))) : '✓';
+    const rev = r(t, L('reto', 1) - .1, .3);
+    document.querySelectorAll('.rq').forEach(e => { const ok = e.dataset.ok === '1'; e.style.color = rev > .5 ? (ok ? 'var(--prof)' : 'var(--line)') : 'var(--chalk)'; e.style.background = rev > .5 && ok ? 'rgba(143,220,174,.14)' : 'transparent'; });
+    op($('rsol'), r(t, L('reto', 2), .5));
+  }
+
+  /* resumen */
+  if (t > SS('resumen') - .5 && t < SEND('resumen') + .5) {
+    const rs = document.querySelectorAll('.rs');
+    [L('resumen', 1), L('resumen', 2), L('resumen', 3)].forEach((a, k) => { op(rs[k], r(t, a - .1, .4)); rs[k].style.transform = `translateY(${(1 - eo((t - a + .1) / .5)) * 2}cqw)`; });
+  }
+
+  /* proximo */
+  if (t > SS('proximo') - .5 && t < SEND('proximo') + .5) {
+    const a = SS('proximo');
+    let d = 'M0,470'; for (let x = 0; x <= 1600; x += 40) d += ` L${x},${(470 + Math.sin(x * .012 + t * 2) * 6).toFixed(1)}`; $('wave').setAttribute('d', d);
+    const sink = eo((t - W('proximo', 0, 'hunde') + .2) / 2.6);
+    $('nail').setAttribute('transform', `translate(470,${380 + 330 * sink}) rotate(${sink * 25})`);
+    $('ship').setAttribute('transform', `translate(1050,${462 + Math.sin(t * 1.6) * 5}) rotate(${Math.sin(t * 1.1) * 1.5})`);
+    op($('nx'), r(t, W('proximo', 1, 'proximo') - .2, .5));
+  }
+
+  /* chrome: bug, section tag, captions */
+  const cur = M.scenes.find(s => t >= s.start && t < s.start + s.duration) || M.scenes[M.scenes.length - 1];
+  const inBook = cur.id === 'intro' || cur.id === 'outro' || cur.id === 'titulo';
+  op($('bug'), inBook ? 0 : .9);
+  const st = SECT[cur.id]; const sect = $('sect');
+  if (st) { sect.textContent = st; sect.style.color = `var(${KIND[cur.id]})`; op(sect, win(t, cur.start, cur.start + cur.duration, .4, .3)); } else op(sect, 0);
+  captions(t, cur);
+
+  cam.position.copy(camPos); cam.lookAt(look);
+  R3.render(scn, cam);
+}
+
+let capKey = '';
+function captions(t, sc) {
+  let line = null, li = -1;
+  for (const s of M.scenes) for (let i = 0; i < s.lines.length; i++) { const l = s.lines[i]; if (t >= l.s - .1 && t <= l.s + l.d + .35) { line = l; li = s.id + i; } }
+  const cap = $('cap');
+  if (!line) { op(cap, 0); return; }
+  op(cap, 1);
+  if (capKey !== li) {
+    capKey = li;
+    const [name, color, cls] = WHO[line.v];
+    cap.style.setProperty('--c', `var(${color})`);
+    cap.className = 'cap ' + cls; $('who').textContent = name;
+    $('txt').innerHTML = line.w.map(w => `<span>${w[0]}</span>`).join(' ');
+  }
+  const sp = $('txt').children;
+  line.w.forEach((w, i) => { sp[i].className = t >= w[2] ? 'on' : t >= w[1] - .02 ? 'now' : ''; });
+}
+
+/* back to the course map when opened from the Química 8+ app */
+try { if (document.referrer && new URL(document.referrer).origin === location.origin) { $('back').hidden = false; $('back').onclick = e => { e.preventDefault(); history.back(); }; } } catch (e) {}
+/* ---------- player ---------- */
+const au = $('au');
+let playing = false, useAudio = true, clock0 = 0, t0 = 0, T = S.titulo.start + 2.2; const REST = T; // rest frame: the title card
+const fmt = s => { s = Math.max(0, s); return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
+$('dur').textContent = fmt(DUR) + ' min';
+au.addEventListener('error', () => { useAudio = false; });
+function now() { if (!playing) return T; if (useAudio && !au.paused) return au.currentTime; return t0 + rate * (performance.now() - clock0) / 1000; }
+function seek(t) {
+  T = Math.max(0, Math.min(DUR, t));
+  if (useAudio) { try { au.currentTime = T; } catch (e) {} }
+  t0 = T; clock0 = performance.now();
+  if (!playing) frame();
+}
+async function play() {
+  $('veil').hidden = true;
+  if (T >= DUR - .05) T = 0;
+  playing = true; t0 = T; clock0 = performance.now();
+  if (useAudio) { try { au.currentTime = T; await au.play(); } catch (e) { useAudio = false; } }
+  $('play').textContent = '❚❚ Pausa';
+}
+function pause() { T = now(); playing = false; au.pause(); $('play').textContent = '▶ Reproducir'; }
+$('play').onclick = () => playing ? pause() : play();
+$('veil').onclick = () => { if (T === REST) T = 0; play(); };
+document.querySelectorAll('.pick').forEach(b => b.onclick = e => { e.stopPropagation(); document.querySelectorAll('.pick').forEach(x => x.classList.toggle('sel', x === b)); });
+const SPEEDS = [1, 1.25, 1.5, 2]; let rate = 1;
+function setRate(v) { T = now(); rate = v; au.playbackRate = v; au.preservesPitch = true; t0 = T; clock0 = performance.now(); $('spd').textContent = String(v).replace('.', ',') + '×'; }
+$('spd').onclick = () => setRate(SPEEDS[(SPEEDS.indexOf(rate) + 1) % SPEEDS.length]);
+$('cc').onclick = () => { const on = $('cc').getAttribute('aria-pressed') !== 'true'; $('cc').setAttribute('aria-pressed', on); stage.classList.toggle('off', !on); };
+au.addEventListener('ended', () => { playing = false; T = DUR; $('play').textContent = '▶ Reproducir'; });
+
+// scrubber and chapter map
+const track = $('track'), chap = $('chap');
+M.scenes.forEach(s => {
+  const seg = document.createElement('div'); seg.className = 'seg'; seg.style.flex = s.duration; seg.style.setProperty('--bt', `var(${KIND[s.id]})`); seg.title = LABEL[s.id]; track.appendChild(seg);
+  const li = document.createElement('li'); const b = document.createElement('button'); b.style.setProperty('--bt', `var(${KIND[s.id]})`);
+  b.innerHTML = `<span class="t">${fmt(s.start)}</span><span>${LABEL[s.id]}</span>`; b.dataset.s = s.id;
+  b.onclick = () => { $('veil').hidden = true; seek(s.start + .01); if (!playing) play(); };
+  li.appendChild(b); chap.appendChild(li);
+});
+const bar = $('bar');
+function barSeek(e) { const rc = bar.getBoundingClientRect(); seek(cl((e.clientX - rc.left) / rc.width) * DUR); $('veil').hidden = true; }
+let drag = false;
+bar.addEventListener('pointerdown', e => { drag = true; bar.setPointerCapture(e.pointerId); barSeek(e); });
+bar.addEventListener('pointermove', e => { if (drag) barSeek(e); });
+bar.addEventListener('pointerup', () => drag = false);
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); playing ? pause() : play(); }
+  if (e.code === 'ArrowRight') seek(now() + 5);
+  if (e.code === 'ArrowLeft') seek(now() - 5);
+});
+
+let lastChap = '';
+function frame() {
+  const t = now();
+  render(t);
+  const p = t / DUR * 100;
+  $('head').style.left = `calc(${p}% - 1px)`; $('fill').style.width = p + '%';
+  $('time').textContent = fmt(t) + ' / ' + fmt(DUR);
+  bar.setAttribute('aria-valuenow', Math.round(t)); bar.setAttribute('aria-valuemax', Math.round(DUR));
+  const cur = M.scenes.find(s => t >= s.start && t < s.start + s.duration);
+  if (cur && cur.id !== lastChap) { lastChap = cur.id; chap.querySelectorAll('button').forEach(b => b.classList.toggle('cur', b.dataset.s === cur.id)); }
+}
+function loop() { if (playing) { frame(); if (!useAudio && now() >= DUR) pause(); } requestAnimationFrame(loop); }
+resize(); frame(); requestAnimationFrame(loop);
+// deterministic hook for frame capture (720p export later): window.__q9.render(seconds)
+window.__q9 = {render: t => { T = t; playing = false; render(t); }, duration: DUR};
+</script>
+
+</body></html>

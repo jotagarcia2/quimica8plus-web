@@ -1,0 +1,862 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>Química 8+ · Capítulo 2</title>
+<meta name="description" content="Química 8+ · Capítulo 2: ¿Por qué flota un barco de hierro? Propiedades físicas y densidad.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a 16:9 "pizarra de laboratorio" stage (three.js + overlay), player controls and chapter map below. Single dark look on purpose: it is a screen. */
+:root{
+  --ink:#0c1318;      /* pizarra */
+  --slate:#15212a;
+  --line:#2a3a46;
+  --chalk:#ece7da;    /* tiza */
+  --dim:#8d9ba4;
+  --prof:#8fdcae;     /* Profe: verde tiza */
+  --est:#f2b84b;      /* Sofía: ámbar */
+  --doc:#c6b6f0;      /* Narrador: lavanda */
+  --proton:#f0685a; --neutron:#a9b4ba; --electron:#5cc8e6;
+  --warn:#ff7a59;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--ink);color:var(--chalk)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.5;padding:20px 16px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header.top h1{font-family:var(--f-display);font-weight:700;font-size:28px;letter-spacing:.02em;margin:0;text-wrap:balance}
+header.top h1 b{color:var(--prof);font-weight:700}
+header.top .meta{font-family:var(--f-mono);font-size:12px;color:var(--dim);letter-spacing:.04em}
+
+/* ---------- stage ---------- */
+.stage{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;background:var(--ink);overflow:hidden;border-radius:6px;container-type:inline-size;outline:1px solid var(--line);user-select:none}
+.stage canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block}
+.ov{position:absolute;inset:0;pointer-events:none}
+.sc{position:absolute;inset:0;opacity:0}
+.grain{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(0,0,0,.45) 100%)}
+.bug{position:absolute;left:2.2cqw;top:1.8cqw;font-family:var(--f-display);font-weight:600;font-size:1.55cqw;letter-spacing:.08em;color:var(--dim);display:flex;gap:.8cqw;align-items:center;text-transform:uppercase}
+.bug b{color:var(--chalk);letter-spacing:.02em}
+.sect{position:absolute;right:2.2cqw;top:1.6cqw;font-family:var(--f-display);font-weight:600;font-size:1.7cqw;letter-spacing:.12em;text-transform:uppercase;padding:.25cqw .9cqw;border:1px solid currentColor;border-radius:.3cqw;color:var(--chalk)}
+.cap{position:absolute;left:50%;bottom:3.2cqw;transform:translateX(-50%);width:78%;display:flex;gap:1.1cqw;align-items:flex-start;justify-content:center}
+.cap .who{flex:none;font-family:var(--f-display);font-weight:700;font-size:1.45cqw;letter-spacing:.12em;text-transform:uppercase;padding:.35cqw .7cqw;border-radius:.3cqw;background:var(--c);color:var(--ink);margin-top:.35cqw}
+.cap .txt{font-size:2.05cqw;line-height:1.32;text-wrap:balance;text-shadow:0 .15cqw .6cqw rgba(0,0,0,.9)}
+.cap .txt span{color:rgba(236,231,218,.42);transition:color .08s}
+.cap .txt span.on{color:var(--chalk)}
+.cap .txt span.now{color:var(--c)}
+.cap.doc .txt{font-style:italic}
+.off .cap{display:none}
+
+.kick{font-family:var(--f-display);font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.big{font-family:var(--f-display);font-weight:700;line-height:.95;letter-spacing:.01em}
+.mono{font-family:var(--f-mono)}
+.card{position:absolute;background:rgba(21,33,42,.86);border:1px solid var(--line);border-radius:.6cqw;padding:1.2cqw 1.6cqw;backdrop-filter:blur(4px)}
+.pick{background:transparent;cursor:pointer}.pick.sel{background:var(--slate);box-shadow:0 0 0 .25cqw var(--est)}.pick.ok{color:var(--prof)!important}
+.chip{display:inline-block;white-space:nowrap;font-family:var(--f-display);font-weight:600;font-size:1.9cqw;letter-spacing:.06em;padding:.3cqw 1cqw;border-radius:2cqw;border:1px solid currentColor}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.lbl{position:absolute;transform:translate(-50%,-50%);font-family:var(--f-display);font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:1.8cqw;text-align:center;white-space:nowrap}
+.lbl small{display:block;font-family:var(--f-body);font-weight:400;letter-spacing:0;text-transform:none;font-size:1.35cqw;color:var(--dim)}
+.tile{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:9cqw;height:9cqw;border:.2cqw solid var(--chalk);border-radius:.5cqw;background:rgba(12,19,24,.8)}
+.tile .z{font-family:var(--f-mono);font-size:1.4cqw;align-self:flex-start;margin-left:.8cqw;color:var(--dim)}
+.tile .sym{font-family:var(--f-display);font-weight:700;font-size:4.4cqw;line-height:1}
+.tile .nm{font-size:1.2cqw;color:var(--dim)}
+svg{overflow:visible}
+[hidden]{display:none!important}
+
+/* play veil */
+.veil{position:absolute;inset:0;display:flex;align-items:flex-end;padding-bottom:6cqw!important;justify-content:center;background:rgba(12,19,24,.35);cursor:pointer;border:0;padding:0;color:var(--chalk);font:inherit;width:100%;height:100%}
+.veil span{display:flex;align-items:center;gap:1.2cqw;font-family:var(--f-display);font-weight:700;font-size:2.4cqw;letter-spacing:.12em;text-transform:uppercase;background:var(--chalk);color:var(--ink);padding:1.1cqw 2.4cqw 1.1cqw 2cqw;border-radius:4cqw}
+.veil svg{width:2.2cqw;height:2.2cqw}
+.veil:focus-visible span{outline:3px solid var(--prof);outline-offset:4px}
+
+/* ---------- controls ---------- */
+.ctl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn{font:600 15px/1 var(--f-display);letter-spacing:.1em;text-transform:uppercase;color:var(--chalk);background:var(--slate);border:1px solid var(--line);border-radius:4px;padding:9px 14px;cursor:pointer}
+.btn:hover{border-color:var(--dim)}
+.btn:focus-visible,.seg:focus-visible,.chap button:focus-visible{outline:2px solid var(--prof);outline-offset:2px}
+.btn[aria-pressed="true"]{background:var(--chalk);color:var(--ink)}
+.time{font-family:var(--f-mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums;min-width:110px}
+.bar{position:relative;flex:1 1 320px;min-width:0;height:34px;cursor:pointer;display:flex;align-items:center}
+.bar .track{position:absolute;left:0;right:0;height:8px;display:flex;gap:2px}
+.bar .seg{height:100%;border-radius:2px;background:var(--bt,var(--line));opacity:.55}
+.bar .head{position:absolute;top:5px;width:2px;height:24px;background:var(--chalk);border-radius:1px;pointer-events:none}
+.bar .fill{position:absolute;left:0;height:8px;background:rgba(236,231,218,.35);border-radius:2px;pointer-events:none}
+
+.below{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:22px;margin-top:6px}
+@media (max-width:760px){.below{grid-template-columns:1fr}}
+.below h2{font-family:var(--f-display);font-weight:600;font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 8px}
+.chap{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
+.chap button{width:100%;text-align:left;display:flex;gap:10px;align-items:baseline;background:transparent;border:1px solid var(--line);border-left:4px solid var(--bt);border-radius:4px;color:var(--chalk);padding:7px 10px;cursor:pointer;font:15px/1.25 var(--f-body)}
+.chap button .t{font-family:var(--f-mono);font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.chap button.cur{background:var(--slate)}
+.notes p{margin:0 0 8px;color:var(--dim);max-width:62ch}
+.notes b{color:var(--chalk);font-weight:700}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--dim)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:-1px}
+@media (prefers-reduced-motion:reduce){.cap .txt span{transition:none}}
+.back{display:inline-block;font:500 13px/1 var(--f-mono);color:var(--dim);text-decoration:none;margin-bottom:10px;letter-spacing:.04em}.back:hover,.back:focus-visible{color:var(--chalk)}
+</style>
+
+<div class="wrap">
+  <a class="back" id="back" href="#" hidden>← Mapa del curso</a>
+  <header class="top">
+    <h1>Química<b>8+</b> · Capítulo 2 · ¿Por qué flota un barco de hierro?</h1>
+    <div class="meta">8.º GRADO · CAPÍTULO 2 · SUSTANCIAS Y MEZCLAS · <span id="dur"></span></div>
+  </header>
+
+  <div class="stage" id="stage">
+    <div class="ov" id="ov">
+      <!-- INTRO: loud/55 ident, then the series mark -->
+      <div class="sc" data-s="intro">
+        <div class="center" id="ident" style="background:#070707">
+          <div style="position:relative;display:flex;align-items:flex-end;gap:1.1cqw">
+            <div id="loud" class="big" style="font-size:9cqw;font-weight:600;color:#ece7e0;clip-path:inset(0 100% 0 0)">loud</div>
+            <svg viewBox="0 0 60 120" style="width:3.2cqw;height:6.4cqw;margin-bottom:.6cqw">
+              <line x1="12" y1="118" x2="48" y2="2" stroke="#6c6c6c" stroke-width="3"/>
+              <rect id="cap55" x="20" y="-5" width="26" height="10" fill="#f0402c" transform="translate(0,0)"/>
+            </svg>
+            <div id="ro" class="mono" style="font-size:3.2cqw;font-weight:500;color:#ece7e0;border:.18cqw solid #ece7e0;padding:0 .4cqw;line-height:1.15;margin-bottom:.3cqw;opacity:0">00</div>
+          </div>
+        </div>
+        <div class="center" id="mark" style="opacity:0">
+          <div style="display:flex;align-items:center;gap:1.6cqw">
+            <div class="big" style="font-size:10.5cqw">Química</div>
+            <svg viewBox="-60 -60 120 120" style="width:13cqw;height:13cqw">
+              <polygon id="hex" points="0,-52 45,-26 45,26 0,52 -45,26 -45,-26" fill="none" stroke="var(--prof)" stroke-width="5" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" stroke-linejoin="round"/>
+              <circle id="hexin" r="30" fill="none" stroke="var(--prof)" stroke-width="2.5" opacity=".45"/>
+              <text x="0" y="17" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="50" fill="var(--chalk)">8+</text>
+              <circle id="hexe" r="5" fill="var(--electron)"/>
+            </svg>
+          </div>
+          <div id="marktag" style="font-size:2.3cqw;color:var(--dim);margin-top:1cqw;font-style:italic">química de verdad, paso a paso</div>
+        </div>
+      </div>
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <symbol id="shipS" viewBox="-360 -230 720 320" overflow="visible">
+            <path d="M-340,-40 H340 L300,60 H-310 Q-335,20 -340,-40Z" fill="#76828a" stroke="var(--chalk)" stroke-width="3"/>
+            <line x1="-318" y1="0" x2="322" y2="0" stroke="#f0685a" stroke-width="5" opacity=".75"/>
+            <g stroke="var(--chalk)" stroke-width="2">
+              <rect x="-250" y="-90" width="80" height="50" fill="#b85d4f"/><rect x="-170" y="-90" width="80" height="50" fill="#4f7fa8"/><rect x="-90" y="-90" width="80" height="50" fill="#c9a24a"/>
+              <rect x="-250" y="-140" width="80" height="50" fill="#4f7fa8"/><rect x="-170" y="-140" width="80" height="50" fill="#c9a24a"/><rect x="10" y="-90" width="80" height="50" fill="#b85d4f"/>
+              <rect x="90" y="-90" width="80" height="50" fill="#4f7fa8"/><rect x="10" y="-140" width="80" height="50" fill="#b85d4f"/>
+            </g>
+            <rect x="200" y="-170" width="90" height="130" fill="#5b666d" stroke="var(--chalk)" stroke-width="3"/>
+            <rect x="215" y="-155" width="60" height="18" fill="#bfe6f7" opacity=".7"/>
+          </symbol>
+          <symbol id="nailS" viewBox="-30 -90 60 190" overflow="visible">
+            <rect x="-8" y="-70" width="16" height="140" fill="#9aa4aa"/><rect x="-26" y="-80" width="52" height="12" rx="3" fill="#9aa4aa"/><path d="M-8,70 L0,95 L8,70Z" fill="#9aa4aa"/>
+          </symbol>
+        </defs>
+      </svg>
+
+      <div class="sc" data-s="frio">
+        <svg viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <g id="fship" transform="translate(1040,520)"><use href="#shipS" x="-360" y="-230" width="720" height="320"/></g>
+          <g id="fnail" opacity="0"><use href="#nailS" x="-30" y="-90" width="60" height="190"/></g>
+          <rect x="0" y="520" width="1600" height="380" fill="#1d4c6b" opacity=".62"/>
+          <path id="fwave" d="" fill="none" stroke="#7fc4ea" stroke-width="3"/>
+        </svg>
+        <div class="lbl" id="fl1" style="left:65%;top:14%;opacity:0">barco de acero<small>con su carga: más de 100 000 t</small></div>
+        <div class="chip lbl" id="fl1b" style="left:65%;top:27%;opacity:0;color:var(--prof)">flota</div>
+        <div class="lbl" id="fl2" style="left:24%;top:14%;opacity:0">clavo de hierro<small>unos pocos gramos</small></div>
+        <div class="chip lbl" id="fl2b" style="left:24%;top:27%;opacity:0;color:var(--warn)">se hunde</div>
+        <div class="center" id="fq" style="opacity:0;background:rgba(12,19,24,.6)"><div class="big" style="font-size:8cqw">¿Cómo puede ser?</div></div>
+      </div>
+
+      <div class="sc" data-s="titulo">
+        <div class="center">
+          <div class="kick" id="t1" style="font-size:2cqw">8.º grado · Capítulo 2 · Sustancias y mezclas</div>
+          <div class="big" id="t2" style="font-size:8cqw;margin:.8cqw 0 1.4cqw;text-wrap:balance;max-width:84cqw">¿Por qué flota un barco de hierro?</div>
+          <div id="t3" style="display:flex;gap:1cqw">
+            <span class="chip" style="color:var(--est)">masa</span>
+            <span class="chip" style="color:var(--electron)">volumen</span>
+            <span class="chip" style="color:var(--prof)">densidad</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="repaso">
+        <div style="position:absolute;left:4%;top:18%;display:flex;flex-direction:column;gap:1.6cqw">
+          <div class="card rp" style="position:relative;width:30cqw;text-align:left"><div class="kick" style="font-size:1.3cqw;color:var(--est)">Cap. 1 · idea 1</div><div style="font-size:2.1cqw;line-height:1.3;margin-top:.3cqw"><b>Materia</b>: tiene <span id="rpm">masa</span> y ocupa <span id="rpv">volumen</span>.</div></div>
+          <div class="card rp" style="position:relative;width:30cqw;text-align:left"><div class="kick" style="font-size:1.3cqw;color:var(--est)">Cap. 1 · idea 2</div><div style="font-size:2.1cqw;line-height:1.3;margin-top:.3cqw">Hecha de <b style="color:var(--electron)">partículas</b>, con espacio entre ellas.</div></div>
+        </div>
+        <div class="lbl" id="rpNo" style="left:73%;top:9%;font-size:1.3cqw;color:var(--dim);text-transform:none;letter-spacing:0">modelo simplificado · no está a escala</div>
+        <div id="rpk" style="position:absolute;right:6%;top:14%;display:flex;gap:1cqw;opacity:0">
+          <span class="chip" style="color:var(--est)">masa</span><span class="chip" style="color:var(--electron)">volumen</span>
+        </div>
+      </div>
+
+      <div class="sc" data-s="pregunta">
+        <div class="center" style="justify-content:flex-start;padding-top:9cqw">
+          <div class="big" id="pq" style="font-size:5.6cqw;max-width:74cqw;text-wrap:balance">¿Por qué el barco <span style="color:var(--est)">no se hunde</span>?</div>
+          <div id="agenda" style="display:flex;gap:2cqw;margin-top:4cqw">
+            <div class="card" style="position:relative;width:21cqw;text-align:left" id="ag0"><div class="kick" style="font-size:1.4cqw">1 · distinguir</div><div class="big" style="font-size:3cqw">propiedades</div></div>
+            <div class="card" style="position:relative;width:21cqw;text-align:left" id="ag1"><div class="kick" style="font-size:1.4cqw">2 · medir</div><div class="big" style="font-size:3cqw">la densidad</div></div>
+            <div class="card" style="position:relative;width:21cqw;text-align:left" id="ag2"><div class="kick" style="font-size:1.4cqw">3 · explicar</div><div class="big" style="font-size:3cqw">el barco</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="propiedades">
+        <!-- A: general vs specific -->
+        <div id="pA" style="position:absolute;left:0;right:0;top:12%;display:flex;justify-content:center;gap:3cqw">
+          <div class="card" id="pGen" style="position:relative;width:30cqw;opacity:0">
+            <div class="kick" style="font-size:1.5cqw">todo cuerpo tiene</div>
+            <div style="display:flex;gap:1cqw;margin-top:.8cqw"><span class="chip" style="color:var(--est)">masa</span><span class="chip" style="color:var(--electron)">volumen</span></div>
+            <div style="font-size:1.5cqw;color:var(--dim);margin-top:.7cqw">no dicen qué sustancia es</div>
+          </div>
+          <div class="card" id="pEsp" style="position:relative;width:34cqw;opacity:0">
+            <div class="kick" style="font-size:1.5cqw;color:var(--prof)">propiedades físicas</div>
+            <div style="display:flex;flex-direction:column;gap:.5cqw;margin-top:.8cqw;font-size:1.8cqw">
+              <div id="pe0">temperatura de fusión <span class="mono" style="color:var(--dim);font-size:1.4cqw;display:block;white-space:nowrap">hielo 0 °C · hierro 1 538 °C</span></div>
+              <div id="pe1">temperatura de ebullición <span class="mono" style="color:var(--dim);font-size:1.4cqw;display:block;white-space:nowrap">agua ≈ 100 °C a 100 kPa</span></div>
+              <div id="pe2" style="color:var(--prof);font-weight:700">densidad</div>
+            </div>
+          </div>
+        </div>
+        <svg id="pCubes" viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%;opacity:0">
+          <!-- 100 g each: iron 7,87 g/cm³ -> 12,7 cm³ ; wood 0,6 g/cm³ -> 167 cm³ ; edge ratio 2,36 -->
+          <g transform="translate(560,610)"><rect x="-45" y="-90" width="90" height="90" fill="#8a949a" stroke="var(--chalk)" stroke-width="3"/><text y="50" text-anchor="middle" font-family="IBM Plex Mono" font-size="30" fill="var(--chalk)">hierro · 100 g</text></g>
+          <g transform="translate(1040,610)"><rect x="-106" y="-212" width="212" height="212" fill="#a0784c" stroke="var(--chalk)" stroke-width="3"/><g stroke="#7a5534" stroke-width="3" fill="none"><path d="M-100,-160 q60,-14 200,6"/><path d="M-100,-90 q80,16 200,-8"/><path d="M-100,-30 q70,-10 200,4"/></g><text y="50" text-anchor="middle" font-family="IBM Plex Mono" font-size="30" fill="var(--chalk)">madera · 100 g</text></g>
+          <text x="800" y="330" text-anchor="middle" font-family="Barlow Condensed" font-weight="600" font-size="34" letter-spacing="3" fill="var(--warn)">MISMA MASA · DISTINTA SUSTANCIA</text>
+        </svg>
+        <!-- B: formula -->
+        <div class="center" id="pF" style="opacity:0">
+          <div class="kick" style="font-size:1.8cqw">definición</div>
+          <div class="big" style="font-size:6cqw;margin-top:.4cqw">DENSIDAD</div>
+          <div style="font-size:2.3cqw;margin-top:.4cqw">masa en cada unidad de volumen</div>
+          <div class="mono" id="pFf" style="font-size:6cqw;margin-top:1.4cqw;font-weight:600"><span style="color:var(--prof)">d</span> = <span style="color:var(--est)">m</span> / <span style="color:var(--electron)">V</span></div>
+        </div>
+        <div class="card mono" id="pFs" style="left:3%;top:13%;opacity:0;font-size:2.4cqw;font-weight:600"><span style="color:var(--prof)">d</span> = <span style="color:var(--est)">m</span> / <span style="color:var(--electron)">V</span></div>
+        <!-- C: scale -->
+        <svg id="pScale" viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%;opacity:0">
+          <defs><linearGradient id="gLq" x1="0" x2="0" y1="0" y2="1"><stop id="gLq0" offset="0" stop-color="#58b6e8"/><stop id="gLq1" offset="1" stop-color="#2a6f9e"/></linearGradient></defs>
+          <g transform="translate(560,590)">
+            <rect x="-230" y="0" width="460" height="56" rx="10" fill="#28343d" stroke="var(--chalk)" stroke-width="3"/>
+            <rect x="-150" y="-10" width="300" height="12" rx="4" fill="#3b4a55" stroke="var(--chalk)" stroke-width="2"/>
+            <rect x="60" y="10" width="150" height="36" rx="4" fill="#0a1a12" stroke="var(--dim)" stroke-width="2"/>
+            <text id="scR" x="200" y="38" text-anchor="end" font-family="IBM Plex Mono" font-size="28" font-weight="600" fill="#8fdcae">0 g</text>
+            <g transform="translate(-40,-10)">
+              <rect x="-55" y="-330" width="110" height="330" rx="6" fill="rgba(236,231,218,.05)" stroke="var(--chalk)" stroke-width="3"/>
+              <rect id="scL" x="-52" y="-253" width="104" height="250" fill="url(#gLq)" opacity=".92"/>
+              <g stroke="var(--dim)" stroke-width="2"><line x1="-55" y1="-253" x2="-25" y2="-253"/><line x1="-55" y1="-128" x2="-35" y2="-128"/></g>
+              <text x="-62" y="-245" text-anchor="end" font-family="IBM Plex Mono" font-size="24" fill="var(--dim)">100 mL</text>
+            </g>
+            <text id="scN" x="-40" y="100" text-anchor="middle" font-family="IBM Plex Mono" font-size="30" fill="var(--chalk)">agua · 100 mL</text>
+          </g>
+        </svg>
+        <div class="card" id="pBars" style="right:4%;top:22%;opacity:0;width:30cqw">
+          <div class="kick" style="font-size:1.3cqw">densidad · g/mL</div>
+          <div class="pbar" id="pb0" style="display:flex;align-items:center;gap:.8cqw;margin-top:.8cqw"><span style="font-size:1.6cqw;width:6.5cqw">agua</span><div style="height:1.6cqw;width:12.5cqw;background:#58b6e8;border-radius:.2cqw"></div><span class="mono" style="font-size:1.5cqw">≈ 1,00</span></div>
+          <div class="pbar" id="pb1" style="display:flex;align-items:center;gap:.8cqw;margin-top:.6cqw"><span style="font-size:1.6cqw;width:6.5cqw">aceite</span><div style="height:1.6cqw;width:11.5cqw;background:#e8d36a;border-radius:.2cqw"></div><span class="mono" style="font-size:1.5cqw">≈ 0,92</span></div>
+          <div class="pbar" id="pb2" style="display:flex;align-items:center;gap:.8cqw;margin-top:.6cqw"><span style="font-size:1.6cqw;width:6.5cqw">miel</span><div style="height:1.6cqw;width:17.5cqw;background:#d99a2b;border-radius:.2cqw"></div><span class="mono" style="font-size:1.5cqw">≈ 1,4</span></div>
+        </div>
+        <!-- D: units -->
+        <div class="center" id="pU" style="opacity:0">
+          <svg viewBox="-110 -110 220 200" style="width:15cqw;height:14cqw">
+            <path d="M-50,-20 L10,-50 L70,-20 L10,10Z" fill="rgba(92,200,230,.25)" stroke="var(--electron)" stroke-width="3"/>
+            <path d="M-50,-20 L-50,50 L10,80 L10,10Z" fill="rgba(92,200,230,.15)" stroke="var(--electron)" stroke-width="3"/>
+            <path d="M10,10 L10,80 L70,50 L70,-20Z" fill="rgba(92,200,230,.1)" stroke="var(--electron)" stroke-width="3"/>
+            <text x="-70" y="30" text-anchor="end" font-family="IBM Plex Mono" font-size="20" fill="var(--dim)">1 cm</text>
+          </svg>
+          <div class="big mono" style="font-size:5cqw;margin-top:1cqw">1 mL = 1 cm³</div>
+          <div style="display:flex;gap:1.2cqw;margin-top:1.2cqw"><span class="chip" style="color:var(--chalk)">líquidos · g/mL</span><span class="chip" style="color:var(--chalk)">sólidos · g/cm³</span></div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="experimento">
+        <svg id="lab" viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%"><g transform="translate(120,-3) scale(.85)">
+          <line x1="200" y1="782" x2="1400" y2="782" stroke="var(--line)" stroke-width="4"/>
+          <g id="glass">
+            <rect id="lyH" x="673" y="760" width="254" height="0" fill="#d99a2b" opacity=".92"/>
+            <rect id="lyW" x="673" y="610" width="254" height="0" fill="#3f8fc4" opacity=".85"/>
+            <rect id="lyO" x="673" y="460" width="254" height="0" fill="#e8d36a" opacity=".8"/>
+            <path d="M670,170 L670,765 Q670,780 685,780 L915,780 Q930,780 930,765 L930,170" fill="rgba(236,231,218,.05)" stroke="var(--chalk)" stroke-width="4"/>
+          </g>
+          <g id="oCork"><rect x="-26" y="-18" width="52" height="36" rx="8" fill="#c79a62" stroke="var(--chalk)" stroke-width="2"/><circle cx="-8" cy="-4" r="3" fill="#8b6538"/><circle cx="10" cy="6" r="2.5" fill="#8b6538"/></g>
+          <g id="oNut"><polygon points="-24,0 -12,-21 12,-21 24,0 12,21 -12,21" fill="#8a949a" stroke="var(--chalk)" stroke-width="2"/><circle r="9" fill="#0c1318" stroke="var(--chalk)" stroke-width="2"/></g>
+          <g id="oGrape"><ellipse rx="21" ry="24" fill="#7b3f8f" stroke="var(--chalk)" stroke-width="2"/><ellipse cx="-7" cy="-9" rx="5" ry="7" fill="#b27bc6" opacity=".7"/></g>
+          <g font-family="IBM Plex Mono" font-size="28" fill="var(--chalk)">
+            <text id="lbO" x="960" y="400" opacity="0">aceite · ≈ 0,92 g/mL</text>
+            <text id="lbW" x="960" y="550" opacity="0">agua · ≈ 1,00 g/mL</text>
+            <text id="lbH" x="960" y="705" opacity="0">miel · ≈ 1,4 g/mL</text>
+          </g>
+          <g font-family="IBM Plex Mono" font-size="26" fill="var(--dim)" text-anchor="end">
+            <text id="lbC" x="640" y="300" opacity="0">corcho · ≈ 0,2 g/cm³</text>
+            <text id="lbN" x="640" y="765" opacity="0">hierro · ≈ 7,9 g/cm³</text>
+            <text id="lbG" x="640" y="610" opacity="0">uva · sobre la miel</text>
+          </g>
+        </g></svg>
+        <div id="pred" style="position:absolute;left:3%;top:22%;display:flex;flex-direction:column;gap:1cqw;align-items:flex-start;opacity:0">
+          <span class="kick" style="font-size:1.8cqw">la uva:</span>
+          <button class="chip pick" id="p0" style="color:var(--chalk)">arriba</button>
+          <button class="chip pick" id="p1" style="color:var(--chalk)">en el medio</button>
+          <button class="chip pick" id="p2" style="color:var(--chalk)">al fondo</button>
+          <span class="mono" id="think" style="font-size:1.8cqw;color:var(--est);min-width:6cqw"></span>
+        </div>
+        <div class="lbl" id="xNoesc" style="left:50%;top:9%;opacity:0;font-size:1.3cqw;color:var(--dim);text-transform:none;letter-spacing:0">modelo simplificado · no está a escala</div>
+        <div class="lbl" id="xFe" style="left:50%;top:16%;opacity:0">hierro · ≈ 7,9 g/cm³<small>átomos pesados y muy apretados</small></div>
+        <div class="card" id="xMass" style="right:4%;top:26%;opacity:0;width:24cqw;font-size:1.6cqw">
+          <div class="kick" style="font-size:1.3cqw">masa de cada partícula</div>
+          <div style="display:flex;align-items:center;gap:.8cqw;margin-top:.6cqw"><span style="width:8cqw">átomo Fe</span><div style="height:1.2cqw;width:12.4cqw;background:#8a949a;border-radius:.2cqw"></div></div>
+          <div style="display:flex;align-items:center;gap:.8cqw;margin-top:.4cqw"><span style="width:8cqw">molécula H₂O</span><div style="height:1.2cqw;width:4cqw;background:#58b6e8;border-radius:.2cqw"></div></div>
+          <div class="mono" style="font-size:1.3cqw;color:var(--dim);margin-top:.4cqw">55,8 u vs. 18,0 u · ≈ 3 veces</div>
+        </div>
+        <div class="lbl" id="xCk" style="left:50%;top:16%;opacity:0">corcho · ≈ 0,2 g/cm³<small>celdas diminutas llenas de aire</small></div>
+        <div class="center" id="concl" style="opacity:0;background:rgba(12,19,24,.78)">
+          <div class="kick" style="font-size:1.9cqw;color:var(--prof)">conclusión</div>
+          <div style="display:flex;flex-direction:column;gap:1.2cqw;margin-top:1cqw">
+            <div class="big" id="cc0" style="font-size:4.6cqw">menos denso que el líquido → <span style="color:var(--prof)">flota</span></div>
+            <div class="big" id="cc1" style="font-size:4.6cqw">más denso que el líquido → <span style="color:var(--warn)">se hunde</span></div>
+            <div id="cc2" style="font-size:2cqw;color:var(--dim)">igual densidad → queda suspendido</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="barco">
+        <div class="card" id="bCmp" style="left:50%;top:18%;transform:translateX(-50%);opacity:0;width:52cqw">
+          <div class="kick" style="font-size:1.4cqw">densidad · g/cm³</div>
+          <div style="display:flex;align-items:center;gap:1cqw;margin-top:.8cqw"><span style="font-size:2cqw;width:9cqw">hierro</span><div id="bBarFe" style="height:2.2cqw;width:31.6cqw;background:#8a949a;border-radius:.2cqw;transform-origin:left"></div><span class="mono" style="font-size:1.8cqw">≈ 7,9</span></div>
+          <div style="display:flex;align-items:center;gap:1cqw;margin-top:.7cqw"><span style="font-size:2cqw;width:9cqw">agua</span><div style="height:2.2cqw;width:4cqw;background:#58b6e8;border-radius:.2cqw"></div><span class="mono" style="font-size:1.8cqw">≈ 1,0</span></div>
+          <div class="chip" id="b8" style="color:var(--warn);margin-top:1cqw;opacity:0">casi 8 veces más denso</div>
+        </div>
+        <svg id="bHull" viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%;opacity:0">
+          <rect x="0" y="520" width="1600" height="380" fill="#1d4c6b" opacity=".55"/>
+          <g id="bHullG" transform="translate(800,520)">
+            <path d="M-420,-170 L-420,40 Q-400,120 -300,130 L300,130 Q400,120 420,40 L420,-170" fill="rgba(236,231,218,.08)" stroke="#8a949a" stroke-width="22" stroke-linejoin="round"/>
+            <rect id="bFlood" x="-409" y="119" width="818" height="0" fill="#3f8fc4" opacity=".8"/>
+            <text id="bAir" x="0" y="-20" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="84" letter-spacing="8" fill="var(--electron)" opacity=".85">AIRE</text>
+            <line x1="-420" y1="-170" x2="420" y2="-170" stroke="#8a949a" stroke-width="10" stroke-dasharray="4 14"/>
+          </g>
+          <text id="bSteel" x="330" y="330" font-family="IBM Plex Mono" font-size="30" fill="var(--chalk)">casco de acero</text>
+          <line id="bSteelL" x1="420" y1="340" x2="385" y2="420" stroke="var(--chalk)" stroke-width="2"/>
+        </svg>
+        <div class="card" id="bMed" style="left:50%;top:6%;transform:translateX(-50%);opacity:0;font-size:2.2cqw;white-space:nowrap;text-align:center">
+          <div class="kick" style="font-size:1.4cqw">densidad media</div>
+          <span class="mono" style="font-weight:600"><span style="color:var(--est)">masa total</span> / <span style="color:var(--electron)">volumen total</span></span> <span style="color:var(--dim);font-size:1.7cqw">(acero + carga + aire)</span>
+        </div>
+        <svg id="bClay" viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%;opacity:0">
+          <g transform="translate(470,0)">
+            <rect x="-230" y="380" width="460" height="360" fill="#1d4c6b" opacity=".6"/><path d="M-230,300 V740 H230 V300" fill="none" stroke="var(--chalk)" stroke-width="4"/>
+            <circle id="clBall" cx="0" cy="335" r="44" fill="#e0726a" stroke="var(--chalk)" stroke-width="3"/>
+            <text x="0" y="275" text-anchor="middle" font-family="Barlow Condensed" font-weight="600" font-size="38" letter-spacing="3" fill="var(--chalk)">BOLA · SE HUNDE</text>
+          </g>
+          <g transform="translate(1130,0)">
+            <rect x="-230" y="380" width="460" height="360" fill="#1d4c6b" opacity=".6"/><path d="M-230,300 V740 H230 V300" fill="none" stroke="var(--chalk)" stroke-width="4"/>
+            <g id="clBoat" opacity="0"><path d="M-120,352 L-100,400 Q-90,418 -70,418 L70,418 Q90,418 100,400 L120,352" fill="none" stroke="#e0726a" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+              <path id="clVol" d="M-120,352 L-100,400 Q-90,418 -70,418 L70,418 Q90,418 100,400 L120,352Z" fill="rgba(92,200,230,.18)" stroke="var(--electron)" stroke-width="2" stroke-dasharray="8 6" opacity="0"/></g>
+            <text x="0" y="275" text-anchor="middle" font-family="Barlow Condensed" font-weight="600" font-size="38" letter-spacing="3" fill="var(--chalk)">BARQUITO · FLOTA</text>
+          </g>
+        </svg>
+        <div class="lbl" id="clSame" style="left:50%;top:12%;opacity:0">la misma plastilina<small>misma masa</small></div>
+        <div class="lbl" id="clMore" style="left:71%;top:21%;opacity:0;color:var(--electron)">encierra mucho más volumen<small>densidad media menor que la del agua</small></div>
+        <svg id="bSea" viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%;opacity:0">
+          <g id="bShip" transform="translate(800,520)"><use href="#shipS" x="-360" y="-230" width="720" height="320"/>
+            <path id="bCrack" d="M-200,20 l18,14 -10,12 20,10" fill="none" stroke="var(--warn)" stroke-width="6" opacity="0"/></g>
+          <rect x="0" y="520" width="1600" height="380" fill="#1d4c6b" opacity=".62"/>
+          <path id="bwave" d="" fill="none" stroke="#7fc4ea" stroke-width="3"/>
+        </svg>
+        <div class="lbl" id="bGiant" style="left:50%;top:14%;opacity:0;font-size:2.4cqw">acero + carga + muchísimo aire<small>densidad media menor que la del agua</small></div>
+        <div class="lbl" id="bSink" style="left:50%;top:14%;opacity:0;color:var(--warn);font-size:2.4cqw">entra agua, sale aire<small>la densidad media sube</small></div>
+      </div>
+
+      <div class="sc" data-s="ojo">
+        <div id="stamp" style="position:absolute;left:6%;top:14%;opacity:0;transform:rotate(-8deg);border:.35cqw solid var(--warn);color:var(--warn);padding:.4cqw 1.4cqw;border-radius:.5cqw;font-family:var(--f-display);font-weight:700;font-size:4.2cqw;letter-spacing:.08em">¡OJO!</div>
+        <svg viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <rect id="oWater" x="0" y="600" width="1600" height="300" fill="#1d4c6b" opacity="0"/>
+          <g id="oNailA" transform="translate(800,400)"><g transform="scale(2.2) rotate(90)"><rect x="-8" y="0" width="16" height="70" fill="#9aa4aa"/><path d="M-8,70 L0,95 L8,70Z" fill="#9aa4aa"/></g></g>
+          <g id="oNailB" transform="translate(800,400)"><g transform="scale(2.2) rotate(90)"><rect x="-8" y="-70" width="16" height="70" fill="#9aa4aa"/><rect x="-26" y="-80" width="52" height="12" rx="3" fill="#9aa4aa"/></g></g>
+          <line id="oCut" x1="800" y1="300" x2="800" y2="500" stroke="var(--est)" stroke-width="4" stroke-dasharray="10 8" opacity="0"/>
+        </svg>
+        <div class="lbl" id="oHalfL" style="left:34%;top:34%;opacity:0">½ masa<small>½ volumen</small></div>
+        <div class="lbl" id="oHalfR" style="left:66%;top:34%;opacity:0">½ masa<small>½ volumen</small></div>
+        <div class="card" id="oSame" style="left:50%;top:10%;transform:translateX(-50%);opacity:0;font-size:2.2cqw;white-space:nowrap;text-align:center">
+          <span class="mono" style="font-weight:600">d = ½ m / ½ V = <span style="color:var(--prof)">la misma</span></span> · ≈ 7,9 g/cm³
+        </div>
+        <div class="chip lbl" id="oProp" style="left:50%;top:26%;opacity:0;color:var(--prof)">no depende de cuánto material haya</div>
+      </div>
+
+      <div class="sc" data-s="reto">
+        <div class="center">
+          <div class="kick" style="font-size:2cqw;color:var(--est)">reto rápido</div>
+          <div class="big" style="font-size:4.4cqw;margin:.5cqw 0 2.2cqw">Bloque de madera: <span class="mono" style="color:var(--est);font-size:4cqw">60 g</span> y <span class="mono" style="color:var(--electron);font-size:4cqw">100 cm³</span></div>
+          <div style="display:flex;gap:5cqw;align-items:flex-start">
+            <div><div class="kick" style="font-size:1.6cqw">¿densidad? (g/cm³)</div>
+              <div style="display:flex;gap:1cqw;margin-top:.8cqw"><span class="chip rq mono" data-ok="1">0,6</span><span class="chip rq mono" data-ok="0">1,6</span><span class="chip rq mono" data-ok="0">6</span></div></div>
+            <div><div class="kick" style="font-size:1.6cqw">¿en agua?</div>
+              <div style="display:flex;gap:1cqw;margin-top:.8cqw"><span class="chip rq" data-ok="1">flota</span><span class="chip rq" data-ok="0">se hunde</span></div></div>
+            <svg viewBox="-50 -50 100 100" style="width:9cqw;height:9cqw" id="clock"><circle r="40" fill="none" stroke="var(--line)" stroke-width="8"/><circle id="clk" r="40" fill="none" stroke="var(--est)" stroke-width="8" pathLength="1" stroke-dasharray="1" stroke-dashoffset="0" transform="rotate(-90)"/><text id="clkn" y="14" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="38" fill="var(--chalk)">5</text></svg>
+          </div>
+          <div id="rsol" style="margin-top:2.6cqw;opacity:0;font-size:2.6cqw" class="mono">
+            d = 60 g / 100 cm³ = <b style="color:var(--prof)">0,6 g/cm³</b> &lt; 1,0 (agua) → <b style="color:var(--prof)">flota</b>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="resumen">
+        <div class="center" style="justify-content:flex-start;padding-top:7cqw">
+          <div class="kick" style="font-size:2cqw">resumen · 3 ideas</div>
+          <div style="display:flex;gap:1.8cqw;margin-top:2.4cqw">
+            <div class="card rs" style="position:relative;width:25cqw;text-align:left"><div class="mono" style="font-size:2.6cqw;color:var(--prof)">1</div><div style="font-size:2cqw;line-height:1.3;margin-top:.4cqw"><b>Todo cuerpo</b> tiene masa y volumen. La <b>densidad</b> es una propiedad física: caracteriza a la sustancia.</div></div>
+            <div class="card rs" style="position:relative;width:25cqw;text-align:left"><div class="mono" style="font-size:2.6cqw;color:var(--prof)">2</div><div style="font-size:2cqw;line-height:1.3;margin-top:.4cqw"><b class="mono">d = m / V</b>. <span style="color:var(--dim)">Agua ≈ 1 g/mL</span></div></div>
+            <div class="card rs" style="position:relative;width:25cqw;text-align:left"><div class="mono" style="font-size:2.6cqw;color:var(--prof)">3</div><div style="font-size:2cqw;line-height:1.3;margin-top:.4cqw">Menos denso que el líquido: <b>flota</b>. Barco: densidad media de <b>acero + carga + aire</b>.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="proximo">
+        <svg viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <line x1="0" y1="640" x2="1600" y2="640" stroke="var(--line)" stroke-width="4"/>
+          <ellipse id="puddle" cx="800" cy="700" rx="360" ry="60" fill="#3f8fc4" opacity=".75"/>
+          <g id="sun" transform="translate(1400,340)"><circle r="60" fill="#ffe08a"/><g stroke="#ffe08a" stroke-width="8" stroke-linecap="round"><line x1="0" y1="-80" x2="0" y2="-110"/><line x1="0" y1="80" x2="0" y2="110"/><line x1="-80" y1="0" x2="-110" y2="0"/><line x1="80" y1="0" x2="110" y2="0"/><line x1="57" y1="57" x2="78" y2="78"/><line x1="-57" y1="-57" x2="-78" y2="-78"/><line x1="57" y1="-57" x2="78" y2="-78"/><line x1="-57" y1="57" x2="-78" y2="78"/></g></g>
+          <g id="vap" fill="none" stroke="#bfe6f7" stroke-width="4" stroke-linecap="round" opacity=".6"></g>
+        </svg>
+        <div class="card" id="nx" style="left:50%;top:9%;transform:translateX(-50%);opacity:0;text-align:center;white-space:nowrap">
+          <div class="kick" style="font-size:1.6cqw">próximo capítulo</div>
+          <div class="big" style="font-size:3.6cqw">Cap. 3 · Estados y <span style="color:var(--est)">cambios de estado</span></div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="outro">
+        <div class="center">
+          <div style="display:flex;align-items:center;gap:1.2cqw">
+            <div class="big" style="font-size:7cqw">Química</div>
+            <svg viewBox="-60 -60 120 120" style="width:8.6cqw;height:8.6cqw"><polygon points="0,-52 45,-26 45,26 0,52 -45,26 -45,-26" fill="none" stroke="var(--prof)" stroke-width="5" stroke-linejoin="round"/><circle r="30" fill="none" stroke="var(--prof)" stroke-width="2.5" opacity=".45"/><text x="0" y="17" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="50" fill="var(--chalk)">8+</text></svg>
+          </div>
+          <div style="font-size:2.2cqw;margin-top:1.2cqw">Próximo: <b>Capítulo 3 · Estados y cambios de estado</b></div>
+          <div style="font-size:1.5cqw;color:var(--dim);margin-top:3cqw">Voces sintéticas (Kokoro-82M) · Profe, Sofía y Narrador · hecho con código</div>
+          <div style="display:flex;align-items:flex-end;gap:.4cqw;margin-top:1.4cqw;opacity:.85">
+            <span class="big" style="font-size:2.6cqw;font-weight:600">loud</span>
+            <svg viewBox="0 0 60 120" style="width:1cqw;height:2cqw;margin-bottom:.2cqw"><line x1="12" y1="118" x2="48" y2="2" stroke="#6c6c6c" stroke-width="5"/><rect x="26" y="4" width="26" height="12" fill="#f0402c"/></svg>
+            <span class="mono" style="font-size:1.1cqw;border:.12cqw solid var(--chalk);padding:0 .2cqw;margin-bottom:.2cqw">55</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grain"></div>
+      <div class="bug" id="bug"><b>Química 8+</b><span>Cap. 2</span></div>
+      <div class="sect" id="sect"></div>
+      <div class="cap" id="cap"><span class="who" id="who"></span><div class="txt" id="txt"></div></div>
+    </div>
+    <button class="veil" id="veil" aria-label="Reproducir capítulo"><span><svg viewBox="0 0 20 20"><path d="M4 2 L18 10 L4 18Z" fill="currentColor"/></svg>Ver capítulo</span></button>
+  </div>
+
+  <div class="ctl">
+    <button class="btn" id="play" aria-label="Reproducir o pausar">▶ Reproducir</button>
+    <div class="time" id="time">0:00 / 0:00</div>
+    <div class="bar" id="bar" role="slider" aria-label="Posición" tabindex="0" aria-valuemin="0"><div class="track" id="track"></div><div class="fill" id="fill"></div><div class="head" id="head"></div></div>
+    <button class="btn" id="spd" aria-label="Velocidad">1×</button>
+    <button class="btn" id="cc" aria-pressed="true">Subtítulos</button>
+  </div>
+
+  <div class="below">
+    <div>
+      <h2>Bloques del capítulo</h2>
+      <ul class="chap" id="chap"></ul>
+    </div>
+    <div class="notes">
+      <h2>Voces</h2>
+      <div class="legend" style="margin-bottom:10px"><span><i style="--c:var(--prof)"></i>Profe</span><span><i style="--c:var(--est)"></i>Sofía, estudiante</span><span><i style="--c:var(--doc)"></i>Narrador documental</span></div>
+      <p>Todo se dibuja en vivo en el navegador desde una sola línea de tiempo: la narración manda y cada animación se engancha a una palabra dicha. Espacio pausa, ← → salta 5 s.</p>
+      <p>Datos (20 °C, valores aproximados): agua 0,998 g/mL; aceite de girasol ≈ 0,92 g/mL; miel ≈ 1,4 g/mL (1,38–1,45 según su humedad); corcho ≈ 0,12–0,24 g/cm³; hierro 7,87 g/cm³ (acero ≈ 7,85 g/cm³); masa del átomo de Fe 55,8 u, de la molécula de H₂O 18,0 u (≈ 3,1 veces); hay ≈ 8,5·10²² átomos de Fe por cm³ frente a ≈ 3,3·10²² moléculas de H₂O (≈ 2,6 veces), y 3,1 × 2,6 ≈ 7,9. La balanza muestra solo la masa del líquido (probeta tarada). La miel y el agua sí se mezclan si se agitan: se vierten despacio, por la pared del vaso. La densidad de una uva varía; se hunde en agua y queda sobre la miel.</p>
+    </div>
+  </div>
+</div>
+
+<audio id="au" src="mix.mp3" preload="auto"></audio>
+<script src="../vendor/three.min.js"></script>
+<script>
+const M = {"duration":263.512,"scenes":[{"id":"intro","start":0.0,"duration":8.0,"lines":[]},{"id":"frio","start":8.0,"duration":10.641,"lines":[{"t":"Este barco de acero, con su carga, tiene más de cien mil toneladas. Y flota.","s":8.48,"d":4.572,"v":"em_santa","w":[["Este",8.5,8.72],["barco",8.72,9.02],["de",9.02,9.12],["acero,",9.12,9.52],["con",9.6,9.81],["su",9.815,9.91],["carga,",9.94,10.37],["tiene",10.46,10.72],["más",10.725,10.9],["de",10.9,11.02],["cien",11.025,11.3],["mil",11.3,11.47],["toneladas.",11.49,12.19],["Y",12.44,12.63],["flota.",12.635,12.98]]},{"t":"Este clavo de hierro tiene unos pocos gramos. Y se hunde.","s":13.252,"d":3.29,"v":"em_santa","w":[["Este",13.272,13.492],["clavo",13.522,13.862],["de",13.869,13.992],["hierro",13.994,14.282],["tiene",14.292,14.562],["unos",14.569,14.772],["pocos",14.802,15.142],["gramos.",15.144,15.622],["Y",15.872,16.022],["se",16.024,16.192],["hunde.",16.199,16.462]]},{"t":"¿Cómo puede ser?","s":16.742,"d":1.219,"v":"em_santa","w":[["¿Cómo",16.762,17.132],["puede",17.172,17.562],["ser?",17.568,17.882]]}]},{"id":"titulo","start":18.641,"duration":3.0,"lines":[]},{"id":"repaso","start":21.641,"duration":11.183,"lines":[{"t":"En el capítulo uno vimos que materia es todo lo que tiene masa y ocupa volumen.","s":22.291,"d":4.258,"v":"em_alex","w":[["En",22.311,22.401],["el",22.403,22.461],["capítulo",22.491,23.021],["uno",23.028,23.201],["vimos",23.203,23.451],["que",23.481,23.601],["materia",23.603,24.101],["es",24.131,24.281],["todo",24.331,24.571],["lo",24.578,24.621],["que",24.631,24.731],["tiene",24.771,25.101],["masa",25.103,25.481],["y",25.561,25.721],["ocupa",25.728,26.071],["volumen.",26.078,26.461]]},{"t":"Y que está hecha de partículas, con espacio entre ellas.","s":26.749,"d":2.925,"v":"em_alex","w":[["Y",26.769,26.839],["que",26.849,26.979],["está",26.986,27.309],["hecha",27.311,27.529],["de",27.536,27.599],["partículas,",27.609,28.339],["con",28.439,28.619],["espacio",28.626,29.049],["entre",29.051,29.319],["ellas.",29.326,29.599]]},{"t":"Guarda esas dos palabras: masa y volumen.","s":29.874,"d":2.65,"v":"em_alex","w":[["Guarda",29.894,30.254],["esas",30.261,30.534],["dos",30.536,30.674],["palabras:",30.734,31.304],["masa",31.414,31.894],["y",31.901,31.974],["volumen.",31.976,32.444]]}]},{"id":"pregunta","start":32.824,"duration":11.657,"lines":[{"t":"Profe, el clavo de hierro se hunde… ¿por qué el barco no?","s":33.474,"d":3.068,"v":"ef_dora","w":[["Profe,",33.494,33.984],["el",33.988,34.004],["clavo",34.094,34.434],["de",34.438,34.534],["hierro",34.538,34.854],["se",34.863,35.034],["hunde…",35.038,35.314],["¿por",35.554,35.684],["qué",35.734,35.874],["el",35.878,35.944],["barco",35.953,36.324],["no?",36.328,36.464]]},{"t":"Esa es la pregunta de hoy. Tres pasos:","s":37.191,"d":2.434,"v":"em_alex","w":[["Esa",37.211,37.471],["es",37.478,37.551],["la",37.553,37.631],["pregunta",37.641,38.151],["de",38.153,38.371],["hoy.",38.378,38.571],["Tres",38.821,39.061],["pasos:",39.131,39.551]]},{"t":"distinguir las propiedades físicas, medir la densidad, y explicar el barco.","s":39.825,"d":4.356,"v":"em_alex","w":[["distinguir",39.845,40.305],["las",40.312,40.405],["propiedades",40.455,41.105],["físicas,",41.112,41.615],["medir",41.715,42.095],["la",42.102,42.195],["densidad,",42.202,42.865],["y",42.975,43.095],["explicar",43.105,43.655],["el",43.657,43.775],["barco.",43.782,44.105]]}]},{"id":"propiedades","start":44.481,"duration":48.467,"lines":[{"t":"Todo cuerpo tiene masa y volumen, sea de lo que sea.","s":44.781,"d":3.024,"v":"em_alex","w":[["Todo",44.801,45.001],["cuerpo",45.041,45.351],["tiene",45.391,45.711],["masa",45.718,46.091],["y",46.093,46.141],["volumen,",46.143,46.651],["sea",46.751,47.081],["de",47.083,47.151],["lo",47.158,47.231],["que",47.271,47.481],["sea.",47.483,47.731]]},{"t":"Pero no dicen qué sustancia es. Cien gramos de hierro o cien de madera: misma masa.","s":48.005,"d":4.754,"v":"em_alex","w":[["Pero",48.025,48.235],["no",48.242,48.385],["dicen",48.392,48.665],["qué",48.685,48.835],["sustancia",48.842,49.535],["es.",49.542,49.795],["Cien",50.055,50.325],["gramos",50.327,50.645],["de",50.652,50.775],["hierro",50.777,51.095],["o",51.102,51.195],["cien",51.202,51.395],["de",51.402,51.475],["madera:",51.477,51.855],["misma",51.965,52.385],["masa.",52.387,52.685]]},{"t":"En cambio, propiedades físicas como la temperatura de fusión, la de ebullición y la densidad caracterizan a cada sustancia: para ella tienen un valor fijo, en las mismas condiciones.","s":52.959,"d":10.385,"v":"em_alex","w":[["En",52.979,53.039],["cambio,",53.069,53.469],["propiedades",53.569,54.189],["físicas",54.196,54.609],["como",54.649,54.869],["la",54.871,54.929],["temperatura",54.959,55.589],["de",55.596,55.689],["fusión,",55.696,56.329],["la",56.469,56.629],["de",56.636,56.729],["ebullición",56.736,57.409],["y",57.411,57.459],["la",57.461,57.559],["densidad",57.561,58.059],["caracterizan",58.099,58.829],["a",58.836,58.839],["cada",58.909,59.209],["sustancia:",59.211,59.829],["para",60.259,60.469],["ella",60.476,60.659],["tienen",60.699,60.999],["un",61.001,61.069],["valor",61.076,61.419],["fijo,",61.426,61.749],["en",61.889,62.019],["las",62.026,62.219],["mismas",62.226,62.619],["condiciones.",62.626,63.259]]},{"t":"Densidad es la masa que hay en cada unidad de volumen. Densidad igual a masa entre volumen.","s":63.544,"d":5.274,"v":"em_alex","w":[["Densidad",63.564,64.124],["es",64.131,64.224],["la",64.231,64.324],["masa",64.331,64.554],["que",64.604,64.824],["hay",64.831,64.924],["en",64.931,65.004],["cada",65.054,65.404],["unidad",65.406,65.754],["de",65.756,65.824],["volumen.",65.831,66.474],["Densidad",66.724,67.374],["igual",67.376,67.774],["a",67.776,67.844],["masa",67.851,68.124],["entre",68.126,68.344],["volumen.",68.351,68.734]]},{"t":"Pesemos 100 mL de agua: unos 100 gramos. Cerca de un gramo por mililitro.","s":69.018,"d":4.824,"v":"em_alex","w":[["Pesemos",69.038,69.448],["100",69.455,69.898],["mL",69.89,70.198],["de",70.205,70.348],["agua:",70.355,70.608],["unos",70.738,71.048],["100",71.055,71.298],["gramos.",71.305,71.808],["Cerca",72.058,72.488],["de",72.495,72.588],["un",72.595,72.718],["gramo",72.72,72.998],["por",73.048,73.238],["mililitro.",73.245,73.768]]},{"t":"100 mL de aceite de cocina: unos 92 gramos. Menos masa en el mismo volumen.","s":74.043,"d":5.639,"v":"em_alex","w":[["100",74.063,74.493],["mL",74.49,74.803],["de",74.805,74.873],["aceite",74.88,75.253],["de",75.255,75.293],["cocina:",75.323,75.893],["unos",76.013,76.323],["92",76.33,77.063],["gramos.",77.093,77.663],["Menos",77.913,78.333],["masa",78.34,78.663],["en",78.665,78.733],["el",78.74,78.863],["mismo",78.865,79.213],["volumen.",79.215,79.603]]},{"t":"¿Y 100 mL de miel?","s":80.331,"d":1.662,"v":"ef_dora","w":[["¿Y",80.351,80.571],["100",80.572,81.101],["mL",81.097,81.421],["de",81.451,81.621],["miel?",81.622,81.911]]},{"t":"¡Unos 140 gramos! Más masa en el mismo volumen: la miel es más densa.","s":82.643,"d":4.684,"v":"em_alex","w":[["¡Unos",82.663,82.923],["140",82.93,83.703],["gramos!",83.705,84.223],["Más",84.473,84.753],["masa",84.76,85.033],["en",85.035,85.103],["el",85.11,85.233],["mismo",85.235,85.553],["volumen:",85.56,86.033],["la",86.133,86.303],["miel",86.305,86.553],["es",86.555,86.703],["más",86.705,86.843],["densa.",86.873,87.253]]},{"t":"En sólidos usamos gramos por centímetro cúbico. Un mililitro es un centímetro cúbico.","s":87.528,"d":5.12,"v":"em_alex","w":[["En",87.548,87.688],["sólidos",87.69,88.138],["usamos",88.14,88.558],["gramos",88.565,88.898],["por",88.978,89.158],["centímetro",89.165,89.708],["cúbico.",89.768,90.408],["Un",90.638,90.818],["mililitro",90.825,91.398],["es",91.4,91.498],["un",91.5,91.598],["centímetro",91.6,92.148],["cúbico.",92.198,92.568]]}]},{"id":"experimento","start":92.948,"duration":48.947,"lines":[{"t":"Experimento. En un vaso vertemos con cuidado miel, agua con colorante y aceite.","s":93.308,"d":4.82,"v":"em_alex","w":[["Experimento.",93.328,94.078],["En",94.358,94.528],["un",94.53,94.628],["vaso",94.63,94.898],["vertemos",94.904,95.358],["con",95.398,95.538],["cuidado",95.568,96.028],["miel,",96.03,96.368],["agua",96.488,96.798],["con",96.804,96.928],["colorante",96.938,97.548],["y",97.554,97.628],["aceite.",97.63,98.048]]},{"t":"Quedan en capas: la miel abajo, el agua en el medio, el aceite arriba. De más densa a menos densa.","s":98.328,"d":5.624,"v":"em_alex","w":[["Quedan",98.348,98.608],["en",98.615,98.688],["capas:",98.738,99.228],["la",99.338,99.498],["miel",99.505,99.728],["abajo,",99.73,100.198],["el",100.205,100.348],["agua",100.355,100.528],["en",100.53,100.598],["el",100.605,100.728],["medio,",100.73,101.128],["el",101.13,101.248],["aceite",101.255,101.678],["arriba.",101.68,102.168],["De",102.448,102.648],["más",102.655,102.848],["densa",102.855,103.178],["a",103.18,103.228],["menos",103.23,103.478],["densa.",103.508,103.878]]},{"t":"Ahora soltamos un corcho, una tuerca de hierro… y una uva.","s":104.152,"d":3.262,"v":"em_alex","w":[["Ahora",104.172,104.482],["soltamos",104.489,104.982],["un",104.989,105.072],["corcho,",105.102,105.642],["una",105.742,105.922],["tuerca",105.972,106.312],["de",106.314,106.432],["hierro…",106.439,106.832],["y",106.839,106.912],["una",106.914,107.162],["uva.",107.164,107.342]]},{"t":"La uva se hunde en el agua… ¿llega al fondo?","s":108.064,"d":2.385,"v":"ef_dora","w":[["La",108.084,108.254],["uva",108.26,108.484],["se",108.485,108.654],["hunde",108.66,109.004],["en",109.01,109.084],["el",109.085,109.254],["agua…",109.26,109.604],["¿llega",109.61,109.854],["al",109.86,110.004],["fondo?",110.01,110.374]]},{"t":"Predice tú. ¿Arriba, en el medio o al fondo?","s":111.099,"d":2.67,"v":"em_alex","w":[["Predice",111.119,111.509],["tú.",111.559,111.729],["¿Arriba,",111.979,112.519],["en",112.521,112.589],["el",112.596,112.719],["medio",112.721,113.089],["o",113.096,113.169],["al",113.171,113.339],["fondo?",113.346,113.689]]},{"t":"Soltamos. El corcho flota sobre el aceite. La tuerca llega al fondo.","s":115.249,"d":4.285,"v":"em_alex","w":[["Soltamos.",115.269,115.919],["El",116.071,116.146],["corcho",116.169,116.569],["flota",116.571,116.919],["sobre",116.921,117.139],["el",117.146,117.219],["aceite.",117.221,117.749],["La",118.069,118.209],["tuerca",118.259,118.679],["llega",118.686,118.929],["al",118.936,119.109],["fondo.",119.111,119.459]]},{"t":"Y la uva atraviesa el aceite y el agua… pero se queda sobre la miel.","s":119.734,"d":3.804,"v":"em_alex","w":[["Y",119.754,119.864],["la",119.871,120.044],["uva",120.046,120.214],["atraviesa",120.221,120.744],["el",120.746,120.864],["aceite",120.871,121.364],["y",121.371,121.414],["el",121.421,121.614],["agua…",121.621,121.894],["pero",122.134,122.384],["se",122.391,122.464],["queda",122.524,122.834],["sobre",122.841,123.084],["la",123.091,123.214],["miel.",123.216,123.444]]},{"t":"Acerquémonos. En el hierro, los átomos están muy apretados. Y cada uno tiene unas tres veces la masa de una molécula de agua.","s":124.188,"d":7.671,"v":"em_santa","w":[["Acerquémonos.",124.208,124.998],["En",125.238,125.418],["el",125.423,125.538],["hierro,",125.548,125.938],["los",125.948,126.168],["átomos",126.173,126.518],["están",126.523,126.888],["muy",126.898,127.068],["apretados.",127.073,127.958],["Y",128.238,128.348],["cada",128.388,128.688],["uno",128.693,128.808],["tiene",128.848,129.138],["unas",129.143,129.348],["tres",129.398,129.688],["veces",129.693,130.158],["la",130.168,130.308],["masa",130.318,130.608],["de",130.618,130.708],["una",130.718,130.838],["molécula",130.843,131.388],["de",131.393,131.538],["agua.",131.543,131.778]]},{"t":"El corcho, en cambio, está hecho de celdas diminutas llenas de aire.","s":132.06,"d":4.14,"v":"em_santa","w":[["El",132.08,132.17],["corcho,",132.22,132.73],["en",132.732,132.76],["cambio,",132.85,133.41],["está",133.55,133.9],["hecho",133.902,134.17],["de",134.177,134.3],["celdas",134.302,134.7],["diminutas",134.702,135.35],["llenas",135.352,135.67],["de",135.677,135.87],["aire.",135.877,136.12]]},{"t":"Conclusión: lo que es menos denso que el líquido flota. Lo que es más denso se hunde.","s":136.849,"d":4.685,"v":"em_alex","w":[["Conclusión:",136.869,137.629],["lo",137.636,137.649],["que",137.749,137.909],["es",137.911,138.059],["menos",138.061,138.359],["denso",138.361,138.669],["que",138.699,138.809],["el",138.811,138.929],["líquido",138.936,139.329],["flota.",139.336,139.679],["Lo",139.959,140.079],["que",140.129,140.279],["es",140.286,140.429],["más",140.436,140.679],["denso",140.686,141.059],["se",141.061,141.229],["hunde.",141.236,141.459]]}]},{"id":"barco","start":141.895,"duration":41.891,"lines":[{"t":"¿Y el barco? El hierro es mucho más denso que el agua.","s":142.255,"d":2.97,"v":"ef_dora","w":[["¿Y",142.275,142.365],["el",142.371,142.495],["barco?",142.496,142.885],["El",143.135,143.335],["hierro",143.336,143.605],["es",143.611,143.735],["mucho",143.736,144.085],["más",144.086,144.265],["denso",144.275,144.635],["que",144.665,144.785],["el",144.786,144.935],["agua.",144.936,145.145]]},{"t":"Casi ocho veces más. Y el acero de los barcos es casi todo hierro.","s":145.875,"d":4.129,"v":"em_alex","w":[["Casi",145.895,146.305],["ocho",146.311,146.635],["veces",146.637,146.985],["más.",146.987,147.395],["Y",147.645,147.755],["el",147.757,147.875],["acero",147.881,148.205],["de",148.207,148.275],["los",148.281,148.455],["barcos",148.457,148.905],["es",148.907,148.965],["casi",149.015,149.295],["todo",149.335,149.625],["hierro.",149.631,149.925]]},{"t":"Pero un barco no es un bloque macizo. Es un casco hueco, lleno de aire.","s":150.204,"d":4.08,"v":"em_alex","w":[["Pero",150.224,150.384],["un",150.391,150.484],["barco",150.491,150.864],["no",150.866,150.984],["es",150.991,151.134],["un",151.141,151.264],["bloque",151.266,151.564],["macizo.",151.566,152.194],["Es",152.444,152.654],["un",152.661,152.724],["casco",152.754,153.154],["hueco,",153.161,153.554],["lleno",153.561,153.834],["de",153.836,154.034],["aire.",154.036,154.204]]},{"t":"Lo que cuenta es su densidad media: la masa total entre el volumen total, contando el aire de adentro.","s":154.484,"d":5.764,"v":"em_alex","w":[["Lo",154.504,154.564],["que",154.584,154.694],["cuenta",154.744,155.144],["es",155.146,155.264],["su",155.271,155.394],["densidad",155.396,155.964],["media:",155.971,156.574],["la",156.744,156.894],["masa",156.901,157.134],["total",157.174,157.574],["entre",157.576,157.774],["el",157.776,157.874],["volumen",157.876,158.244],["total,",158.264,158.674],["contando",158.814,159.324],["el",159.326,159.494],["aire",159.501,159.694],["de",159.701,159.774],["adentro.",159.776,160.174]]},{"t":"Pruébalo con plastilina. Una bola se hunde. La misma plastilina en forma de barquito flota.","s":160.449,"d":5.489,"v":"em_alex","w":[["Pruébalo",160.469,160.889],["con",160.929,161.089],["plastilina.",161.109,161.749],["Una",161.999,162.279],["bola",162.286,162.559],["se",162.561,162.729],["hunde.",162.736,163.159],["La",163.409,163.589],["misma",163.591,163.869],["plastilina",163.919,164.539],["en",164.541,164.709],["forma",164.716,165.009],["de",165.016,165.089],["barquito",165.091,165.559],["flota.",165.566,165.859]]},{"t":"Misma masa, pero ahora encierra mucho más volumen. Su densidad media queda por debajo de la del agua.","s":166.138,"d":5.849,"v":"em_alex","w":[["Misma",166.158,166.468],["masa,",166.475,166.808],["pero",166.908,167.098],["ahora",167.105,167.348],["encierra",167.355,167.848],["mucho",167.855,168.228],["más",168.23,168.428],["volumen.",168.43,169.088],["Su",169.338,169.538],["densidad",169.54,170.158],["media",170.165,170.428],["queda",170.498,170.748],["por",170.788,170.958],["debajo",170.965,171.388],["de",171.39,171.458],["la",171.465,171.558],["del",171.565,171.738],["agua.",171.74,171.908]]},{"t":"Así flota un gigante de acero: acero y carga, y muchísimo aire.","s":172.637,"d":4.023,"v":"em_santa","w":[["Así",172.657,172.937],["flota",172.946,173.237],["un",173.246,173.337],["gigante",173.346,173.767],["de",173.771,173.867],["acero:",173.871,174.437],["acero",174.527,174.967],["y",174.971,175.007],["carga,",175.047,175.537],["y",175.546,175.617],["muchísimo",175.621,176.337],["aire.",176.346,176.577]]},{"t":"Si el casco se rompe, el agua ocupa el lugar del aire. La densidad media sube… y el barco puede hundirse.","s":177.31,"d":6.115,"v":"em_alex","w":[["Si",177.33,177.42],["el",177.422,177.47],["casco",177.51,177.87],["se",177.872,178.02],["rompe,",178.022,178.36],["el",178.48,178.69],["agua",178.697,178.92],["ocupa",178.922,179.27],["el",179.272,179.34],["lugar",179.347,179.64],["del",179.647,179.87],["aire.",179.872,180.33],["La",180.7,180.85],["densidad",180.852,181.4],["media",181.402,181.75],["sube…",181.752,182.2],["y",182.202,182.25],["el",182.252,182.37],["barco",182.377,182.67],["puede",182.71,182.92],["hundirse.",182.927,183.35]]}]},{"id":"ojo","start":183.786,"duration":17.448,"lines":[{"t":"Entonces, si corto el clavo por la mitad, ¿es menos denso y flota?","s":184.436,"d":3.823,"v":"ef_dora","w":[["Entonces,",184.456,185.216],["si",185.225,185.226],["corto",185.336,185.616],["el",185.625,185.666],["clavo",185.696,186.016],["por",186.046,186.216],["la",186.225,186.316],["mitad,",186.325,186.686],["¿es",186.846,187.096],["menos",187.1,187.416],["denso",187.425,187.746],["y",187.75,187.816],["flota?",187.825,188.186]]},{"t":"Ojo, error muy común. Al cortarlo, la masa y el volumen bajan juntos, a la mitad.","s":188.909,"d":4.755,"v":"em_alex","w":[["Ojo,",188.929,189.269],["error",189.271,189.569],["muy",189.571,189.679],["común.",189.699,190.239],["Al",190.379,190.499],["cortarlo,",190.539,191.169],["la",191.171,191.319],["masa",191.321,191.689],["y",191.696,191.739],["el",191.746,191.839],["volumen",191.846,192.289],["bajan",192.296,192.669],["juntos,",192.671,193.119],["a",193.121,193.169],["la",193.171,193.239],["mitad.",193.246,193.579]]},{"t":"La densidad no cambia: cada mitad se hunde igual. No depende de cuánto material haya, por eso ayuda a reconocer una sustancia.","s":193.864,"d":7.009,"v":"em_alex","w":[["La",193.884,193.974],["densidad",193.976,194.524],["no",194.526,194.594],["cambia:",194.644,195.064],["cada",195.174,195.424],["mitad",195.426,195.824],["se",195.826,195.944],["hunde",195.951,196.144],["igual.",196.151,196.474],["No",196.854,197.044],["depende",197.051,197.444],["de",197.451,197.494],["cuánto",197.534,197.874],["material",197.876,198.444],["haya,",198.451,198.654],["por",198.784,198.974],["eso",198.976,199.144],["ayuda",199.151,199.444],["a",199.451,199.494],["reconocer",199.501,200.044],["una",200.051,200.224],["sustancia.",200.226,200.794]]}]},{"id":"reto","start":201.233,"duration":21.098,"lines":[{"t":"Reto rápido. Un bloque de madera: 60 gramos y 100 centímetros cúbicos. ¿Cuál es su densidad? ¿Flota en el agua?","s":201.533,"d":6.835,"v":"em_alex","w":[["Reto",201.553,201.913],["rápido.",201.92,202.333],["Un",202.583,202.823],["bloque",202.825,203.093],["de",203.1,203.173],["madera:",203.175,203.643],["60",203.65,204.073],["gramos",204.075,204.493],["y",204.5,204.593],["100",204.6,204.843],["centímetros",204.85,205.443],["cúbicos.",205.503,206.163],["¿Cuál",206.403,206.643],["es",206.645,206.713],["su",206.72,206.813],["densidad?",206.82,207.513],["¿Flota",207.52,207.813],["en",207.82,207.893],["el",207.895,208.043],["agua?",208.045,208.293]]},{"t":"¡0,6 gramos por centímetro cúbico! Flota.","s":214.019,"d":2.996,"v":"ef_dora","w":[["¡0,6",214.039,214.819],["gramos",214.819,215.129],["por",215.199,215.389],["centímetro",215.394,215.949],["cúbico!",215.989,216.509],["Flota.",216.519,216.939]]},{"t":"¡Correcto! 60 entre 100 da 0,6. Menos que el agua: flota.","s":217.665,"d":4.307,"v":"em_alex","w":[["¡Correcto!",217.685,218.195],["60",218.202,218.595],["entre",218.602,218.875],["100",218.877,219.125],["da",219.127,219.295],["0,6.",219.302,220.285],["Menos",220.605,220.985],["que",221.005,221.115],["el",221.122,221.265],["agua:",221.272,221.565],["flota.",221.572,221.895]]}]},{"id":"resumen","start":222.331,"duration":19.616,"lines":[{"t":"Tres ideas.","s":222.631,"d":0.964,"v":"em_alex","w":[["Tres",222.651,222.991],["ideas.",222.993,223.521]]},{"t":"Uno: todo cuerpo tiene masa y volumen. La densidad es una propiedad física que caracteriza a la sustancia.","s":223.795,"d":6.339,"v":"em_alex","w":[["Uno:",223.815,224.015],["todo",224.115,224.345],["cuerpo",224.385,224.705],["tiene",224.735,225.055],["masa",225.062,225.455],["y",225.462,225.535],["volumen.",225.537,226.025],["La",226.375,226.535],["densidad",226.537,227.185],["es",227.187,227.305],["una",227.312,227.415],["propiedad",227.435,228.005],["física",228.012,228.445],["que",228.485,228.585],["caracteriza",228.615,229.285],["a",229.287,229.335],["la",229.337,229.485],["sustancia.",229.487,230.055]]},{"t":"Dos: densidad es masa entre volumen. El agua tiene cerca de un gramo por mililitro.","s":230.334,"d":4.945,"v":"em_alex","w":[["Dos:",230.354,230.574],["densidad",230.684,231.294],["es",231.301,231.444],["masa",231.451,231.724],["entre",231.726,231.944],["volumen.",231.951,232.584],["El",232.834,233.054],["agua",233.056,233.224],["tiene",233.284,233.604],["cerca",233.606,233.954],["de",233.956,234.054],["un",234.056,234.174],["gramo",234.181,234.464],["por",234.504,234.704],["mililitro.",234.706,235.204]]},{"t":"Tres: lo menos denso que el líquido flota. El barco flota por su densidad media: acero, carga y aire.","s":235.479,"d":5.989,"v":"em_alex","w":[["Tres:",235.499,235.859],["lo",235.866,235.959],["menos",235.966,236.239],["denso",236.241,236.549],["que",236.579,236.689],["el",236.691,236.809],["líquido",236.816,237.189],["flota.",237.191,237.539],["El",237.879,238.039],["barco",238.041,238.359],["flota",238.366,238.629],["por",238.659,238.839],["su",238.841,238.939],["densidad",238.941,239.489],["media:",239.491,239.849],["acero,",240.019,240.489],["carga",240.599,241.019],["y",241.021,241.189],["aire.",241.196,241.389]]}]},{"id":"proximo","start":241.948,"duration":14.564,"lines":[{"t":"Profe, después de la lluvia queda un charco… y al rato ya no está. ¿A dónde se fue el agua?","s":242.598,"d":4.917,"v":"ef_dora","w":[["Profe,",242.618,243.048],["después",243.052,243.418],["de",243.427,243.498],["la",243.502,243.618],["lluvia",243.627,243.858],["queda",243.888,244.168],["un",244.177,244.268],["charco…",244.277,244.818],["y",244.827,244.868],["al",244.877,244.998],["rato",245.002,245.298],["ya",245.302,245.448],["no",245.452,245.548],["está.",245.552,245.868],["¿A",246.258,246.418],["dónde",246.427,246.748],["se",246.752,246.898],["fue",246.902,247.048],["el",247.052,247.198],["agua?",247.202,247.438]]},{"t":"Lo vemos en el próximo capítulo: estados de la materia y cambios de estado.","s":248.165,"d":4.35,"v":"em_alex","w":[["Lo",248.185,248.325],["vemos",248.327,248.695],["en",248.702,248.775],["el",248.777,248.845],["próximo",248.885,249.325],["capítulo:",249.365,250.135],["estados",250.255,250.765],["de",250.767,250.835],["la",250.842,250.935],["materia",250.942,251.485],["y",251.492,251.505],["cambios",251.565,251.985],["de",251.992,252.065],["estado.",252.067,252.435]]},{"t":"Mientras tanto, prueba en tu cocina qué flota y qué se hunde.","s":252.715,"d":3.317,"v":"em_alex","w":[["Mientras",252.735,253.085],["tanto,",253.135,253.535],["prueba",253.635,254.005],["en",254.007,254.055],["tu",254.085,254.195],["cocina",254.215,254.635],["qué",254.665,254.875],["flota",254.882,255.325],["y",255.332,255.345],["qué",255.365,255.555],["se",255.557,255.725],["hunde.",255.732,255.955]]}]},{"id":"outro","start":256.512,"duration":7.0,"lines":[]}]};
+const DUR = M.duration;
+const S = {}; M.scenes.forEach(s => S[s.id] = s);
+const LABEL = {intro:'Apertura',frio:'Pregunta inicial',titulo:'Título',repaso:'Lo que ya sabes',pregunta:'La pregunta de hoy',propiedades:'Propiedades y densidad',experimento:'Experimento',barco:'¿Y el barco?',ojo:'¡Ojo! Error común',reto:'Reto',resumen:'Resumen',proximo:'Próximo capítulo',outro:'Cierre'};
+const KIND = {intro:'--dim',frio:'--doc',titulo:'--dim',repaso:'--est',pregunta:'--est',propiedades:'--chalk',experimento:'--prof',barco:'--chalk',ojo:'--warn',reto:'--est',resumen:'--electron',proximo:'--doc',outro:'--dim'};
+const SECT = {repaso:'Lo que ya sabes',pregunta:'La pregunta',propiedades:'Explicación',experimento:'Experimento',barco:'Explicación',ojo:'¡Ojo!',reto:'Reto',resumen:'Resumen',proximo:'Próximo'};
+const WHO = {em_alex:['Profe','--prof',''],ef_dora:['Sofía','--est',''],em_santa:['Narrador','--doc','doc']};
+
+/* ---------- timing helpers: everything reads the manifest ---------- */
+const cl = x => Math.max(0, Math.min(1, x));
+const sm = x => { x = cl(x); return x * x * (3 - 2 * x); };
+const eo = x => 1 - Math.pow(1 - cl(x), 3);
+const r = (t, a, d = .5, f = sm) => f((t - a) / d);           // 0→1 ramp starting at a
+const win = (t, a, b, fi = .4, fo = .4) => Math.min(r(t, a, fi), 1 - r(t, b - fo, fo)); // visible between a and b
+const L = (id, i) => S[id].lines[i].s;
+const LE = (id, i) => { const l = S[id].lines[i]; return l.s + l.d; };
+const norm = w => w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
+function W(id, i, word, nth = 0) {
+  const ws = S[id].lines[i].w, k = norm(word); let n = 0;
+  for (const w of ws) if (norm(w[0]).startsWith(k)) { if (n++ === nth) return w[1]; }
+  console.warn('word not found', id, i, word); return S[id].lines[i].s;
+}
+const SS = id => S[id].start, SEND = id => S[id].start + S[id].duration;
+const q = s => document.querySelector(s);
+const $ = id => document.getElementById(id);
+function op(el, v) { el.style.opacity = v.toFixed(3); }
+
+/* ---------- three.js ---------- */
+const stage = $('stage');
+const R3 = new THREE.WebGLRenderer({antialias: true, alpha: false, preserveDrawingBuffer: true});
+R3.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+R3.setClearColor(0x0c1318, 1);
+stage.prepend(R3.domElement);
+const scn = new THREE.Scene();
+scn.fog = new THREE.Fog(0x0c1318, 14, 40);
+const cam = new THREE.PerspectiveCamera(35, 16 / 9, .05, 300);
+scn.add(new THREE.AmbientLight(0xffffff, .55));
+const key = new THREE.DirectionalLight(0xfff4e6, .85); key.position.set(4, 6, 8); scn.add(key);
+const rim = new THREE.DirectionalLight(0x6fc8ff, .45); rim.position.set(-6, -2, -4); scn.add(rim);
+function resize() { const w = stage.clientWidth, h = stage.clientHeight; R3.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(stage);
+
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const C = h => new THREE.Color(h);
+const COL = {proton: C('#f0685a'), neutron: C('#a9b4ba'), electron: C('#5cc8e6'), O: C('#e5484d'), H: C('#eef0f2'), water: C('#58b6e8'), alc: C('#b9a8ee'), chalk: C('#ece7da'), star: C('#fff3d6')};
+const sph = new THREE.SphereGeometry(1, 24, 16);
+const mat = (c, o = {}) => new THREE.MeshStandardMaterial(Object.assign({color: c, roughness: .45, metalness: .05}, o));
+const tmp = new THREE.Object3D();
+const groups = {};
+function G(name) { const g = new THREE.Group(); g.visible = false; scn.add(g); groups[name] = g; return g; }
+const tri = x => { x = x - Math.floor(x); return x < .5 ? 4 * x - 1 : 3 - 4 * x; }; // -1..1 bounce
+
+/* repaso: particles with space between them (same particle style as Cap. 1) */
+const gLat = G('lat');
+const latP = [];
+for (let x = 0; x < 4; x++) for (let y = 0; y < 4; y++) for (let z = 0; z < 4; z++) latP.push(new THREE.Vector3((x - 1.5) * .75, (y - 1.5) * .75, (z - 1.5) * .75));
+const latM = new THREE.InstancedMesh(sph, mat(0x58b6e8, {roughness: .3}), latP.length); gLat.add(latM);
+const latBox = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(3.2, 3.2, 3.2)), new THREE.LineBasicMaterial({color: 0x5b6d79})); gLat.add(latBox);
+
+/* experimento, acerca: iron (bcc, as α-Fe at room temperature) vs cork cells full of air */
+const gFe = G('fe');
+const feP = [], A0 = .8;
+for (let x = 0; x <= 4; x++) for (let y = 0; y <= 3; y++) for (let z = 0; z <= 3; z++) {
+  feP.push(new THREE.Vector3((x - 2) * A0, (y - 1.5) * A0, (z - 1.5) * A0));
+  if (x < 4 && y < 3 && z < 3) feP.push(new THREE.Vector3((x - 1.5) * A0, (y - 1) * A0, (z - 1) * A0));
+}
+const feM = new THREE.InstancedMesh(sph, mat(0x8a949a, {roughness: .3, metalness: .5}), feP.length); gFe.add(feM);
+const gCork = G('cork');
+const cellGeo = new THREE.EdgesGeometry(new THREE.CylinderGeometry(.55, .55, 1.9, 6));
+const cellMat = new THREE.LineBasicMaterial({color: 0xc79a62, transparent: true});
+const cells = [];
+for (let i = 0; i < 6; i++) for (let j = 0; j < 4; j++) { const c = new THREE.LineSegments(cellGeo, cellMat); c.position.set((i - 2.5) * .95 + (j % 2) * .475, 0, (j - 1.5) * .83); gCork.add(c); cells.push(c); }
+const NAIR = 140; const airM = new THREE.InstancedMesh(sph, new THREE.MeshBasicMaterial({color: 0xbfe6f7, transparent: true, opacity: .55}), NAIR); gCork.add(airM);
+const airCell = [], airSeed = []; for (let i = 0; i < NAIR; i++) { airCell.push(cells[i % cells.length].position); airSeed.push([rnd() * 9, rnd() * 9, rnd() * 9]); }
+
+/* ---------- per-frame composition ---------- */
+function setInst(m, i, p, s, col) { tmp.position.copy(p); tmp.scale.setScalar(s); tmp.rotation.set(0, 0, 0); tmp.updateMatrix(); m.setMatrixAt(i, tmp.matrix); if (col) m.setColorAt(i, col); }
+const scs = {}; document.querySelectorAll('.sc').forEach(e => scs[e.dataset.s] = e);
+const wave = (y0, t) => { let d = `M0,${y0}`; for (let x = 0; x <= 1600; x += 40) d += ` L${x},${(y0 + Math.sin(x * .012 + t * 2) * 6).toFixed(1)}`; return d; };
+const LIQ = [['agua · 100 mL', '#58b6e8', '#2a6f9e', 100], ['aceite · 100 mL', '#f0dd7a', '#c9a93a', 92], ['miel · 100 mL', '#e7a93a', '#b06f14', 140]];
+const setA = (id, k, v) => $(id).setAttribute(k, v);
+
+function render(t) {
+  for (const k in groups) groups[k].visible = false;
+  let camPos = new THREE.Vector3(0, 0, 10), look = new THREE.Vector3(0, 0, 0);
+  for (const s of M.scenes) {
+    const a = win(t, s.start, s.start + s.duration, .35, .35);
+    scs[s.id].style.opacity = a.toFixed(3);
+    scs[s.id].style.visibility = a > 0 ? 'visible' : 'hidden';
+  }
+
+  /* intro */
+  if (t < SEND('intro') + .5) {
+    const cap = $('cap55'); const fy = 1 - eo((t - .35) / 1.0);
+    cap.setAttribute('transform', `translate(${-22 * fy},${108 * fy})`);
+    $('loud').style.clipPath = `inset(0 ${100 - 100 * sm((t - 1.0) / .6)}% 0 0)`;
+    const ro = $('ro'); op(ro, r(t, 1.2, .15)); ro.textContent = String(Math.round(55 * eo((t - 1.25) / 1.1))).padStart(2, '0');
+    $('ident').style.opacity = t < 4.5 ? 1 : 0;
+    [...$('ident').children].forEach(c => c.style.opacity = (1 - r(t, 3.2, .35)).toFixed(3));
+    const mk = win(t, 4.7, 8.0, .6, .5); op($('mark'), mk);
+    $('hex').setAttribute('stroke-dashoffset', (1 - eo((t - 4.8) / 1.4)).toFixed(3));
+    const ang = (t - 4.8) * 2.2; $('hexe').setAttribute('cx', (58 * Math.cos(ang)).toFixed(1)); $('hexe').setAttribute('cy', (58 * Math.sin(ang)).toFixed(1));
+    op($('marktag'), r(t, 6.0, .6));
+  }
+
+  /* frio: the ship floats, the nail sinks */
+  if (t > SS('frio') - .5 && t < SEND('frio') + .5) {
+    setA('fwave', 'd', wave(520, t));
+    const zoom = 1 + .04 * r(t, SS('frio'), 6);
+    setA('fship', 'transform', `translate(${1040 - 20 * r(t, SS('frio'), 6)},${514 + Math.sin(t * 1.6) * 5}) rotate(${Math.sin(t * 1.1) * 1.2}) scale(${zoom})`);
+    const nIn = r(t, L('frio', 1) - .1, .4), sink = eo((t - W('frio', 1, 'hunde') + .2) / 2.2);
+    op($('fnail'), nIn);
+    setA('fnail', 'transform', `translate(360,${330 - 60 * (1 - nIn) + 450 * sink}) rotate(${sink * 25})`);
+    op($('fl1'), win(t, W('frio', 0, 'barco') - .2, L('frio', 2), .4, .3)); op($('fl1b'), win(t, W('frio', 0, 'flota') - .1, L('frio', 2), .3, .3));
+    op($('fl2'), win(t, W('frio', 1, 'clavo') - .2, L('frio', 2), .4, .3)); op($('fl2b'), win(t, W('frio', 1, 'hunde') - .1, L('frio', 2), .3, .3));
+    op($('fq'), r(t, L('frio', 2) - .1, .5));
+  }
+
+  /* titulo */
+  if (t > SS('titulo') - .5 && t < SEND('titulo') + .5) {
+    const a = SS('titulo');
+    op($('t1'), r(t, a + .1, .4)); op($('t2'), r(t, a + .35, .5)); $('t2').style.transform = `translateY(${(1 - eo((t - a - .35) / .6)) * 2}cqw)`;
+    op($('t3'), r(t, a + 1.1, .5));
+  }
+
+  /* repaso: Cap. 1 cards + particles with space */
+  if (t > SS('repaso') - .5 && t < SEND('repaso') + .5) {
+    const g = groups.lat; g.visible = true;
+    const app = r(t, SS('repaso') + .2, .8);
+    latP.forEach((p, i) => setInst(latM, i, p.clone().add(new THREE.Vector3(Math.sin(t * 5 + i) * .05, Math.cos(t * 4.3 + i * 2) * .05, Math.sin(t * 3.7 + i) * .05)), .15 * app, null));
+    latM.instanceMatrix.needsUpdate = true;
+    g.position.set(2.6, .5, 0); g.rotation.set(.35, t * .3, 0); camPos.set(0, 0, 12);
+    const rp = document.querySelectorAll('.rp');
+    [L('repaso', 0), L('repaso', 1)].forEach((a, k) => { op(rp[k], r(t, a - .1, .4)); rp[k].style.transform = `translateX(${(1 - eo((t - a + .1) / .5)) * -2}cqw)`; });
+    const hm = win(t, W('repaso', 0, 'masa') - .1, W('repaso', 0, 'masa') + .8, .15, .4), hv = win(t, W('repaso', 0, 'volumen') - .1, W('repaso', 0, 'volumen') + .8, .15, .4);
+    $('rpm').style.color = hm > .5 ? 'var(--est)' : ''; $('rpv').style.color = hv > .5 ? 'var(--electron)' : '';
+    op($('rpk'), r(t, W('repaso', 2, 'masa') - .2, .4)); $('rpk').style.transform = `scale(${1.25 - .25 * eo((t - W('repaso', 2, 'masa') + .2) / .4)})`;
+  }
+
+  /* pregunta */
+  if (t > SS('pregunta') - .5 && t < SEND('pregunta') + .5) {
+    op($('pq'), r(t, L('pregunta', 0) + .2, .5));
+    ['distinguir', 'medir', 'explicar'].forEach((w, k) => { const a = W('pregunta', 2, w); op($('ag' + k), r(t, a - .1, .4)); $('ag' + k).style.transform = `translateY(${(1 - eo((t - a) / .5)) * 2}cqw)`; });
+  }
+
+  /* propiedades: general vs specific, definition, the scale, units */
+  if (t > SS('propiedades') - .5 && t < SEND('propiedades') + .5) {
+    const aEnd = L('propiedades', 3) - .2;
+    op($('pA'), win(t, SS('propiedades'), aEnd, .3, .4));
+    op($('pGen'), r(t, W('propiedades', 0, 'cuerpo') - .2, .4));
+    op($('pEsp'), r(t, W('propiedades', 2, 'fisicas') - .2, .4));
+    ['fusion', 'ebullicion', 'densidad'].forEach((w, k) => op($('pe' + k), .25 + .75 * r(t, W('propiedades', 2, w) - .15, .3)));
+    op($('pCubes'), win(t, W('propiedades', 1, 'hierro') - .3, L('propiedades', 2) - .1, .4, .4));
+    op($('pF'), win(t, L('propiedades', 3) - .2, L('propiedades', 4) - .2, .4, .3));
+    $('pFf').style.transform = `scale(${1 + .12 * win(t, W('propiedades', 3, 'igual') - .1, W('propiedades', 3, 'igual') + .9, .2, .4)})`;
+    const sA = L('propiedades', 4) - .3, sB = L('propiedades', 8) - .2;
+    op($('pScale'), win(t, sA, sB, .4, .4)); op($('pFs'), win(t, sA, sB, .4, .4));
+    const k = t < L('propiedades', 5) - .1 ? 0 : t < L('propiedades', 6) - .1 ? 1 : 2;
+    const kS = [sA, L('propiedades', 5) - .1, L('propiedades', 6) - .1][k];
+    const fill = eo((t - kS - .2) / .8);
+    setA('gLq0', 'stop-color', LIQ[k][1]); setA('gLq1', 'stop-color', LIQ[k][2]);
+    setA('scL', 'y', -3 - 250 * fill); setA('scL', 'height', 250 * fill);
+    $('scN').textContent = LIQ[k][0];
+    const tick = [W('propiedades', 4, '100', 1), W('propiedades', 5, '92'), W('propiedades', 7, '140')][k];
+    const g = LIQ[k][3] * eo((t - tick + .9) / .9);
+    $('scR').textContent = t < tick - .9 ? '0 g' : '≈ ' + Math.round(g) + ' g';
+    op($('pBars'), win(t, W('propiedades', 4, 'gramo') - .3, sB, .4, .4));
+    op($('pb0'), r(t, W('propiedades', 4, 'gramo') - .2, .3)); op($('pb1'), r(t, W('propiedades', 5, 'menos') - .2, .3)); op($('pb2'), r(t, W('propiedades', 7, 'densa') - .3, .3));
+    op($('pU'), r(t, L('propiedades', 8) - .2, .4));
+  }
+
+  /* experimento: density column, three objects, zoom to particles */
+  if (t > SS('experimento') - .5 && t < SEND('experimento') + .5) {
+    const zA = L('experimento', 7) - .2;
+    op($('lab'), win(t, SS('experimento'), zA, .4, .5));
+    const layer = w => 150 * eo((t - W('experimento', 0, w) + .1) / .9);
+    const hH = layer('miel') * 160 / 150, hW = layer('agua'), hO = layer('aceite');
+    setA('lyH', 'y', 777 - hH); setA('lyH', 'height', hH);
+    setA('lyW', 'y', 617 - hW); setA('lyW', 'height', hW);
+    setA('lyO', 'y', 467 - hO); setA('lyO', 'height', hO);
+    ['aceite', 'agua', 'miel'].forEach((w, k) => op($(['lbO', 'lbW', 'lbH'][k]), r(t, W('experimento', 1, w) - .2, .4)));
+    const obj = (id, word, line, x, y1, dropW, dropLine, dur, lbl) => {
+      const show = r(t, W('experimento', line, word) - .2, .4);
+      const d = W('experimento', dropLine, dropW);
+      const f = cl((t - d) / dur); const y = 120 + (y1 - 120) * (dropW === 'uva' ? (f < .45 ? eo(f / .45) * .78 : .78 + .22 * sm((f - .45) / .55)) : eo(f));
+      setA(id, 'transform', `translate(${x},${(y - 8 * (1 - show)).toFixed(1)}) rotate(${id === 'oNut' ? f * 90 : 0})`); op($(id), show);
+      op($(lbl), r(t, d + dur * .8, .4));
+    };
+    obj('oCork', 'corcho', 2, 725, 307, 'corcho', 5, .8, 'lbC');
+    obj('oNut', 'tuerca', 2, 800, 756, 'tuerca', 5, 1.3, 'lbN');
+    obj('oGrape', 'uva', 2, 875, 601, 'uva', 6, 2.4, 'lbG');
+    op($('pred'), win(t, W('experimento', 4, 'predice') - .2, W('experimento', 6, 'miel') + 1.8, .4, .3));
+    $('pred').style.pointerEvents = +$('pred').style.opacity > .5 ? 'auto' : 'none';
+    const okT = W('experimento', 6, 'miel');
+    $('p1').classList.toggle('ok', t > okT); $('p1').textContent = t > okT ? 'en el medio ✓' : 'en el medio';
+    ['arriba', 'medio', 'fondo'].forEach((w, k) => op($('p' + k), r(t, W('experimento', 4, w) - .2, .3)));
+    const th0 = LE('experimento', 4), th1 = L('experimento', 5);
+    $('think').textContent = t > th0 && t < th1 ? '·'.repeat(1 + Math.floor((t - th0) * 3) % 3) + ' piensa' : '';
+    // acerca: iron lattice, then cork cells
+    const fe0 = zA, fe1 = L('experimento', 8) - .1, ck1 = L('experimento', 9) + .3;
+    if (t > fe0 - .3 && t < fe1 + .6) {
+      const g = groups.fe; g.visible = true; const v = win(t, fe0, fe1, .6, .5);
+      feP.forEach((p, i) => setInst(feM, i, p.clone().add(new THREE.Vector3(Math.sin(t * 9 + i) * .012, Math.cos(t * 8 + i * 2) * .012, 0)), .3 * v, null));
+      feM.instanceMatrix.needsUpdate = true;
+      g.position.set(-1.2, -.5, 0); g.rotation.set(.4, -.6 + (t - fe0) * .18, 0); camPos.set(0, .3, 14 - 2 * r(t, fe0, 5));
+    }
+    if (t > fe1 - .3 && t < ck1 + .6) {
+      const g = groups.cork; g.visible = true; const v = win(t, fe1, ck1, .6, .5);
+      cellMat.opacity = v;
+      for (let i = 0; i < NAIR; i++) { const c = airCell[i], s = airSeed[i]; const p = new THREE.Vector3(c.x + tri(t * .21 + s[0]) * .32, tri(t * .17 + s[1]) * .8, c.z + tri(t * .19 + s[2]) * .32); setInst(airM, i, p, .045 * v, null); }
+      airM.instanceMatrix.needsUpdate = true; airM.material.opacity = .55 * v;
+      g.position.set(0, -.6, 0); g.rotation.set(.55, (t - fe1) * .2, 0); camPos.set(0, .3, 12 - 1.5 * r(t, fe1, 4));
+    }
+    op($('xNoesc'), win(t, fe0, ck1, .4, .4));
+    op($('xFe'), win(t, W('experimento', 7, 'hierro') - .2, fe1, .4, .3));
+    op($('xMass'), win(t, W('experimento', 7, 'tres') - .3, fe1, .4, .3));
+    op($('xCk'), win(t, W('experimento', 8, 'corcho') - .2, ck1, .4, .3));
+    op($('concl'), r(t, W('experimento', 9, 'conclusion') - .2, .5));
+    op($('cc0'), r(t, W('experimento', 9, 'flota') - .3, .3)); op($('cc1'), r(t, W('experimento', 9, 'mas') - .2, .3)); op($('cc2'), r(t, W('experimento', 9, 'mas') + .5, .4));
+  }
+
+  /* barco: iron vs water, the hollow hull, plasticine, the giant, the breach */
+  if (t > SS('barco') - .5 && t < SEND('barco') + .5) {
+    const h0 = L('barco', 2) - .2, c0 = L('barco', 4) - .2, s0 = L('barco', 6) - .2;
+    op($('bCmp'), win(t, SS('barco'), h0, .4, .4));
+    $('bBarFe').style.transform = `scaleX(${eo((t - W('barco', 0, 'hierro') + .1) / .8).toFixed(3)})`;
+    op($('b8'), r(t, W('barco', 1, 'ocho') - .2, .3));
+    op($('bHull'), win(t, h0, c0, .4, .4));
+    op($('bAir'), .5 + .4 * r(t, W('barco', 2, 'aire') - .2, .4) + .1 * Math.sin(t * 3));
+    setA('bHullG', 'transform', `translate(800,${505 + Math.sin(t * 1.4) * 5})`);
+    op($('bSteel'), r(t, W('barco', 2, 'casco') - .2, .4)); op($('bSteelL'), r(t, W('barco', 2, 'casco') - .2, .4));
+    op($('bMed'), win(t, W('barco', 3, 'densidad') - .2, c0, .4, .4));
+    op($('bClay'), win(t, c0, s0, .4, .4));
+    const bs = eo((t - W('barco', 4, 'hunde') + .1) / 1.6);
+    setA('clBall', 'cy', (335 + 361 * bs).toFixed(1));
+    const bt = r(t, W('barco', 4, 'barquito') - .2, .5);
+    op($('clBoat'), bt); setA('clBoat', 'transform', `translate(0,${(-40 * (1 - bt) + Math.sin(t * 1.8) * 3).toFixed(1)})`);
+    op($('clVol'), r(t, W('barco', 5, 'volumen') - .2, .4));
+    op($('clSame'), win(t, W('barco', 4, 'misma') - .2, s0, .4, .3)); op($('clMore'), win(t, W('barco', 5, 'volumen') - .1, s0, .4, .3));
+    op($('bSea'), r(t, s0, .5)); setA('bwave', 'd', wave(520, t));
+    const sink = eo((t - W('barco', 7, 'sube') + .2) / 3.5);
+    setA('bShip', 'transform', `translate(${800 - 30 * r(t, s0, 5)},${514 + Math.sin(t * 1.6) * 5 * (1 - sink) + 150 * sink}) rotate(${Math.sin(t * 1.1) * 1.2 + 6 * sink})`);
+    op($('bCrack'), r(t, W('barco', 7, 'rompe') - .1, .2));
+    op($('bGiant'), win(t, W('barco', 6, 'gigante') - .3, L('barco', 7), .4, .3));
+    op($('bSink'), r(t, W('barco', 7, 'agua') - .2, .4));
+  }
+
+  /* ojo: cut the nail, density stays */
+  if (t > SS('ojo') - .5 && t < SEND('ojo') + .5) {
+    const cut = W('ojo', 1, 'cortarlo'), split = eo((t - W('ojo', 1, 'mitad') + .2) / .7);
+    const drop = eo((t - W('ojo', 2, 'hunde') + .3) / 1.6);
+    const y = 400 + 380 * drop;
+    setA('oNailA', 'transform', `translate(${800 - 180 * split},${y}) rotate(${drop * 30})`);
+    setA('oNailB', 'transform', `translate(${800 + 180 * split},${y}) rotate(${-drop * 20})`);
+    op($('oCut'), win(t, cut - .1, cut + .7, .1, .3));
+    op($('oWater'), .55 * r(t, W('ojo', 2, 'cada') - .3, .5));
+    op($('stamp'), win(t, W('ojo', 1, 'ojo') - .1, L('ojo', 2), .2, .4)); $('stamp').style.transform = `rotate(-8deg) scale(${1.4 - .4 * eo((t - W('ojo', 1, 'ojo') + .1) / .25)})`;
+    op($('oHalfL'), win(t, W('ojo', 1, 'mitad') - .1, W('ojo', 2, 'hunde'), .3, .3)); op($('oHalfR'), win(t, W('ojo', 1, 'mitad') - .1, W('ojo', 2, 'hunde'), .3, .3));
+    op($('oSame'), r(t, W('ojo', 2, 'densidad') - .2, .4));
+    op($('oProp'), r(t, W('ojo', 2, 'material') - .3, .4));
+  }
+
+  /* reto */
+  if (t > SS('reto') - .5 && t < SEND('reto') + .5) {
+    const c0 = LE('reto', 0), c1 = L('reto', 1);
+    const k = cl((t - c0) / (c1 - c0));
+    $('clk').setAttribute('stroke-dashoffset', t < c0 ? 0 : k.toFixed(3));
+    $('clkn').textContent = t < c0 ? '5' : t < c1 ? String(Math.max(1, Math.ceil(5 * (1 - k)))) : '✓';
+    const rev = r(t, L('reto', 1) - .1, .3);
+    document.querySelectorAll('.rq').forEach(e => { const ok = e.dataset.ok === '1'; e.style.color = rev > .5 ? (ok ? 'var(--prof)' : 'var(--line)') : 'var(--chalk)'; e.style.background = rev > .5 && ok ? 'rgba(143,220,174,.14)' : 'transparent'; });
+    op($('rsol'), r(t, L('reto', 2), .5));
+  }
+
+  /* resumen */
+  if (t > SS('resumen') - .5 && t < SEND('resumen') + .5) {
+    const rs = document.querySelectorAll('.rs');
+    [L('resumen', 1), L('resumen', 2), L('resumen', 3)].forEach((a, k) => { op(rs[k], r(t, a - .1, .4)); rs[k].style.transform = `translateY(${(1 - eo((t - a + .1) / .5)) * 2}cqw)`; });
+  }
+
+  /* proximo: the puddle shrinks */
+  if (t > SS('proximo') - .5 && t < SEND('proximo') + .5) {
+    const k = r(t, W('proximo', 0, 'charco'), 5.5, cl);
+    setA('puddle', 'rx', (360 - 230 * k).toFixed(1)); setA('puddle', 'ry', (60 - 38 * k).toFixed(1)); op($('puddle'), .75 - .35 * k);
+    let d = ''; for (let i = 0; i < 5; i++) { const ph = (t * .35 + i / 5) % 1, x = 640 + i * 80, y = 700 - ph * 380; d += `M${x},${y.toFixed(0)} q12,-18 0,-36 q-12,-18 0,-36 `; }
+    setA('vap', 'd', ''); $('vap').innerHTML = `<path d="${d}"/>`; op($('vap'), .6 * r(t, W('proximo', 0, 'charco'), 1) * (1 - k * .5));
+    setA('sun', 'transform', `translate(1400,340) rotate(${t * 8})`);
+    op($('nx'), r(t, W('proximo', 1, 'proximo') - .2, .5));
+  }
+
+  /* chrome: bug, section tag, captions */
+  const cur = M.scenes.find(s => t >= s.start && t < s.start + s.duration) || M.scenes[M.scenes.length - 1];
+  const inBook = cur.id === 'intro' || cur.id === 'outro' || cur.id === 'titulo';
+  op($('bug'), inBook ? 0 : .9);
+  const st = SECT[cur.id]; const sect = $('sect');
+  if (st) { sect.textContent = st; sect.style.color = `var(${KIND[cur.id]})`; op(sect, win(t, cur.start, cur.start + cur.duration, .4, .3)); } else op(sect, 0);
+  captions(t, cur);
+
+  cam.position.copy(camPos); cam.lookAt(look);
+  R3.render(scn, cam);
+}
+
+
+let capKey = '';
+function captions(t, sc) {
+  let line = null, li = -1;
+  for (const s of M.scenes) for (let i = 0; i < s.lines.length; i++) { const l = s.lines[i]; if (t >= l.s - .1 && t <= l.s + l.d + .35) { line = l; li = s.id + i; } }
+  const cap = $('cap');
+  if (!line) { op(cap, 0); return; }
+  op(cap, 1);
+  if (capKey !== li) {
+    capKey = li;
+    const [name, color, cls] = WHO[line.v];
+    cap.style.setProperty('--c', `var(${color})`);
+    cap.className = 'cap ' + cls; $('who').textContent = name;
+    $('txt').innerHTML = line.w.map(w => `<span>${w[0]}</span>`).join(' ');
+  }
+  const sp = $('txt').children;
+  line.w.forEach((w, i) => { sp[i].className = t >= w[2] ? 'on' : t >= w[1] - .02 ? 'now' : ''; });
+}
+
+/* back to the course map when opened from the Química 8+ app */
+try { if (document.referrer && new URL(document.referrer).origin === location.origin) { $('back').hidden = false; $('back').onclick = e => { e.preventDefault(); history.back(); }; } } catch (e) {}
+/* ---------- player ---------- */
+const au = $('au');
+let playing = false, useAudio = true, clock0 = 0, t0 = 0, T = S.titulo.start + 2.2; const REST = T; // rest frame: the title card
+const fmt = s => { s = Math.max(0, s); return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
+$('dur').textContent = fmt(DUR) + ' min';
+au.addEventListener('error', () => { useAudio = false; });
+function now() { if (!playing) return T; if (useAudio && !au.paused) return au.currentTime; return t0 + rate * (performance.now() - clock0) / 1000; }
+function seek(t) {
+  T = Math.max(0, Math.min(DUR, t));
+  if (useAudio) { try { au.currentTime = T; } catch (e) {} }
+  t0 = T; clock0 = performance.now();
+  if (!playing) frame();
+}
+async function play() {
+  $('veil').hidden = true;
+  if (T >= DUR - .05) T = 0;
+  playing = true; t0 = T; clock0 = performance.now();
+  if (useAudio) { try { au.currentTime = T; await au.play(); } catch (e) { useAudio = false; } }
+  $('play').textContent = '❚❚ Pausa';
+}
+function pause() { T = now(); playing = false; au.pause(); $('play').textContent = '▶ Reproducir'; }
+$('play').onclick = () => playing ? pause() : play();
+$('veil').onclick = () => { if (T === REST) T = 0; play(); };
+document.querySelectorAll('.pick').forEach(b => b.onclick = e => { e.stopPropagation(); document.querySelectorAll('.pick').forEach(x => x.classList.toggle('sel', x === b)); });
+const SPEEDS = [1, 1.25, 1.5, 2]; let rate = 1;
+function setRate(v) { T = now(); rate = v; au.playbackRate = v; au.preservesPitch = true; t0 = T; clock0 = performance.now(); $('spd').textContent = String(v).replace('.', ',') + '×'; }
+$('spd').onclick = () => setRate(SPEEDS[(SPEEDS.indexOf(rate) + 1) % SPEEDS.length]);
+$('cc').onclick = () => { const on = $('cc').getAttribute('aria-pressed') !== 'true'; $('cc').setAttribute('aria-pressed', on); stage.classList.toggle('off', !on); };
+au.addEventListener('ended', () => { playing = false; T = DUR; $('play').textContent = '▶ Reproducir'; });
+
+// scrubber and chapter map
+const track = $('track'), chap = $('chap');
+M.scenes.forEach(s => {
+  const seg = document.createElement('div'); seg.className = 'seg'; seg.style.flex = s.duration; seg.style.setProperty('--bt', `var(${KIND[s.id]})`); seg.title = LABEL[s.id]; track.appendChild(seg);
+  const li = document.createElement('li'); const b = document.createElement('button'); b.style.setProperty('--bt', `var(${KIND[s.id]})`);
+  b.innerHTML = `<span class="t">${fmt(s.start)}</span><span>${LABEL[s.id]}</span>`; b.dataset.s = s.id;
+  b.onclick = () => { $('veil').hidden = true; seek(s.start + .01); if (!playing) play(); };
+  li.appendChild(b); chap.appendChild(li);
+});
+const bar = $('bar');
+function barSeek(e) { const rc = bar.getBoundingClientRect(); seek(cl((e.clientX - rc.left) / rc.width) * DUR); $('veil').hidden = true; }
+let drag = false;
+bar.addEventListener('pointerdown', e => { drag = true; bar.setPointerCapture(e.pointerId); barSeek(e); });
+bar.addEventListener('pointermove', e => { if (drag) barSeek(e); });
+bar.addEventListener('pointerup', () => drag = false);
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); playing ? pause() : play(); }
+  if (e.code === 'ArrowRight') seek(now() + 5);
+  if (e.code === 'ArrowLeft') seek(now() - 5);
+});
+
+let lastChap = '';
+function frame() {
+  const t = now();
+  render(t);
+  const p = t / DUR * 100;
+  $('head').style.left = `calc(${p}% - 1px)`; $('fill').style.width = p + '%';
+  $('time').textContent = fmt(t) + ' / ' + fmt(DUR);
+  bar.setAttribute('aria-valuenow', Math.round(t)); bar.setAttribute('aria-valuemax', Math.round(DUR));
+  const cur = M.scenes.find(s => t >= s.start && t < s.start + s.duration);
+  if (cur && cur.id !== lastChap) { lastChap = cur.id; chap.querySelectorAll('button').forEach(b => b.classList.toggle('cur', b.dataset.s === cur.id)); }
+}
+function loop() { if (playing) { frame(); if (!useAudio && now() >= DUR) pause(); } requestAnimationFrame(loop); }
+resize(); frame(); requestAnimationFrame(loop);
+// deterministic hook for frame capture (720p export later): window.__q9.render(seconds)
+window.__q9 = {render: t => { T = t; playing = false; render(t); }, duration: DUR};
+</script>
+
+</body></html>

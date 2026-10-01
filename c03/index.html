@@ -1,0 +1,1094 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>Química 8+ · Capítulo 3</title>
+<meta name="description" content="Química 8+ · Capítulo 3: ¿A dónde va el agua de un charco? Estados de agregación y cambios de estado.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: a 16:9 "pizarra de laboratorio" stage (three.js + overlay), player controls and chapter map below. Single dark look on purpose: it is a screen. */
+:root{
+  --ink:#0c1318;      /* pizarra */
+  --slate:#15212a;
+  --line:#2a3a46;
+  --chalk:#ece7da;    /* tiza */
+  --dim:#8d9ba4;
+  --prof:#8fdcae;     /* Profe: verde tiza */
+  --est:#f2b84b;      /* Sofía: ámbar */
+  --doc:#c6b6f0;      /* Narrador: lavanda */
+  --proton:#f0685a; --neutron:#a9b4ba; --electron:#5cc8e6;
+  --warn:#ff7a59;
+  --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+html,body{background:var(--ink);color:var(--chalk)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.5;padding:20px 16px 40px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+header.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+header.top h1{font-family:var(--f-display);font-weight:700;font-size:28px;letter-spacing:.02em;margin:0;text-wrap:balance}
+header.top h1 b{color:var(--prof);font-weight:700}
+header.top .meta{font-family:var(--f-mono);font-size:12px;color:var(--dim);letter-spacing:.04em}
+
+/* ---------- stage ---------- */
+.stage{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;background:var(--ink);overflow:hidden;border-radius:6px;container-type:inline-size;outline:1px solid var(--line);user-select:none}
+.stage canvas{position:absolute;inset:0;width:100%!important;height:100%!important;display:block}
+.ov{position:absolute;inset:0;pointer-events:none}
+.sc{position:absolute;inset:0;opacity:0}
+.grain{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,transparent 55%,rgba(0,0,0,.45) 100%)}
+.bug{position:absolute;left:2.2cqw;top:1.8cqw;font-family:var(--f-display);font-weight:600;font-size:1.55cqw;letter-spacing:.08em;color:var(--dim);display:flex;gap:.8cqw;align-items:center;text-transform:uppercase}
+.bug b{color:var(--chalk);letter-spacing:.02em}
+.sect{position:absolute;right:2.2cqw;top:1.6cqw;font-family:var(--f-display);font-weight:600;font-size:1.7cqw;letter-spacing:.12em;text-transform:uppercase;padding:.25cqw .9cqw;border:1px solid currentColor;border-radius:.3cqw;color:var(--chalk)}
+.cap{position:absolute;left:50%;bottom:3.2cqw;transform:translateX(-50%);width:78%;display:flex;gap:1.1cqw;align-items:flex-start;justify-content:center}
+.cap .who{flex:none;font-family:var(--f-display);font-weight:700;font-size:1.45cqw;letter-spacing:.12em;text-transform:uppercase;padding:.35cqw .7cqw;border-radius:.3cqw;background:var(--c);color:var(--ink);margin-top:.35cqw}
+.cap .txt{font-size:2.05cqw;line-height:1.32;text-wrap:balance;text-shadow:0 .15cqw .6cqw rgba(0,0,0,.9)}
+.cap .txt span{color:rgba(236,231,218,.42);transition:color .08s}
+.cap .txt span.on{color:var(--chalk)}
+.cap .txt span.now{color:var(--c)}
+.cap.doc .txt{font-style:italic}
+.off .cap{display:none}
+
+.kick{font-family:var(--f-display);font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+.big{font-family:var(--f-display);font-weight:700;line-height:.95;letter-spacing:.01em}
+.mono{font-family:var(--f-mono)}
+.card{position:absolute;background:rgba(21,33,42,.86);border:1px solid var(--line);border-radius:.6cqw;padding:1.2cqw 1.6cqw;backdrop-filter:blur(4px)}
+.pick{background:transparent;cursor:pointer}.pick.sel{background:var(--slate);box-shadow:0 0 0 .25cqw var(--est)}.pick.ok{color:var(--prof)!important}
+.chip{display:inline-block;white-space:nowrap;font-family:var(--f-display);font-weight:600;font-size:1.9cqw;letter-spacing:.06em;padding:.3cqw 1cqw;border-radius:2cqw;border:1px solid currentColor}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.lbl{position:absolute;transform:translate(-50%,-50%);font-family:var(--f-display);font-weight:600;letter-spacing:.1em;text-transform:uppercase;font-size:1.8cqw;text-align:center;white-space:nowrap}
+.lbl small{display:block;font-family:var(--f-body);font-weight:400;letter-spacing:0;text-transform:none;font-size:1.35cqw;color:var(--dim)}
+.tile{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:9cqw;height:9cqw;border:.2cqw solid var(--chalk);border-radius:.5cqw;background:rgba(12,19,24,.8)}
+.tile .z{font-family:var(--f-mono);font-size:1.4cqw;align-self:flex-start;margin-left:.8cqw;color:var(--dim)}
+.tile .sym{font-family:var(--f-display);font-weight:700;font-size:4.4cqw;line-height:1}
+.tile .nm{font-size:1.2cqw;color:var(--dim)}
+svg{overflow:visible}
+[hidden]{display:none!important}
+
+/* play veil */
+.veil{position:absolute;inset:0;display:flex;align-items:flex-end;padding-bottom:6cqw!important;justify-content:center;background:rgba(12,19,24,.35);cursor:pointer;border:0;padding:0;color:var(--chalk);font:inherit;width:100%;height:100%}
+.veil span{display:flex;align-items:center;gap:1.2cqw;font-family:var(--f-display);font-weight:700;font-size:2.4cqw;letter-spacing:.12em;text-transform:uppercase;background:var(--chalk);color:var(--ink);padding:1.1cqw 2.4cqw 1.1cqw 2cqw;border-radius:4cqw}
+.veil svg{width:2.2cqw;height:2.2cqw}
+.veil:focus-visible span{outline:3px solid var(--prof);outline-offset:4px}
+
+/* ---------- controls ---------- */
+.ctl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn{font:600 15px/1 var(--f-display);letter-spacing:.1em;text-transform:uppercase;color:var(--chalk);background:var(--slate);border:1px solid var(--line);border-radius:4px;padding:9px 14px;cursor:pointer}
+.btn:hover{border-color:var(--dim)}
+.btn:focus-visible,.seg:focus-visible,.chap button:focus-visible{outline:2px solid var(--prof);outline-offset:2px}
+.btn[aria-pressed="true"]{background:var(--chalk);color:var(--ink)}
+.time{font-family:var(--f-mono);font-size:13px;color:var(--dim);font-variant-numeric:tabular-nums;min-width:110px}
+.bar{position:relative;flex:1 1 320px;min-width:0;height:34px;cursor:pointer;display:flex;align-items:center}
+.bar .track{position:absolute;left:0;right:0;height:8px;display:flex;gap:2px}
+.bar .seg{height:100%;border-radius:2px;background:var(--bt,var(--line));opacity:.55}
+.bar .head{position:absolute;top:5px;width:2px;height:24px;background:var(--chalk);border-radius:1px;pointer-events:none}
+.bar .fill{position:absolute;left:0;height:8px;background:rgba(236,231,218,.35);border-radius:2px;pointer-events:none}
+
+.below{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:22px;margin-top:6px}
+@media (max-width:760px){.below{grid-template-columns:1fr}}
+.below h2{font-family:var(--f-display);font-weight:600;font-size:15px;letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:0 0 8px}
+.chap{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
+.chap button{width:100%;text-align:left;display:flex;gap:10px;align-items:baseline;background:transparent;border:1px solid var(--line);border-left:4px solid var(--bt);border-radius:4px;color:var(--chalk);padding:7px 10px;cursor:pointer;font:15px/1.25 var(--f-body)}
+.chap button .t{font-family:var(--f-mono);font-size:12px;color:var(--dim);font-variant-numeric:tabular-nums}
+.chap button.cur{background:var(--slate)}
+.notes p{margin:0 0 8px;color:var(--dim);max-width:62ch}
+.notes b{color:var(--chalk);font-weight:700}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--dim)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:-1px}
+@media (prefers-reduced-motion:reduce){.cap .txt span{transition:none}}
+.back{display:inline-block;font:500 13px/1 var(--f-mono);color:var(--dim);text-decoration:none;margin-bottom:10px;letter-spacing:.04em}.back:hover,.back:focus-visible{color:var(--chalk)}
+.sv{font-family:var(--f-display);font-weight:600;fill:var(--chalk);letter-spacing:.05em}
+.svb{font-family:var(--f-body)}
+.svm{font-family:var(--f-mono)}
+.px{transition:none}
+</style>
+
+<div class="wrap">
+  <a class="back" id="back" href="#" hidden>← Mapa del curso</a>
+  <header class="top">
+    <h1>Química <b>8+</b> · Capítulo 3 · ¿A dónde va el agua de un charco?</h1>
+    <div class="meta">8.º GRADO · CAPÍTULO 3 · ESTADOS DE AGREGACIÓN · <span id="dur"></span></div>
+  </header>
+
+  <div class="stage" id="stage">
+    <div class="ov" id="ov">
+      <!-- INTRO: loud/55 ident, then the series mark -->
+      <div class="sc" data-s="intro">
+        <div class="center" id="ident" style="background:#070707">
+          <div style="position:relative;display:flex;align-items:flex-end;gap:1.1cqw">
+            <div id="loud" class="big" style="font-size:9cqw;font-weight:600;color:#ece7e0;clip-path:inset(0 100% 0 0)">loud</div>
+            <svg viewBox="0 0 60 120" style="width:3.2cqw;height:6.4cqw;margin-bottom:.6cqw">
+              <line x1="12" y1="118" x2="48" y2="2" stroke="#6c6c6c" stroke-width="3"/>
+              <rect id="cap55" x="20" y="-5" width="26" height="10" fill="#f0402c" transform="translate(0,0)"/>
+            </svg>
+            <div id="ro" class="mono" style="font-size:3.2cqw;font-weight:500;color:#ece7e0;border:.18cqw solid #ece7e0;padding:0 .4cqw;line-height:1.15;margin-bottom:.3cqw;opacity:0">00</div>
+          </div>
+        </div>
+        <div class="center" id="mark" style="opacity:0">
+          <div style="display:flex;align-items:center;gap:1.6cqw">
+            <div class="big" style="font-size:10.5cqw">Química</div>
+            <svg viewBox="-60 -60 120 120" style="width:13cqw;height:13cqw">
+              <polygon id="hex" points="0,-52 45,-26 45,26 0,52 -45,26 -45,-26" fill="none" stroke="var(--prof)" stroke-width="5" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1" stroke-linejoin="round"/>
+              <circle id="hexin" r="30" fill="none" stroke="var(--prof)" stroke-width="2.5" opacity=".45"/>
+              <text x="0" y="17" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="50" fill="var(--chalk)">8+</text>
+              <circle id="hexe" r="5" fill="var(--electron)"/>
+            </svg>
+          </div>
+          <div id="marktag" style="font-size:2.3cqw;color:var(--dim);margin-top:1cqw;font-style:italic">química de verdad, paso a paso</div>
+        </div>
+      </div>
+      <svg width="0" height="0" style="position:absolute">
+        <defs>
+          <marker id="aW" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10Z" fill="#ff9a6a"/></marker>
+          <marker id="aC" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10Z" fill="#5cc8e6"/></marker>
+        </defs>
+      </svg>
+
+      <div class="sc" data-s="frio">
+        <svg viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <defs>
+            <linearGradient id="skyN" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c1318"/><stop offset=".75" stop-color="#1d2b38"/><stop offset="1" stop-color="#3b3340"/></linearGradient>
+            <linearGradient id="skyD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6288"/><stop offset=".75" stop-color="#7fb0cf"/><stop offset="1" stop-color="#e2cb98"/></linearGradient>
+            <radialGradient id="lampG"><stop offset="0" stop-color="#ffd98a" stop-opacity=".6"/><stop offset="1" stop-color="#ffd98a" stop-opacity="0"/></radialGradient>
+            <radialGradient id="sunG"><stop offset="0" stop-color="#fff0b8" stop-opacity=".9"/><stop offset="1" stop-color="#fff0b8" stop-opacity="0"/></radialGradient>
+          </defs>
+          <rect width="1600" height="570" fill="url(#skyN)"/>
+          <rect id="fDay" width="1600" height="570" fill="url(#skyD)" opacity="0"/>
+          <g id="fSun" opacity="0"><circle r="170" fill="url(#sunG)"/><circle r="56" fill="#ffe08a"/><g id="fSunR" stroke="#ffe08a" stroke-width="8" stroke-linecap="round"><line x1="0" y1="-78" x2="0" y2="-108"/><line x1="0" y1="78" x2="0" y2="108"/><line x1="-78" y1="0" x2="-108" y2="0"/><line x1="78" y1="0" x2="108" y2="0"/><line x1="55" y1="55" x2="76" y2="76"/><line x1="-55" y1="-55" x2="-76" y2="-76"/><line x1="55" y1="-55" x2="76" y2="-76"/><line x1="-55" y1="55" x2="-76" y2="76"/></g></g>
+          <g id="fClouds" fill="#1b2630"><ellipse cx="320" cy="120" rx="230" ry="60"/><ellipse cx="520" cy="95" rx="190" ry="55"/><ellipse cx="200" cy="90" rx="150" ry="45"/><ellipse cx="1000" cy="130" rx="260" ry="62"/><ellipse cx="1220" cy="100" rx="200" ry="55"/><ellipse cx="860" cy="100" rx="160" ry="45"/></g>
+          <g id="fBld"></g>
+          <circle id="fLamp" cx="1260" cy="330" r="190" fill="url(#lampG)"/>
+          <g stroke="#6e7b84" stroke-width="10" stroke-linecap="round"><line x1="1260" y1="560" x2="1260" y2="350"/><line x1="1260" y1="350" x2="1225" y2="338"/></g>
+          <rect x="1196" y="330" width="40" height="14" rx="4" fill="#ffd98a"/>
+          <rect y="560" width="1600" height="340" fill="#0f1820"/>
+          <line x1="0" y1="560" x2="1600" y2="560" stroke="#2a3a46" stroke-width="4"/>
+          <path d="M0,800 H1600" stroke="#22323d" stroke-width="5" stroke-dasharray="70 60"/>
+          <g id="fDrain" transform="translate(1100,620)"><rect width="130" height="34" rx="4" fill="#0a1015" stroke="#6e7b84" stroke-width="3"/><g stroke="#6e7b84" stroke-width="3"><line x1="22" y1="4" x2="22" y2="30"/><line x1="44" y1="4" x2="44" y2="30"/><line x1="66" y1="4" x2="66" y2="30"/><line x1="88" y1="4" x2="88" y2="30"/><line x1="108" y1="4" x2="108" y2="30"/></g></g>
+          <g id="fX" opacity="0" stroke="#ff7a59" stroke-width="12" stroke-linecap="round"><line x1="1135" y1="605" x2="1195" y2="665"/><line x1="1195" y1="605" x2="1135" y2="665"/></g>
+          <ellipse id="fPud" cx="720" cy="690" rx="0" ry="0" fill="#3f8fc4" opacity=".85"/>
+          <ellipse id="fPudH" cx="720" cy="690" rx="0" ry="0" fill="none" stroke="#bfe6f7" stroke-width="3" opacity=".5"/>
+          <path id="fRain" d="" stroke="#9fd0ea" stroke-width="2.5" stroke-linecap="round" fill="none" opacity=".6"/>
+          <g id="fVap" fill="none" stroke="#bfe6f7" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 12" opacity="0"></g>
+        </svg>
+        <div class="chip lbl" id="fl0" style="left:30%;top:36%;opacity:0;color:var(--electron)">llueve</div>
+        <div class="chip lbl" id="fl1" style="left:44%;top:67%;opacity:0;color:var(--electron)">charco</div>
+        <div class="chip lbl" id="fl2" style="left:50%;top:13%;opacity:0;color:#ffe08a">al día siguiente</div>
+        <div class="lbl" id="fl3" style="left:72%;top:63%;opacity:0;color:var(--dim)">tragante</div>
+        <div class="center" id="fq" style="opacity:0;background:rgba(12,19,24,.55);justify-content:flex-start;padding-top:12cqw"><div class="big" style="font-size:7cqw;text-wrap:balance;max-width:70cqw;color:var(--doc)">¿A dónde se fue el agua?</div></div>
+      </div>
+
+      <div class="sc" data-s="titulo">
+        <div class="center">
+          <div style="display:flex;align-items:center;gap:1.4cqw" id="t1"><span class="kick" style="font-size:2.2cqw">Capítulo 3</span><span class="chip mono" style="color:var(--prof);font-size:2cqw">8.º</span></div>
+          <div class="big" id="t2" style="font-size:8cqw;margin:.8cqw 0 1.4cqw;text-wrap:balance;max-width:84cqw">¿A dónde va el agua de un charco?</div>
+          <div id="t3" style="display:flex;gap:1cqw">
+            <span class="chip" style="color:#bfe6f7">sólido</span>
+            <span class="chip" style="color:var(--electron)">líquido</span>
+            <span class="chip" style="color:#f0c4a0">gaseoso</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="repaso">
+        <div style="position:absolute;left:4%;top:17%;display:flex;flex-direction:column;gap:1.6cqw">
+          <div class="card rp" style="position:relative;width:36cqw;text-align:left"><div class="kick" style="font-size:1.4cqw;color:var(--est)">Cap. 2</div><div style="font-size:2.3cqw;line-height:1.3;margin-top:.3cqw"><b id="rpf">t.f.</b> y <b id="rpe">t.e.</b> caracterizan a la sustancia</div></div>
+          <div class="card rp" style="position:relative;width:36cqw;text-align:left"><div class="kick" style="font-size:1.4cqw;color:var(--est)">Cap. 1</div><div style="font-size:2.3cqw;line-height:1.3;margin-top:.3cqw"><b style="color:var(--electron)">partículas</b> con espacio entre ellas</div></div>
+        </div>
+        <div class="lbl" id="rpNo" style="left:73%;top:14%;font-size:1.3cqw;color:var(--dim);text-transform:none;letter-spacing:0">modelo simplificado · no está a escala</div>
+        <div class="chip lbl" id="rpk" style="left:73%;top:81%;opacity:0;color:var(--prof)">las partículas se mueven</div>
+      </div>
+
+      <div class="sc" data-s="pregunta">
+        <div class="center" style="justify-content:flex-start;padding-top:9cqw">
+          <div class="kick" id="pk" style="font-size:1.8cqw;color:var(--est);opacity:0">Sofía pregunta</div>
+          <div class="big" id="pq" style="font-size:6cqw;max-width:74cqw;text-wrap:balance;margin-top:.6cqw">¿El charco <span style="color:var(--est)">hirvió</span>?</div>
+          <div id="pq2" style="font-size:2.4cqw;color:var(--dim);margin-top:1cqw;opacity:0">el sol no calienta tanto</div>
+          <div id="agenda" style="display:flex;gap:2cqw;margin-top:4cqw">
+            <div class="card" style="position:relative;width:22cqw;text-align:left" id="ag0"><div class="kick" style="font-size:1.4cqw">1 · estados</div><div class="big" style="font-size:3cqw">de agregación</div></div>
+            <div class="card" style="position:relative;width:22cqw;text-align:left" id="ag1"><div class="kick" style="font-size:1.4cqw">2 · cambios</div><div class="big" style="font-size:3cqw">de estado</div></div>
+            <div class="card" style="position:relative;width:22cqw;text-align:left" id="ag2"><div class="kick" style="font-size:1.4cqw">3 · tu charco</div><div class="big" style="font-size:3cqw">¿qué le pasó?</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="estados">
+        <svg viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <text id="stH" x="800" y="92" text-anchor="middle" class="sv" font-size="52" opacity="0">cambio de estado</text>
+          <g id="stG">
+            <g transform="translate(47,170)">
+              <rect width="440" height="300" rx="10" fill="rgba(21,33,42,.55)" stroke="#42545f" stroke-width="3"/>
+              <g id="stp0"></g><rect id="stg0" width="440" height="300" rx="10" fill="none" stroke="#8fdcae" stroke-width="6" opacity="0"/>
+              <text id="stt0" x="220" y="-30" text-anchor="middle" class="sv" font-size="46" opacity="0">SÓLIDO</text>
+              <text id="ste0" x="220" y="352" text-anchor="middle" class="sv" font-size="36" fill="#bfe6f7" opacity="0">hielo</text>
+              <text id="stm0" x="220" y="385" text-anchor="middle" class="svb" font-size="19" fill="#8d9ba4" opacity="0">modelo simplificado · no está a escala</text>
+              <text id="sta0" x="220" y="440" text-anchor="middle" class="sv" font-size="32" fill="#f2b84b" opacity="0">ordenadas · solo vibran</text>
+            </g>
+            <g transform="translate(580,170)">
+              <rect width="440" height="300" rx="10" fill="rgba(21,33,42,.55)" stroke="#42545f" stroke-width="3"/>
+              <g id="stp1"></g><rect id="stg1" width="440" height="300" rx="10" fill="none" stroke="#8fdcae" stroke-width="6" opacity="0"/>
+              <text id="stt1" x="220" y="-30" text-anchor="middle" class="sv" font-size="46" opacity="0">LÍQUIDO</text>
+              <text id="ste1" x="220" y="352" text-anchor="middle" class="sv" font-size="36" fill="#5cc8e6" opacity="0">agua líquida</text>
+              <text id="stm1" x="220" y="385" text-anchor="middle" class="svb" font-size="19" fill="#8d9ba4" opacity="0">modelo simplificado · no está a escala</text>
+              <text id="sta1" x="220" y="440" text-anchor="middle" class="sv" font-size="32" fill="#f2b84b" opacity="0">juntas · se deslizan</text>
+            </g>
+            <g transform="translate(1113,170)">
+              <rect width="440" height="300" rx="10" fill="rgba(21,33,42,.55)" stroke="#42545f" stroke-width="3"/>
+              <g id="stp2"></g><rect id="stg2" width="440" height="300" rx="10" fill="none" stroke="#8fdcae" stroke-width="6" opacity="0"/>
+              <text id="stt2" x="220" y="-30" text-anchor="middle" class="sv" font-size="46" opacity="0">GASEOSO</text>
+              <text id="ste2" x="220" y="352" text-anchor="middle" class="sv" font-size="36" fill="#f0c4a0" opacity="0">vapor de agua</text>
+              <text id="stm2" x="220" y="385" text-anchor="middle" class="svb" font-size="19" fill="#8d9ba4" opacity="0">modelo simplificado · no está a escala</text>
+              <text id="sta2" x="220" y="440" text-anchor="middle" class="sv" font-size="32" fill="#f2b84b" opacity="0">separadas · rápidas</text>
+            </g>
+          </g>
+          <!-- change-of-state arrows (final coordinates) -->
+          <g fill="none" stroke-width="5" stroke-linecap="round">
+            <path id="ar0" d="M416,205 H650" stroke="#ff9a6a" marker-end="url(#aW)" opacity="0"/>
+            <path id="ar1" d="M650,285 H416" stroke="#5cc8e6" marker-end="url(#aC)" opacity="0"/>
+            <path id="ar2" d="M950,205 H1184" stroke="#ff9a6a" marker-end="url(#aW)" opacity="0"/>
+            <path id="ar3" d="M1184,285 H950" stroke="#5cc8e6" marker-end="url(#aC)" opacity="0"/>
+            <path id="ar4" d="M267,392 Q800,566 1333,392" stroke="#ff9a6a" marker-end="url(#aW)" opacity="0"/>
+            <path id="ar5" d="M1333,432 Q800,706 267,432" stroke="#5cc8e6" marker-end="url(#aC)" opacity="0"/>
+          </g>
+          <g class="sv" font-size="30" text-anchor="middle">
+            <text id="al0" x="533" y="190" fill="#ff9a6a" opacity="0">fusión</text>
+            <text id="al1" x="533" y="324" fill="#5cc8e6" opacity="0">solidificación</text>
+            <text id="al2" x="1067" y="190" fill="#ff9a6a" opacity="0">vaporización</text>
+            <text id="al3" x="1067" y="324" fill="#5cc8e6" opacity="0">condensación</text>
+            <text id="al4" x="800" y="458" fill="#ff9a6a" opacity="0">sublimación progresiva</text>
+            <text id="al5" x="800" y="546" fill="#5cc8e6" opacity="0">sublimación regresiva</text>
+          </g>
+          <!-- naftalina and freezer -->
+          <g id="nfG" opacity="0">
+            <circle id="nfB" cx="300" cy="662" r="46" fill="#ece7da" stroke="#bdb6a2" stroke-width="3"/>
+            <text x="300" y="740" text-anchor="middle" class="sv" font-size="28">naftalina</text>
+            <path id="nfV" d="" fill="none" stroke="#bfe6f7" stroke-width="3" stroke-linecap="round" stroke-dasharray="5 9" opacity=".35"/>
+          </g>
+          <g id="fzG" opacity="0">
+            <rect x="950" y="600" width="100" height="120" rx="8" fill="#2a3a46" stroke="#bfe6f7" stroke-width="3"/>
+            <line x1="950" y1="650" x2="1050" y2="650" stroke="#bfe6f7" stroke-width="3"/>
+            <line x1="1036" y1="615" x2="1036" y2="635" stroke="#bfe6f7" stroke-width="5" stroke-linecap="round"/>
+            <g id="fzF" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0"></g>
+            <text x="1000" y="740" text-anchor="middle" class="sv" font-size="28">congelador</text>
+          </g>
+          <text id="nfT" x="365" y="672" class="sv" font-size="28" fill="#ece7da" opacity="0">se achica · sin charco</text>
+          <text id="fzT" x="1075" y="672" class="sv" font-size="28" fill="#bfe6f7" opacity="0">escarcha: del vapor, directo</text>
+          <text id="stQ" x="800" y="676" text-anchor="middle" class="sv" font-size="44" fill="#f2b84b" opacity="0">¿directo a gas?</text>
+          <text id="stH2O" x="1290" y="556" text-anchor="middle" class="svm" font-size="30" fill="#ece7da" opacity="0">H₂O(s) → H₂O(l) → H₂O(g)</text>
+        </svg>
+        <div id="stamp1" style="position:absolute;left:50%;top:73%;transform:translate(-50%,-50%) rotate(-3deg);opacity:0;border:.3cqw solid var(--prof);color:var(--prof);padding:.4cqw 1.6cqw;border-radius:.5cqw;font-family:var(--f-display);font-weight:700;font-size:3cqw;letter-spacing:.06em;white-space:nowrap;text-transform:uppercase">fenómenos físicos <span style="color:var(--chalk);font-size:2.2cqw;letter-spacing:.02em;text-transform:none">· la sustancia no cambia</span></div>
+      </div>
+
+      <div class="sc" data-s="experimento">
+        <svg viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <!-- left panel A: beaker -->
+          <g id="xBeaker">
+            <rect x="120" y="205" width="215" height="64" rx="8" fill="rgba(21,33,42,.8)" stroke="#42545f" stroke-width="2"/>
+            <text id="xRead" x="227" y="254" text-anchor="middle" class="svm" font-size="42" font-weight="600" fill="#ece7da">−10 °C</text>
+            <text id="xLv" x="132" y="192" text-anchor="start" class="svb" font-size="22" fill="#8d9ba4" opacity="0">vaso de precipitados</text>
+            <text id="xLt" x="425" y="238" class="svb" font-size="22" fill="#8d9ba4" opacity="0">termómetro</text>
+            <clipPath id="xClip"><path d="M130,310 V610 Q130,630 150,630 H420 Q440,630 440,610 V310Z"/></clipPath>
+            <g clip-path="url(#xClip)">
+              <rect id="xWater" x="130" y="600" width="320" height="40" fill="#3f8fc4" opacity=".6"/>
+              <g id="xIce" fill="#cfeefa" stroke="#ffffff" stroke-width="2" fill-opacity=".8"></g>
+              <g id="xBub" fill="none" stroke="#e8f6ff" stroke-width="2.5"></g>
+            </g>
+            <path d="M130,310 V610 Q130,630 150,630 H420 Q440,630 440,610 V310" fill="none" stroke="#ece7da" stroke-width="4" stroke-linejoin="round"/>
+            <line x1="124" y1="310" x2="146" y2="310" stroke="#ece7da" stroke-width="4"/>
+            <rect x="112" y="632" width="346" height="7" rx="2" fill="#8d9ba4"/>
+            <g stroke="#6e7b84" stroke-width="7" stroke-linecap="round"><line x1="132" y1="639" x2="110" y2="756"/><line x1="438" y1="639" x2="460" y2="756"/></g>
+            <text id="xLtr" x="475" y="722" class="svb" font-size="20" fill="#8d9ba4" opacity="0">trípode y tela metálica</text>
+            <line id="xStir" x1="335" y1="300" x2="250" y2="590" stroke="#bfe6f7" stroke-width="7" stroke-linecap="round"/>
+            <rect x="378" y="250" width="16" height="330" rx="8" fill="#1a262e" stroke="#ece7da" stroke-width="2.5"/>
+            <circle cx="386" cy="586" r="15" fill="#ff5a4a" stroke="#ece7da" stroke-width="2.5"/>
+            <rect id="xMerc" x="382" y="580" width="8" height="0" fill="#ff5a4a"/>
+            <path id="xSteam" d="" fill="none" stroke="#bfe6f7" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 12" opacity="0"/>
+            <g id="xBurner" opacity="0">
+              <path id="xFlame" d="" fill="#ffb454" stroke="#ff7a59" stroke-width="3"/>
+              <path id="xFlame2" d="" fill="#7fc4ea" opacity=".85"/>
+              <rect x="255" y="692" width="40" height="52" fill="#6e7b84"/><rect x="205" y="742" width="140" height="16" rx="6" fill="#6e7b84"/>
+            </g>
+          </g>
+          <!-- left panel B: zoom -->
+          <g id="xZoom" opacity="0">
+            <text id="xZt" x="340" y="138" text-anchor="middle" class="sv" font-size="32">fusión · se sueltan</text>
+            <g transform="translate(80,170)">
+              <rect width="520" height="370" rx="10" fill="rgba(21,33,42,.6)" stroke="#42545f" stroke-width="3"/>
+              <g id="xZp"></g>
+            </g>
+            <text x="340" y="566" text-anchor="middle" class="svb" font-size="19" fill="#8d9ba4">modelo simplificado · no está a escala</text>
+            <text id="xZn" x="590" y="205" text-anchor="end" class="sv" font-size="30" fill="#8fdcae" opacity="0">sin acelerar</text>
+            <g id="xBars" class="svm" font-size="24">
+              <rect id="xb2" x="85" y="610" width="0" height="38" rx="4" fill="#ff9a6a"/>
+              <text id="xb2t" x="95" y="636" fill="#0c1318" font-weight="600" opacity="0">vaporizar 2 257 J/g</text>
+              <rect id="xb1" x="85" y="660" width="0" height="38" rx="4" fill="#5cc8e6"/>
+              <text id="xb1t" x="165" y="686" fill="#5cc8e6" font-weight="600" opacity="0">fundir 334 J/g</text>
+              <text id="xb7" x="548" y="637" class="sv" font-size="32" fill="#f2b84b" opacity="0">≈ 7 ×</text>
+            </g>
+          </g>
+          <!-- left panel C: conclusion -->
+          <g id="xConc" opacity="0">
+            <rect x="60" y="150" width="580" height="450" rx="10" fill="rgba(21,33,42,.7)" stroke="#42545f" stroke-width="3"/>
+            <text id="xc0" x="90" y="210" class="sv" font-size="30" fill="#8d9ba4" opacity="0">mientras funde o hierve</text>
+            <text id="xc1" x="90" y="285" class="sv" font-size="38" fill="#8fdcae" opacity="0">temperatura constante</text>
+            <text id="xc2" x="90" y="390" class="sv" font-size="34" opacity="0">valores fijos y propios</text>
+            <text id="xc3" x="90" y="470" class="sv" font-size="34" fill="#f2b84b" opacity="0">la caracterizan</text>
+            <text id="xc4" x="90" y="550" class="svb" font-size="22" fill="#8d9ba4" opacity="0">no dependen de cuánto haya</text>
+          </g>
+          <!-- graph -->
+          <g id="xGraph">
+            <line x1="700" y1="130" x2="700" y2="660" stroke="#8d9ba4" stroke-width="3"/>
+            <line x1="700" y1="660" x2="1510" y2="660" stroke="#8d9ba4" stroke-width="3"/>
+            <line x1="700" y1="616" x2="1500" y2="616" stroke="#3a4a55" stroke-width="2" stroke-dasharray="8 8"/>
+            <line x1="700" y1="174" x2="1500" y2="174" stroke="#3a4a55" stroke-width="2" stroke-dasharray="8 8"/>
+            <g class="svm" font-size="22" fill="#8d9ba4" text-anchor="end"><text x="688" y="668">−10</text><text x="688" y="624">0</text><text x="688" y="403">50</text><text x="688" y="182">100</text></g>
+            <text x="712" y="112" text-anchor="start" class="sv" font-size="28" fill="#8d9ba4">temperatura (°C)</text>
+            <text x="1510" y="700" text-anchor="end" class="sv" font-size="28" fill="#8d9ba4">tiempo</text>
+            <path id="gh0" d="" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" opacity="0"/>
+            <path id="gh1" d="" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" opacity="0"/>
+            <g fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+              <path id="gp0" d="" stroke="#bfe6f7"/><path id="gp1" d="" stroke="#8fdcae"/><path id="gp2" d="" stroke="#5cc8e6"/><path id="gp3" d="" stroke="#ff9a6a"/>
+            </g>
+            <circle id="gDot" r="10" fill="#ece7da" cx="700" cy="660" opacity="0"/>
+            <text id="gl1" x="925" y="650" class="sv" font-size="32" fill="#8fdcae" opacity="0">fusión · 0 °C</text>
+            <text id="gl2" x="1230" y="148" text-anchor="middle" class="sv" font-size="32" fill="#ff9a6a" opacity="0">ebullición · ≈ 100 °C</text>
+            <text id="gl3" x="1230" y="214" text-anchor="middle" class="sv" font-size="26" fill="#f2b84b" opacity="0">≈ 7 × más larga que la fusión</text>
+          </g>
+        </svg>
+        <!-- prediction card -->
+        <div class="card" id="xPred" style="left:46%;top:19%;opacity:0;text-align:center;padding:1cqw 1.2cqw">
+          <div class="kick" style="font-size:1.4cqw;color:var(--est)">predice</div>
+          <div style="font-size:1.8cqw;margin:.2cqw 0 .7cqw">¿Qué hace la temperatura?</div>
+          <div style="display:flex;gap:.7cqw;justify-content:center"><span class="chip px" id="px0" style="font-size:1.7cqw">sube</span><span class="chip px" id="px1" style="font-size:1.7cqw">baja</span><span class="chip px" id="px2" style="font-size:1.7cqw">se queda igual</span></div>
+          <svg viewBox="-50 -50 100 100" id="xClock" style="width:5cqw;height:5cqw;margin-top:.5cqw"><circle r="40" fill="none" stroke="var(--line)" stroke-width="9"/><circle id="xClk" r="40" fill="none" stroke="var(--est)" stroke-width="9" pathLength="1" stroke-dasharray="1" stroke-dashoffset="0" transform="rotate(-90)"/><text id="xClkn" y="14" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="38" fill="var(--chalk)">2</text></svg>
+        </div>
+      </div>
+
+      <div class="sc" data-s="regla">
+        <svg viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <rect id="rzA" x="140" y="380" width="380" height="64" fill="#9fd8f2" opacity="0"/>
+          <rect id="rzB" x="520" y="380" width="540" height="64" fill="#3f8fc4" opacity="0"/>
+          <rect id="rzC" x="1060" y="380" width="400" height="64" fill="#e8a27a" opacity="0"/>
+          <line x1="140" y1="412" x2="1470" y2="412" stroke="#ece7da" stroke-width="4" opacity=".8"/>
+          <path d="M1470,412 l-20,-12 v24Z" fill="#ece7da"/>
+          <g id="rMarks" opacity="0">
+            <line x1="520" y1="330" x2="520" y2="470" stroke="#ece7da" stroke-width="5"/>
+            <line x1="1060" y1="330" x2="1060" y2="470" stroke="#ece7da" stroke-width="5"/>
+            <text x="520" y="286" text-anchor="middle" class="sv" font-size="54">t.f.</text>
+            <text x="520" y="318" text-anchor="middle" class="svb" font-size="22" fill="#8d9ba4">temperatura de fusión</text>
+            <text x="1060" y="286" text-anchor="middle" class="sv" font-size="54">t.e.</text>
+            <text x="1060" y="318" text-anchor="middle" class="svb" font-size="22" fill="#8d9ba4">temperatura de ebullición</text>
+          </g>
+          <g class="sv" font-size="38" text-anchor="middle" fill="#0c1318">
+            <text id="rtA" x="330" y="425" opacity="0">sólida</text><text id="rtB" x="790" y="425" opacity="0">líquida</text><text id="rtC" x="1260" y="425" opacity="0">gaseosa</text>
+          </g>
+          <text id="rP" x="1470" y="210" text-anchor="end" class="svm" font-size="30" fill="#f2b84b" opacity="0">a 100 kPa</text>
+          <g id="rN0" class="svm" font-size="32" text-anchor="middle" opacity="0"><text x="520" y="494" fill="#ece7da">0 °C</text></g>
+          <g id="rN1" class="svm" font-size="32" text-anchor="middle" opacity="0"><text x="1060" y="494" fill="#ece7da">≈ 100 °C</text></g>
+          <g id="rW" opacity="0"><path d="M655,380 l-12,-22 h24Z" fill="#f2b84b"/><text x="655" y="346" text-anchor="middle" class="sv" font-size="30" fill="#f2b84b">agua · 25 °C</text></g>
+          <g id="rP0" transform="translate(180,560)"><rect width="300" height="140" rx="8" fill="rgba(21,33,42,.55)" stroke="#42545f" stroke-width="2"/><g id="rpp0"></g></g>
+          <g id="rP1" transform="translate(640,560)"><rect width="300" height="140" rx="8" fill="rgba(21,33,42,.55)" stroke="#42545f" stroke-width="2"/><g id="rpp1"></g></g>
+          <g id="rP2" transform="translate(1110,560)"><rect width="300" height="140" rx="8" fill="rgba(21,33,42,.55)" stroke="#42545f" stroke-width="2"/><g id="rpp2"></g></g>
+          <text id="rNo" x="800" y="728" text-anchor="middle" class="svb" font-size="19" fill="#8d9ba4" opacity="0">modelo simplificado · no está a escala</text>
+          <text id="rHead" x="140" y="210" class="sv" font-size="44" opacity="0">dos temperaturas → un estado</text>
+        </svg>
+      </div>
+
+      <div class="sc" data-s="charco">
+        <svg viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <text id="cTitle" x="800" y="96" text-anchor="middle" class="sv" font-size="50" opacity="0">vaporización · dos formas</text>
+          <!-- line 0: puddle and question -->
+          <g id="c0">
+            <ellipse cx="800" cy="610" rx="340" ry="52" fill="#3f8fc4" opacity=".8"/>
+            <ellipse cx="800" cy="610" rx="340" ry="52" fill="none" stroke="#bfe6f7" stroke-width="3" opacity=".5"/>
+            <rect x="1010" y="270" width="26" height="250" rx="13" fill="#1a262e" stroke="#ece7da" stroke-width="3"/>
+            <circle cx="1023" cy="530" r="22" fill="#ff5a4a" stroke="#ece7da" stroke-width="3"/><rect id="c0m" x="1019" y="500" width="8" height="30" fill="#ff5a4a"/>
+            <text x="1070" y="330" class="svm" font-size="46" font-weight="600" fill="#ece7da">25 °C</text>
+            <text x="1070" y="384" class="sv" font-size="38" fill="#5cc8e6">líquida</text>
+            <text id="c0q" x="800" y="420" text-anchor="middle" class="sv" font-size="120" fill="#f2b84b">¿?</text>
+          </g>
+          <line id="cDiv" x1="800" y1="150" x2="800" y2="720" stroke="#42545f" stroke-width="3" stroke-dasharray="10 10" opacity="0"/>
+          <!-- left: pot -->
+          <g id="cL" opacity="0">
+            <clipPath id="cpClip"><path d="M230,380 V570 Q230,600 260,600 H580 Q610,600 610,570 V380Z"/></clipPath>
+            <rect x="230" y="420" width="380" height="180" fill="#3f8fc4" opacity=".55" clip-path="url(#cpClip)"/>
+            <g id="cBub" fill="none" stroke="#e8f6ff" stroke-width="3" clip-path="url(#cpClip)"></g>
+            <path d="M230,380 V570 Q230,600 260,600 H580 Q610,600 610,570 V380" fill="none" stroke="#ece7da" stroke-width="5"/>
+            <line x1="215" y1="380" x2="625" y2="380" stroke="#ece7da" stroke-width="5" stroke-linecap="round"/>
+            <path d="M610,430 h50 M230,430 h-50" stroke="#ece7da" stroke-width="10" stroke-linecap="round"/>
+            <path id="cFl" d="" fill="#ffb454" stroke="#ff7a59" stroke-width="3"/>
+            <rect x="255" y="690" width="60" height="26" fill="#6e7b84"/><rect x="520" y="690" width="60" height="26" fill="#6e7b84"/>
+            <rect x="225" y="684" width="380" height="10" fill="#6e7b84"/>
+            <path id="cSteam" d="" fill="none" stroke="#bfe6f7" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 12" opacity=".35"/>
+          </g>
+          <!-- right: puddle slab -->
+          <g id="cR" opacity="0">
+            <text x="1500" y="553" text-anchor="end" class="svb" font-size="19" fill="#8d9ba4">modelo simplificado · no está a escala</text>
+            <rect x="880" y="565" width="620" height="110" fill="rgba(63,143,196,.35)" stroke="#42545f" stroke-width="2"/>
+            <g id="cRp"></g>
+            <g id="cEsc"></g>
+            <g id="cSun" opacity="0" transform="translate(960,300)"><circle r="34" fill="#ffe08a"/><g stroke="#ffe08a" stroke-width="6" stroke-linecap="round"><line x1="0" y1="-48" x2="0" y2="-66"/><line x1="0" y1="48" x2="0" y2="66"/><line x1="-48" y1="0" x2="-66" y2="0"/><line x1="48" y1="0" x2="66" y2="0"/><line x1="34" y1="34" x2="46" y2="46"/><line x1="-34" y1="-34" x2="-46" y2="-46"/><line x1="34" y1="-34" x2="46" y2="-46"/><line x1="-34" y1="34" x2="-46" y2="46"/></g></g>
+            <g id="cWind" opacity="0" transform="translate(0,45)" fill="none" stroke="#bfe6f7" stroke-width="5" stroke-linecap="round"><path d="M1060,235 h110 a18,18 0 1 0 -18,-18"/><path d="M1060,265 h150 a18,18 0 1 1 -18,18"/><path d="M1060,295 h90"/></g>
+            <g id="cLine" opacity="0"><line x1="1200" y1="395" x2="1500" y2="395" stroke="#ece7da" stroke-width="3"/>
+              <path d="M1225,395 l-8,50 h70 l-8,-50Z" fill="#4f7fa8"/><path d="M1325,395 l-8,50 h70 l-8,-50Z" fill="#b85d4f"/><path d="M1425,395 l-8,50 h70 l-8,-50Z" fill="#c9a24a"/>
+              <g id="cDry" fill="#58b6e8"></g></g>
+          </g>
+          <!-- line 7: cycle -->
+          <g id="cCy" opacity="0">
+            <line x1="0" y1="640" x2="1600" y2="640" stroke="#2a3a46" stroke-width="4"/>
+            <ellipse id="cyP" cx="800" cy="660" rx="330" ry="46" fill="#3f8fc4" opacity=".8"/>
+            <g id="cyV" fill="none" stroke="#bfe6f7" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 12"></g>
+            <g id="cyCloud" fill="#aab8c2"><ellipse cx="800" cy="250" rx="190" ry="56"/><ellipse cx="700" cy="270" rx="120" ry="44"/><ellipse cx="910" cy="272" rx="130" ry="44"/><ellipse cx="780" cy="215" rx="100" ry="44"/></g>
+            <g id="cyD" fill="#bfe6f7"></g>
+            <path id="cyR" d="" stroke="#7fc4ea" stroke-width="4" stroke-linecap="round" fill="none"/>
+          </g>
+        </svg>
+        <div class="lbl" id="cLh" style="left:25%;top:20%;opacity:0"><span style="font-size:3.6cqw;color:var(--warn)">ebullición</span><small style="font-size:1.8cqw;color:var(--chalk)" id="cLh1">en todo el líquido · a la t.e.</small></div>
+        <div class="lbl" id="cRh" style="left:75%;top:20%;opacity:0"><span style="font-size:3.6cqw;color:var(--electron)">evaporación</span><small style="font-size:1.8cqw;color:var(--chalk)" id="cRh1">solo en la superficie · sin hervir</small></div>
+        <div class="chip lbl" id="cl1" style="left:25%;top:80%;opacity:0;color:var(--warn)">olla al fuego</div>
+        <div class="chip lbl" id="cl2" style="left:75%;top:48%;opacity:0;color:var(--est)">algunas partículas rápidas</div>
+        <div class="chip lbl" id="cl3" style="left:75%;top:80%;opacity:0;color:var(--electron);font-size:1.7cqw">lenta · incluso a temperatura ambiente</div>
+        <div class="chip lbl" id="cl4" style="left:60%;top:30%;opacity:0;color:var(--dim)">vapor de agua · no se ve</div>
+        <div class="chip lbl" id="cl5" style="left:70%;top:43%;opacity:0;color:#ffe08a;font-size:1.5cqw">el sol y el viento aceleran</div>
+        <div class="chip lbl" id="cy1" style="left:21%;top:42%;opacity:0;color:#bfe6f7">vapor de agua</div>
+        <div class="chip lbl" id="cy2" style="left:50%;top:15%;opacity:0;color:var(--chalk)">nube · gotitas</div>
+        <div class="chip lbl" id="cy3" style="left:70%;top:50%;opacity:0;color:var(--electron)">lluvia</div>
+      </div>
+
+      <div class="sc" data-s="ojo">
+        <svg viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <defs><radialGradient id="plG"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset="1" stop-color="#ffffff" stop-opacity=".25"/></radialGradient></defs>
+          <!-- pot -->
+          <path d="M300,430 V620 Q300,660 340,660 H640 Q680,660 680,620 V430Z" fill="#7b8a93" stroke="#ece7da" stroke-width="4"/>
+          <rect x="285" y="415" width="410" height="22" rx="8" fill="#9aa8b0" stroke="#ece7da" stroke-width="3"/>
+          <path d="M680,470 h50 M300,470 h-50" stroke="#ece7da" stroke-width="12" stroke-linecap="round"/>
+          <path d="M690,436 L730,402 L752,418 L706,444Z" fill="#9aa8b0" stroke="#ece7da" stroke-width="3"/>
+          <path id="oFl" d="" fill="#ffb454" stroke="#ff7a59" stroke-width="3"/>
+          <rect x="360" y="715" width="260" height="14" fill="#6e7b84"/>
+          <!-- gap (invisible vapor) -->
+          <g id="oGap" opacity="0"><line x1="765" y1="408" x2="765" y2="476" stroke="#bfe6f7" stroke-width="3"/><rect x="700" y="300" width="130" height="108" rx="10" fill="none" stroke="#bfe6f7" stroke-width="3" stroke-dasharray="9 8"/></g>
+          <!-- plume -->
+          <g id="oPlume"><g id="oPl"></g></g>
+          <g id="oDots" fill="#bfe6f7"></g>
+          <g id="oX" opacity="0" stroke="#ff7a59" stroke-width="14" stroke-linecap="round"><line x1="1215" y1="150" x2="1315" y2="250"/><line x1="1315" y1="150" x2="1215" y2="250"/></g>
+        </svg>
+        <div class="chip lbl" id="oS" style="left:79%;top:22%;opacity:0;color:var(--est)">vapor</div>
+        <div class="lbl" id="oG" style="left:46%;top:57%;opacity:0;color:#bfe6f7;text-align:left;transform:translate(0,-50%);white-space:normal;max-width:19cqw;text-transform:none;letter-spacing:.02em;font-size:2cqw">vapor de agua<small style="font-size:1.8cqw;color:var(--chalk)">(no se ve)</small></div>
+        <div class="lbl" id="oC" style="left:84%;top:16%;opacity:0;color:var(--chalk);text-transform:none;font-size:2.2cqw;letter-spacing:.02em">gotitas de agua líquida</div>
+        <div class="lbl" id="oF" style="left:80%;top:60%;opacity:0;color:var(--electron);text-transform:none;font-size:1.9cqw;letter-spacing:.02em">aire más frío</div>
+        <div id="stamp" style="position:absolute;left:7%;top:20%;opacity:0;border:.3cqw solid var(--warn);color:var(--warn);padding:.3cqw 1.2cqw;border-radius:.4cqw;font-family:var(--f-display);font-weight:700;font-size:3.6cqw;letter-spacing:.1em;transform:rotate(-8deg)">¡OJO!</div>
+      </div>
+
+      <div class="sc" data-s="reto">
+        <div class="center" style="justify-content:flex-start;padding-top:8cqw">
+          <div class="kick" style="font-size:2cqw;color:var(--est)">reto rápido</div>
+          <div class="big" style="font-size:4.2cqw;margin:.4cqw 0 .2cqw">Dioxígeno: <span class="mono" style="color:var(--electron);font-size:3.6cqw">t.f. −219 °C</span> · <span class="mono" style="color:var(--warn);font-size:3.6cqw">t.e. −183 °C</span></div>
+          <div class="big" style="font-size:4.4cqw;margin:0 0 1.6cqw">¿Estado a <span class="mono" style="color:var(--est);font-size:4cqw">−200 °C</span>?</div>
+          <div style="display:flex;gap:4cqw;align-items:center">
+            <div style="display:flex;gap:1cqw"><span class="chip rq" data-ok="0">sólido</span><span class="chip rq" data-ok="1">líquido</span><span class="chip rq" data-ok="0">gaseoso</span></div>
+            <svg viewBox="-50 -50 100 100" style="width:8cqw;height:8cqw" id="clock"><circle r="40" fill="none" stroke="var(--line)" stroke-width="8"/><circle id="clk" r="40" fill="none" stroke="var(--est)" stroke-width="8" pathLength="1" stroke-dasharray="1" stroke-dashoffset="0" transform="rotate(-90)"/><text id="clkn" y="14" text-anchor="middle" font-family="IBM Plex Mono" font-weight="600" font-size="38" fill="var(--chalk)">5</text></svg>
+          </div>
+        </div>
+        <svg viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <g id="tAll" opacity="0">
+            <rect id="tzA" x="160" y="582" width="320" height="46" fill="#9fd8f2" opacity=".35"/>
+            <rect id="tzB" x="480" y="582" width="640" height="46" fill="#3f8fc4" opacity=".35"/>
+            <rect id="tzC" x="1120" y="582" width="340" height="46" fill="#e8a27a" opacity=".35"/>
+            <line x1="160" y1="605" x2="1470" y2="605" stroke="#ece7da" stroke-width="3" opacity=".8"/>
+            <line x1="480" y1="560" x2="480" y2="650" stroke="#ece7da" stroke-width="4"/><line x1="1120" y1="560" x2="1120" y2="650" stroke="#ece7da" stroke-width="4"/>
+            <g class="svm" font-size="24" text-anchor="middle" fill="#ece7da"><text x="480" y="684">−219 °C</text><text x="1120" y="684">−183 °C</text></g>
+            <g class="sv" font-size="28" text-anchor="middle"><text x="320" y="615" fill="#ece7da">sólido</text><text id="tzBt" x="800" y="615" fill="#ece7da">líquido</text><text x="1290" y="615" fill="#ece7da">gaseoso</text></g>
+            <g id="tM" opacity="0"><path id="tMp" d="M818,560 l-11,-22 h22Z" fill="#f2b84b"/><text id="tMt" x="818" y="522" text-anchor="middle" class="svm" font-size="30" font-weight="600" fill="#f2b84b">−200 °C</text></g>
+            <g id="tG" opacity="0"><path d="M1390,560 l-11,-22 h22Z" fill="#f2b84b"/><text x="1390" y="522" text-anchor="middle" class="svm" font-size="28" font-weight="600" fill="#f2b84b">25 °C → gaseoso</text><text x="1390" y="494" text-anchor="middle" class="svb" font-size="20" fill="#8d9ba4">(fuera de escala)</text></g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="sc" data-s="resumen">
+        <div class="center" style="justify-content:flex-start;padding-top:7cqw">
+          <div class="kick" style="font-size:2cqw">resumen · 3 ideas</div>
+          <div style="display:flex;gap:1.8cqw;margin-top:2.4cqw">
+            <div class="card rs" style="position:relative;width:25cqw;text-align:left"><div class="mono" style="font-size:2.6cqw;color:var(--prof)">1</div><div class="big" style="font-size:3.2cqw;margin-top:.4cqw">sólido · líquido · gaseoso</div><div style="font-size:1.9cqw;line-height:1.3;margin-top:.8cqw;color:var(--dim)">Al cambiar de estado, sigue siendo la misma sustancia.</div></div>
+            <div class="card rs" style="position:relative;width:25cqw;text-align:left"><div class="mono" style="font-size:2.6cqw;color:var(--prof)">2</div><div class="big" style="font-size:3.2cqw;margin-top:.4cqw">temperatura fija al fundir o hervir</div><div style="font-size:1.9cqw;line-height:1.3;margin-top:.8cqw;color:var(--dim)">t.f. y t.e. dicen el estado a 100 kPa.</div></div>
+            <div class="card rs" style="position:relative;width:25cqw;text-align:left"><div class="mono" style="font-size:2.6cqw;color:var(--prof)">3</div><div class="big" style="font-size:3.2cqw;margin-top:.4cqw">el charco se evaporó</div><div style="font-size:1.9cqw;line-height:1.3;margin-top:.8cqw;color:var(--dim)">Partícula a partícula, desde la superficie, sin hervir.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc" data-s="proximo">
+        <div class="card" id="pxS" style="left:5%;top:14%;opacity:0;width:38cqw;text-align:left"><div class="kick" style="font-size:1.4cqw;color:var(--est)">Sofía</div><div style="font-size:2.4cqw;line-height:1.3;margin-top:.3cqw">¿Puedo encender el <b id="pxM" style="color:var(--warn)">mechero</b>?</div></div>
+        <div class="card" id="nx" style="left:5%;top:36%;opacity:0;width:38cqw;text-align:left"><div class="kick" style="font-size:1.6cqw">próximo capítulo</div><div class="big" style="font-size:3.4cqw;margin-top:.4cqw">Cap. 4 · ¿Cómo se trabaja <span style="color:var(--est)">seguro</span> en el laboratorio?</div></div>
+        <svg viewBox="0 0 1600 900" style="position:absolute;inset:0;width:100%;height:100%">
+          <g id="pxG" opacity="0" transform="translate(-120,0)">
+            <path d="M960,330 H1240 L1220,700 Q1218,720 1198,720 H1002 Q982,720 980,700Z" fill="rgba(140,200,235,.18)" stroke="#bfe6f7" stroke-width="5" stroke-linejoin="round"/>
+            <path d="M968,400 H1232 L1218,700 Q1216,712 1198,712 H1002 Q984,712 982,700Z" fill="rgba(92,200,230,.35)"/>
+            <g fill="#e8f6ff" fill-opacity=".7" stroke="#fff" stroke-width="2"><rect x="1000" y="368" width="64" height="64" rx="8" transform="rotate(8 1032 400)"/><rect x="1088" y="374" width="60" height="60" rx="8" transform="rotate(-7 1118 404)"/><rect x="1166" y="366" width="52" height="52" rx="8" transform="rotate(5 1192 392)"/></g>
+            <path id="pxFog" d="M968,400 H1232 L1218,700 Q1216,712 1198,712 H1002 Q984,712 982,700Z" fill="rgba(235,245,255,.28)" opacity="0"/><g id="pxDr" fill="rgba(215,238,255,.6)" stroke="#fff" stroke-width="2"></g>
+            <g id="pxVp" fill="none" stroke="#bfe6f7" stroke-width="2.5" stroke-dasharray="3 3"></g>
+            <ellipse id="pxPud" cx="1100" cy="724" rx="0" ry="0" fill="rgba(215,238,255,.55)"/>
+            <text id="pxMod" x="820" y="745" text-anchor="middle" class="svb" font-size="19" fill="#8d9ba4" opacity="0">modelo simplificado · no está a escala</text>
+            <g id="pxCross" opacity="0" stroke="#ff7a59" stroke-width="9" stroke-linecap="round" fill="none"><path d="M1060,600 H922"/><path d="M898,600 l26,-15 v30Z" fill="#ff7a59" stroke="none"/><line x1="962" y1="572" x2="992" y2="628"/><line x1="992" y1="572" x2="962" y2="628"/></g>
+          </g>
+        </svg>
+        <div class="chip lbl" id="px1l" style="left:57%;top:26%;opacity:0;color:var(--electron)">vaso frío</div>
+        <div class="chip lbl" id="px2l" style="left:85.5%;top:46%;opacity:0;color:var(--electron);font-size:1.6cqw">se moja por fuera</div>
+        <div class="chip lbl" id="px3l" style="left:34%;top:77%;opacity:0;color:var(--warn);font-size:1.7cqw">no atraviesa el vidrio</div>
+        <div class="chip lbl" id="px4l" style="left:85.5%;top:62%;opacity:0;color:var(--prof);font-size:1.7cqw">vapor → gotitas</div>
+      </div>
+
+
+
+      <div class="sc" data-s="outro">
+        <div class="center">
+          <div style="display:flex;align-items:center;gap:1.2cqw">
+            <div class="big" style="font-size:7cqw">Química</div>
+            <svg viewBox="-60 -60 120 120" style="width:8.6cqw;height:8.6cqw"><polygon points="0,-52 45,-26 45,26 0,52 -45,26 -45,-26" fill="none" stroke="var(--prof)" stroke-width="5" stroke-linejoin="round"/><circle r="30" fill="none" stroke="var(--prof)" stroke-width="2.5" opacity=".45"/><text x="0" y="17" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="50" fill="var(--chalk)">8+</text></svg>
+          </div>
+          <div style="font-size:2.2cqw;margin-top:1.2cqw">Próximo: <b>Capítulo 4 · ¿Cómo se trabaja seguro en el laboratorio?</b></div>
+          <div style="font-size:1.5cqw;color:var(--dim);margin-top:3cqw">Voces sintéticas (Kokoro-82M) · Profe, Sofía y Narrador · hecho con código</div>
+          <div style="display:flex;align-items:flex-end;gap:.4cqw;margin-top:1.4cqw;opacity:.85">
+            <span class="big" style="font-size:2.6cqw;font-weight:600">loud</span>
+            <svg viewBox="0 0 60 120" style="width:1cqw;height:2cqw;margin-bottom:.2cqw"><line x1="12" y1="118" x2="48" y2="2" stroke="#6c6c6c" stroke-width="5"/><rect x="26" y="4" width="26" height="12" fill="#f0402c"/></svg>
+            <span class="mono" style="font-size:1.1cqw;border:.12cqw solid var(--chalk);padding:0 .2cqw;margin-bottom:.2cqw">55</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grain"></div>
+      <div class="bug" id="bug"><b>Química 8+</b><span>· Cap. 3 · 8.º</span></div>
+      <div class="sect" id="sect"></div>
+      <div class="cap" id="cap"><span class="who" id="who"></span><div class="txt" id="txt"></div></div>
+    </div>
+    <button class="veil" id="veil" aria-label="Reproducir capítulo"><span><svg viewBox="0 0 20 20"><path d="M4 2 L18 10 L4 18Z" fill="currentColor"/></svg>Ver capítulo</span></button>
+  </div>
+
+  <div class="ctl">
+    <button class="btn" id="play" aria-label="Reproducir o pausar">▶ Reproducir</button>
+    <div class="time" id="time">0:00 / 0:00</div>
+    <div class="bar" id="bar" role="slider" aria-label="Posición" tabindex="0" aria-valuemin="0"><div class="track" id="track"></div><div class="fill" id="fill"></div><div class="head" id="head"></div></div>
+    <button class="btn" id="spd" aria-label="Velocidad">1×</button>
+    <button class="btn" id="cc" aria-pressed="true">Subtítulos</button>
+  </div>
+
+  <div class="below">
+    <div>
+      <h2>Bloques del capítulo</h2>
+      <ul class="chap" id="chap"></ul>
+    </div>
+    <div class="notes">
+      <h2>Voces</h2>
+      <div class="legend" style="margin-bottom:10px"><span><i style="--c:var(--prof)"></i>Profe</span><span><i style="--c:var(--est)"></i>Sofía, estudiante</span><span><i style="--c:var(--doc)"></i>Narrador documental</span></div>
+      <p>Todo se dibuja en vivo en el navegador desde una sola línea de tiempo: la narración manda y cada animación se engancha a una palabra dicha. Espacio pausa, ← → salta 5 s.</p>
+      <p>Datos (a 100 kPa): agua con t.f. 0 °C y t.e. ≈ 100 °C (99,6 °C; el libro da 100 °C); entalpía de fusión del agua 334 J/g y de vaporización 2&nbsp;257 J/g (≈ 6,8 veces; por eso la meseta de ebullición dura ≈ 6,8 veces la de fusión, y se dibuja ≈ 7 ×); dioxígeno con t.f. −219 °C y t.e. −183 °C (Apéndice 1 del libro de 8.º); la naftalina sublima a temperatura ambiente. La regla de las dos temperaturas vale para sustancias que no se descomponen al fundirse o hervir (libro de 8.º, p. 18; la sacarosa, p. 16, no tiene t.e.). En la curva de calentamiento (potencia constante) el hielo se calienta ≈ 2 veces más rápido que el agua líquida (c del hielo ≈ 2,1 J/(g·°C); c del agua ≈ 4,18 J/(g·°C)); el eje del tiempo es esquemático, pero respeta esa pendiente y la proporción 1 : ≈ 6,8 entre las dos mesetas. Con el vaso abierto el vapor escapa, por eso la curva termina en la meseta y el nivel del agua baja. El hielo es menos denso que el agua líquida (≈ 0,92 frente a ≈ 1,00 g/cm³) porque su red cristalina tiene huecos; por eso flota. Todos los modelos de partículas son «modelo simplificado · no está a escala»: las partículas reales no se ven y el gas tiene muchísimo más espacio vacío.</p>
+    </div>
+  </div>
+</div>
+
+<audio id="au" src="mix.mp3" preload="auto"></audio>
+<script src="../vendor/three.min.js"></script>
+<script>
+const M = {"duration":295.061,"scenes":[{"id":"intro","start":0.0,"duration":8.0,"lines":[]},{"id":"frio","start":8.0,"duration":11.735,"lines":[{"t":"Llueve por la tarde. En la calle queda un charco.","s":8.48,"d":3.096,"v":"em_santa","w":[["Llueve",8.5,8.87],["por",8.88,9.05],["la",9.051,9.15],["tarde.",9.19,9.67],["En",9.91,10.08],["la",10.081,10.16],["calle",10.2,10.55],["queda",10.57,10.85],["un",10.856,11.0],["charco.",11.006,11.5]]},{"t":"Al día siguiente sale el sol… y el charco ya no está.","s":11.776,"d":2.979,"v":"em_santa","w":[["Al",11.796,11.936],["día",11.939,12.156],["siguiente",12.164,12.606],["sale",12.614,12.856],["el",12.864,13.056],["sol…",13.064,13.486],["y",13.489,13.536],["el",13.539,13.616],["charco",13.656,14.106],["ya",14.114,14.286],["no",14.289,14.386],["está.",14.389,14.676]]},{"t":"Nadie se lo tomó. No se fue por el tragante. ¿A dónde se fue el agua?","s":14.955,"d":4.1,"v":"em_santa","w":[["Nadie",14.975,15.385],["se",15.388,15.485],["lo",15.488,15.575],["tomó.",15.615,16.085],["No",16.088,16.255],["se",16.263,16.405],["fue",16.413,16.545],["por",16.575,16.705],["el",16.713,16.795],["tragante.",16.815,17.505],["¿A",17.755,17.935],["dónde",17.943,18.265],["se",18.268,18.415],["fue",18.418,18.565],["el",18.568,18.715],["agua?",18.718,18.975]]}]},{"id":"titulo","start":19.735,"duration":3.0,"lines":[]},{"id":"repaso","start":22.735,"duration":15.287,"lines":[{"t":"Recordarás del capítulo dos de esta serie, de octavo grado: la temperatura de fusión y la de ebullición caracterizan a la sustancia.","s":23.385,"d":7.535,"v":"em_alex","w":[["Recordarás",23.405,23.965],["del",23.972,24.065],["capítulo",24.085,24.645],["dos",24.647,24.815],["de",24.822,24.915],["esta",24.922,25.215],["serie,",25.222,25.585],["de",25.705,25.845],["octavo",25.847,26.265],["grado:",26.272,26.825],["la",27.045,27.175],["temperatura",27.205,27.845],["de",27.852,27.945],["fusión",27.952,28.475],["y",28.477,28.525],["la",28.527,28.625],["de",28.627,28.725],["ebullición",28.727,29.345],["caracterizan",29.355,30.075],["a",30.077,30.125],["la",30.127,30.275],["sustancia.",30.277,30.845]]},{"t":"Y en el capítulo uno, que todo está hecho de partículas, con espacio entre ellas.","s":31.12,"d":4.289,"v":"em_alex","w":[["Y",31.14,31.23],["en",31.232,31.3],["el",31.307,31.37],["capítulo",31.39,32.03],["uno,",32.032,32.34],["que",32.45,32.56],["todo",32.6,32.85],["está",32.852,33.12],["hecho",33.127,33.35],["de",33.352,33.4],["partículas,",33.43,34.12],["con",34.21,34.38],["espacio",34.387,34.81],["entre",34.812,35.08],["ellas.",35.087,35.33]]},{"t":"Hoy esas partículas se van a mover.","s":35.609,"d":2.113,"v":"em_alex","w":[["Hoy",35.629,35.819],["esas",35.821,36.019],["partículas",36.069,36.839],["se",36.846,36.989],["van",36.996,37.239],["a",37.246,37.289],["mover.",37.296,37.649]]}]},{"id":"pregunta","start":38.022,"duration":11.382,"lines":[{"t":"Profe, ¿el charco hirvió? ¡Si el sol no calienta tanto!","s":38.672,"d":3.202,"v":"ef_dora","w":[["Profe,",38.692,39.152],["¿el",39.158,39.252],["charco",39.258,39.632],["hirvió?",39.633,40.002],["¡Si",40.232,40.432],["el",40.433,40.602],["sol",40.608,40.852],["no",40.858,40.912],["calienta",40.942,41.332],["tanto!",41.382,41.792]]},{"t":"Buena pista. Hoy veremos tres cosas:","s":42.524,"d":2.161,"v":"em_alex","w":[["Buena",42.544,42.774],["pista.",42.824,43.354],["Hoy",43.361,43.484],["veremos",43.486,43.864],["tres",43.914,44.154],["cosas:",44.204,44.604]]},{"t":"los estados de agregación, los cambios de estado, y qué le pasó a tu charco.","s":44.885,"d":4.219,"v":"em_alex","w":[["los",44.905,45.065],["estados",45.072,45.495],["de",45.497,45.595],["agregación,",45.597,46.395],["los",46.397,46.515],["cambios",46.575,46.995],["de",46.997,47.065],["estado,",47.072,47.605],["y",47.705,47.805],["qué",47.815,47.955],["le",47.957,48.025],["pasó",48.055,48.375],["a",48.382,48.415],["tu",48.455,48.555],["charco.",48.585,49.025]]}]},{"id":"estados","start":49.404,"duration":55.599,"lines":[{"t":"Una sustancia puede estar en tres estados de agregación: sólido, líquido y gaseoso.","s":49.704,"d":4.984,"v":"em_alex","w":[["Una",49.724,49.914],["sustancia",49.916,50.394],["puede",50.454,50.664],["estar",50.666,50.934],["en",50.941,51.034],["tres",51.074,51.384],["estados",51.391,51.814],["de",51.816,51.914],["agregación:",51.916,52.684],["sólido,",52.834,53.534],["líquido",53.541,54.014],["y",54.016,54.064],["gaseoso.",54.066,54.614]]},{"t":"El agua es el ejemplo perfecto: hielo, agua líquida y vapor de agua.","s":54.888,"d":3.847,"v":"em_alex","w":[["El",54.908,55.048],["agua",55.05,55.268],["es",55.275,55.398],["el",55.4,55.498],["ejemplo",55.5,55.818],["perfecto:",55.848,56.568],["hielo,",56.668,57.088],["agua",57.198,57.558],["líquida",57.56,57.978],["y",57.985,58.028],["vapor",58.035,58.358],["de",58.36,58.478],["agua.",58.485,58.658]]},{"t":"En el sólido, las partículas están muy juntas y ordenadas. Solo vibran en su lugar.","s":58.935,"d":4.91,"v":"em_alex","w":[["En",58.955,59.045],["el",59.047,59.215],["sólido,",59.222,59.645],["las",59.652,59.735],["partículas",59.835,60.475],["están",60.477,60.845],["muy",60.852,61.075],["juntas",61.077,61.525],["y",61.527,61.595],["ordenadas.",61.602,62.335],["Solo",62.475,62.875],["vibran",62.877,63.195],["en",63.202,63.325],["su",63.327,63.445],["lugar.",63.452,63.765]]},{"t":"En el líquido siguen juntas, pero se deslizan unas sobre otras.","s":64.046,"d":3.654,"v":"em_alex","w":[["En",64.066,64.156],["el",64.158,64.276],["líquido",64.283,64.676],["siguen",64.683,65.026],["juntas,",65.033,65.576],["pero",65.746,65.976],["se",65.983,66.106],["deslizan",66.108,66.776],["unas",66.783,67.026],["sobre",67.033,67.326],["otras.",67.333,67.616]]},{"t":"En el gas están muy separadas y se mueven rápido en todas direcciones.","s":67.9,"d":4.055,"v":"em_alex","w":[["En",67.92,68.01],["el",68.012,68.13],["gas",68.137,68.46],["están",68.462,68.83],["muy",68.837,69.03],["separadas",69.037,69.72],["y",69.77,69.93],["se",69.937,70.08],["mueven",70.087,70.41],["rápido",70.412,70.81],["en",70.812,70.89],["todas",70.94,71.23],["direcciones.",71.237,71.88]]},{"t":"Pasar de un estado de agregación a otro se llama cambio de estado.","s":72.155,"d":3.709,"v":"em_alex","w":[["Pasar",72.175,72.515],["de",72.517,72.615],["un",72.617,72.685],["estado",72.692,73.065],["de",73.067,73.165],["agregación",73.167,73.905],["a",73.955,74.185],["otro",74.192,74.535],["se",74.542,74.685],["llama",74.692,74.905],["cambio",74.975,75.335],["de",75.342,75.415],["estado.",75.417,75.785]]},{"t":"De sólido a líquido: fusión. De líquido a sólido: solidificación.","s":76.064,"d":3.819,"v":"em_alex","w":[["De",76.084,76.224],["sólido",76.226,76.574],["a",76.576,76.644],["líquido:",76.651,77.124],["fusión.",77.126,77.684],["De",77.934,78.134],["líquido",78.136,78.454],["a",78.461,78.584],["sólido:",78.586,79.004],["solidificación.",79.011,79.804]]},{"t":"De líquido a gas: vaporización. De gas a líquido: condensación.","s":80.083,"d":3.834,"v":"em_alex","w":[["De",80.103,80.243],["líquido",80.245,80.563],["a",80.57,80.613],["gas:",80.62,80.853],["vaporización.",80.953,81.873],["De",82.113,82.283],["gas",82.285,82.553],["a",82.56,82.633],["líquido:",82.635,82.993],["condensación.",83.093,83.843]]},{"t":"Y de sólido a gas, sin pasar por líquido: sublimación progresiva. Al revés: sublimación regresiva.","s":84.117,"d":5.808,"v":"em_alex","w":[["Y",84.137,84.227],["de",84.229,84.377],["sólido",84.379,84.727],["a",84.729,84.777],["gas,",84.779,85.127],["sin",85.129,85.247],["pasar",85.277,85.587],["por",85.637,85.827],["líquido:",85.829,86.237],["sublimación",86.347,87.027],["progresiva.",87.047,87.697],["Al",87.987,88.177],["revés:",88.179,88.597],["sublimación",88.604,89.277],["regresiva.",89.279,89.847]]},{"t":"¿Directo a gas? ¿Sin mojar nada?","s":90.575,"d":1.793,"v":"ef_dora","w":[["¿Directo",90.595,91.015],["a",91.023,91.065],["gas?",91.073,91.445],["¿Sin",91.448,91.595],["mojar",91.598,91.965],["nada?",91.973,92.295]]},{"t":"Sí. La naftalina del escaparate se achica sin dejar charco. La escarcha del congelador se forma directo del vapor.","s":93.018,"d":6.661,"v":"em_alex","w":[["Sí.",93.038,93.278],["La",93.28,93.378],["naftalina",93.38,93.928],["del",93.93,94.048],["escaparate",94.055,94.698],["se",94.705,94.828],["achica",94.83,95.298],["sin",95.305,95.448],["dejar",95.455,95.748],["charco.",95.788,96.448],["La",96.808,96.958],["escarcha",96.96,97.428],["del",97.435,97.528],["congelador",97.548,98.278],["se",98.285,98.428],["forma",98.435,98.728],["directo",98.735,99.128],["del",99.135,99.258],["vapor.",99.26,99.598]]},{"t":"En todos estos cambios la sustancia sigue siendo la misma. Son fenómenos físicos.","s":99.878,"d":4.825,"v":"em_alex","w":[["En",99.898,99.978],["todos",100.018,100.358],["estos",100.365,100.608],["cambios",100.668,101.108],["la",101.115,101.258],["sustancia",101.265,101.858],["sigue",101.865,102.158],["siendo",102.165,102.488],["la",102.49,102.608],["misma.",102.615,103.058],["Son",103.308,103.628],["fenómenos",103.635,104.178],["físicos.",104.185,104.628]]}]},{"id":"experimento","start":105.004,"duration":50.46,"lines":[{"t":"Experimento. Hielo a −10 °C en un vaso de precipitados, un termómetro. Calentamos sin parar y agitamos.","s":105.364,"d":6.949,"v":"em_alex","w":[["Experimento.",105.384,106.124],["Hielo",106.364,106.694],["a",106.7,106.744],["−10",106.75,107.374],["°C",107.367,107.724],["en",107.725,107.844],["un",107.85,107.974],["vaso",107.975,108.244],["de",108.25,108.284],["precipitados,",108.314,109.234],["un",109.235,109.254],["termómetro.",109.354,110.174],["Calentamos",110.414,111.044],["sin",111.045,111.174],["parar",111.224,111.644],["y",111.645,111.714],["agitamos.",111.72,112.234]]},{"t":"La temperatura sube… hasta 0 °C. Y el hielo empieza a fundirse.","s":112.513,"d":4.375,"v":"em_alex","w":[["La",112.533,112.583],["temperatura",112.613,113.323],["sube…",113.325,113.683],["hasta",113.933,114.263],["0",114.27,114.673],["°C.",114.67,115.033],["Y",115.283,115.433],["el",115.44,115.563],["hielo",115.565,115.813],["empieza",115.815,116.263],["a",116.265,116.333],["fundirse.",116.34,116.813]]},{"t":"Seguimos calentando. Predice tú: ¿sube, baja o se queda igual?","s":117.089,"d":3.728,"v":"em_alex","w":[["Seguimos",117.109,117.519],["calentando.",117.526,118.169],["Predice",118.419,118.839],["tú:",118.879,119.185],["¿sube,",119.185,119.669],["baja",119.671,119.989],["o",119.996,120.069],["se",120.071,120.139],["queda",120.189,120.439],["igual?",120.446,120.739]]},{"t":"¡Se queda en 0 °C! Hasta que se funde todo el hielo.","s":122.297,"d":3.278,"v":"em_alex","w":[["¡Se",122.317,122.397],["queda",122.437,122.707],["en",122.71,122.857],["0",122.86,123.267],["°C!",123.26,123.627],["Hasta",123.877,124.197],["que",124.205,124.327],["se",124.33,124.497],["funde",124.505,124.787],["todo",124.847,125.097],["el",125.105,125.227],["hielo.",125.23,125.497]]},{"t":"Luego sube hasta unos 100 °C. El agua hierve… y se queda ahí mucho más rato.","s":125.775,"d":4.954,"v":"em_alex","w":[["Luego",125.795,126.105],["sube",126.112,126.385],["hasta",126.387,126.655],["unos",126.662,126.885],["100",126.887,127.545],["°C.",127.544,127.685],["El",128.045,128.245],["agua",128.252,128.495],["hierve…",128.502,128.855],["y",129.105,129.255],["se",129.257,129.335],["queda",129.375,129.655],["ahí",129.657,129.825],["mucho",129.832,130.155],["más",130.157,130.355],["rato.",130.357,130.655]]},{"t":"Acerquémonos. Durante la fusión, la energía no acelera las partículas: las suelta de sus posiciones fijas.","s":131.379,"d":6.522,"v":"em_santa","w":[["Acerquémonos.",131.399,132.179],["Durante",132.439,132.859],["la",132.869,133.009],["fusión,",133.019,133.539],["la",133.544,133.639],["energía",133.644,134.109],["no",134.119,134.239],["acelera",134.244,134.659],["las",134.669,134.799],["partículas:",134.849,135.729],["las",135.869,136.099],["suelta",136.109,136.479],["de",136.484,136.579],["sus",136.584,136.719],["posiciones",136.759,137.439],["fijas.",137.469,137.819]]},{"t":"Para vaporizar hay que separarlas muchísimo: casi siete veces más energía que para fundir la misma agua.","s":138.101,"d":6.369,"v":"em_santa","w":[["Para",138.121,138.301],["vaporizar",138.307,138.981],["hay",138.982,139.121],["que",139.151,139.331],["separarlas",139.332,139.951],["muchísimo:",139.957,140.821],["casi",140.991,141.331],["siete",141.332,141.651],["veces",141.657,142.081],["más",142.082,142.331],["energía",142.332,142.831],["que",142.851,142.961],["para",142.991,143.231],["fundir",143.232,143.681],["la",143.682,143.801],["misma",143.807,144.201],["agua.",144.207,144.391]]},{"t":"Conclusión: mientras una sustancia funde o hierve, su temperatura no cambia.","s":145.12,"d":4.489,"v":"em_alex","w":[["Conclusión:",145.14,145.83],["mientras",145.93,146.37],["una",146.372,146.54],["sustancia",146.547,147.12],["funde",147.122,147.52],["o",147.522,147.64],["hierve,",147.647,148.06],["su",148.16,148.32],["temperatura",148.36,149.06],["no",149.062,149.12],["cambia.",149.18,149.53]]},{"t":"Por eso, a la misma presión, son valores fijos y propios de cada sustancia: la caracterizan.","s":149.809,"d":5.294,"v":"em_alex","w":[["Por",149.829,150.019],["eso,",150.021,150.269],["a",150.271,150.319],["la",150.321,150.419],["misma",150.421,150.639],["presión,",150.659,151.319],["son",151.321,151.469],["valores",151.471,151.939],["fijos",151.946,152.339],["y",152.346,152.379],["propios",152.429,152.819],["de",152.821,152.859],["cada",152.889,153.189],["sustancia:",153.196,153.919],["la",154.119,154.259],["caracterizan.",154.299,155.029]]}]},{"id":"regla","start":155.463,"duration":17.204,"lines":[{"t":"Con esas dos temperaturas sabes en qué estado está una sustancia a 100 kPa.","s":155.823,"d":4.945,"v":"em_alex","w":[["Con",155.843,156.003],["esas",156.01,156.283],["dos",156.285,156.413],["temperaturas",156.463,157.233],["sabes",157.235,157.633],["en",157.635,157.713],["qué",157.723,157.853],["estado",157.86,158.203],["está",158.21,158.433],["una",158.435,158.603],["sustancia",158.61,159.343],["a",159.463,159.623],["100",159.625,160.183],["kPa.",160.178,160.683]]},{"t":"Por debajo de su temperatura de fusión: sólida. Por encima de su temperatura de ebullición: gaseosa.","s":160.968,"d":5.719,"v":"em_alex","w":[["Por",160.988,161.128],["debajo",161.13,161.478],["de",161.48,161.548],["su",161.555,161.628],["temperatura",161.658,162.298],["de",162.305,162.398],["fusión:",162.405,162.858],["sólida.",162.968,163.578],["Por",163.908,164.058],["encima",164.065,164.438],["de",164.44,164.508],["su",164.515,164.598],["temperatura",164.618,165.258],["de",165.265,165.358],["ebullición:",165.365,166.058],["gaseosa.",166.065,166.608]]},{"t":"Y entre las dos: líquida.","s":166.888,"d":1.474,"v":"em_alex","w":[["Y",166.908,167.048],["entre",167.05,167.268],["las",167.275,167.498],["dos:",167.5,167.848],["líquida.",167.85,168.288]]},{"t":"El agua a 25 °C está entre 0 °C y 100 °C: líquida.","s":168.562,"d":3.805,"v":"em_alex","w":[["El",168.582,168.722],["agua",168.724,168.892],["a",168.899,168.942],["25",168.949,169.692],["°C",169.683,170.092],["está",170.099,170.322],["entre",170.324,170.622],["0",170.624,170.762],["°C",170.762,170.942],["y",170.949,171.042],["100",171.049,171.612],["°C:",171.612,171.742],["líquida.",171.842,172.292]]}]},{"id":"charco","start":172.667,"duration":40.138,"lines":[{"t":"Pero si el agua es líquida a 25 °C, ¿cómo se fue el charco?","s":173.027,"d":3.947,"v":"ef_dora","w":[["Pero",173.047,173.307],["si",173.31,173.407],["el",173.41,173.577],["agua",173.585,173.837],["es",173.987,174.257],["líquida",174.26,174.627],["a",174.635,174.677],["25",174.685,175.407],["°C,",175.402,175.747],["¿cómo",175.837,176.127],["se",176.135,176.277],["fue",176.285,176.407],["el",176.41,176.507],["charco?",176.51,176.897]]},{"t":"La vaporización tiene dos formas.","s":177.625,"d":2.011,"v":"em_alex","w":[["La",177.665,177.755],["vaporización",177.761,178.495],["tiene",178.555,178.935],["dos",178.936,179.155],["formas.",179.161,179.555]]},{"t":"La ebullición ocurre en todo el líquido, a su temperatura de ebullición. Como en una olla al fuego.","s":179.836,"d":5.534,"v":"em_alex","w":[["La",179.856,179.946],["ebullición",179.948,180.596],["ocurre",180.598,180.946],["en",180.948,181.026],["todo",181.076,181.316],["el",181.323,181.446],["líquido,",181.448,181.856],["a",181.966,182.126],["su",182.128,182.246],["temperatura",182.253,182.876],["de",182.878,182.976],["ebullición.",182.978,183.766],["Como",184.026,184.246],["en",184.248,184.346],["una",184.348,184.596],["olla",184.598,184.816],["al",184.823,184.996],["fuego.",184.998,185.296]]},{"t":"La evaporación ocurre solo en la superficie, sin hervir, incluso a temperatura ambiente. Y es lenta.","s":185.57,"d":5.714,"v":"em_alex","w":[["La",185.59,185.68],["evaporación",185.682,186.35],["ocurre",186.357,186.75],["solo",186.757,187.0],["en",187.007,187.08],["la",187.082,187.18],["superficie,",187.182,187.98],["sin",187.982,188.15],["hervir,",188.157,188.57],["incluso",188.66,189.13],["a",189.137,189.14],["temperatura",189.17,189.81],["ambiente.",189.812,190.31],["Y",190.57,190.71],["es",190.712,190.86],["lenta.",190.862,191.21]]},{"t":"En la superficie del charco, algunas partículas se mueven tan rápido que escapan al aire.","s":191.484,"d":4.969,"v":"em_alex","w":[["En",191.504,191.564],["la",191.571,191.664],["superficie",191.671,192.244],["del",192.246,192.394],["charco,",192.396,193.004],["algunas",193.104,193.544],["partículas",193.614,194.274],["se",194.281,194.424],["mueven",194.431,194.724],["tan",194.754,195.004],["rápido",195.006,195.364],["que",195.394,195.504],["escapan",195.506,195.974],["al",195.981,196.174],["aire.",196.181,196.374]]},{"t":"Partícula a partícula, el agua del charco se convierte en vapor de agua, que no se ve.","s":196.654,"d":4.685,"v":"em_alex","w":[["Partícula",196.674,197.184],["a",197.191,197.194],["partícula,",197.224,198.024],["el",198.124,198.354],["agua",198.356,198.554],["del",198.556,198.724],["charco",198.731,199.154],["se",199.156,199.244],["convierte",199.264,199.774],["en",199.781,199.854],["vapor",199.856,200.174],["de",200.181,200.324],["agua,",200.331,200.564],["que",200.664,200.844],["no",200.846,201.014],["se",201.021,201.144],["ve.",201.146,201.264]]},{"t":"El sol y el viento aceleran la evaporación. Así se seca la ropa tendida.","s":201.539,"d":4.454,"v":"em_alex","w":[["El",201.559,201.719],["sol",201.726,202.019],["y",202.026,202.069],["el",202.076,202.199],["viento",202.201,202.699],["aceleran",202.701,203.169],["la",203.176,203.269],["evaporación.",203.276,204.069],["Así",204.329,204.689],["se",204.696,204.839],["seca",204.846,205.089],["la",205.096,205.189],["ropa",205.196,205.419],["tendida.",205.449,205.919]]},{"t":"Ese vapor sube, se enfría y se condensa en gotitas: las nubes. Y un día vuelve como lluvia.","s":206.643,"d":5.803,"v":"em_santa","w":[["Ese",206.663,206.883],["vapor",206.889,207.283],["sube,",207.289,207.683],["se",207.689,207.783],["enfría",207.789,208.263],["y",208.264,208.333],["se",208.339,208.443],["condensa",208.453,209.013],["en",209.014,209.133],["gotitas:",209.139,209.693],["las",209.803,210.073],["nubes.",210.079,210.593],["Y",210.833,210.973],["un",210.979,211.103],["día",211.104,211.323],["vuelve",211.329,211.693],["como",211.723,212.003],["lluvia.",212.004,212.373]]}]},{"id":"ojo","start":212.806,"duration":13.395,"lines":[{"t":"¡Mire, profe! De la olla sale vapor: esa nube blanca.","s":213.456,"d":3.289,"v":"ef_dora","w":[["¡Mire,",213.476,213.706],["profe!",213.806,214.236],["De",214.476,214.646],["la",214.652,214.796],["olla",214.802,215.046],["sale",215.052,215.296],["vapor:",215.302,215.646],["esa",215.746,216.046],["nube",216.052,216.276],["blanca.",216.277,216.666]]},{"t":"Ojo, error muy común. El vapor de agua no se ve.","s":217.395,"d":2.98,"v":"em_alex","w":[["Ojo,",217.415,217.755],["error",217.757,218.055],["muy",218.057,218.255],["común.",218.257,218.715],["El",218.975,219.155],["vapor",219.157,219.475],["de",219.482,219.605],["agua",219.607,219.855],["no",219.857,220.005],["se",220.007,220.125],["ve.",220.132,220.295]]},{"t":"Esa nube blanca son gotitas de agua líquida: vapor que ya se condensó en el aire más frío.","s":220.575,"d":5.265,"v":"em_alex","w":[["Esa",220.595,220.835],["nube",220.837,221.085],["blanca",221.087,221.535],["son",221.537,221.705],["gotitas",221.712,222.185],["de",222.187,222.305],["agua",222.312,222.555],["líquida:",222.562,223.125],["vapor",223.325,223.635],["que",223.685,223.865],["ya",223.872,224.065],["se",224.072,224.195],["condensó",224.197,224.745],["en",224.747,224.845],["el",224.847,224.995],["aire",224.997,225.245],["más",225.247,225.465],["frío.",225.472,225.765]]}]},{"id":"reto","start":226.2,"duration":23.992,"lines":[{"t":"Reto rápido. El dioxígeno funde a −219 °C y hierve a −183 °C. ¿En qué estado está a −200 °C?","s":226.5,"d":9.055,"v":"em_alex","w":[["Reto",226.52,226.88],["rápido.",226.887,227.36],["El",227.62,227.76],["dioxígeno",227.767,228.31],["funde",228.317,228.59],["a",228.592,228.66],["−219",228.667,230.02],["°C",230.017,230.4],["y",230.47,230.64],["hierve",230.642,231.01],["a",231.017,231.09],["−183",231.092,232.71],["°C.",232.705,232.94],["¿En",233.33,233.45],["qué",233.48,233.61],["estado",233.617,233.99],["está",233.992,234.26],["a",234.267,234.34],["−200",234.342,235.24],["°C?",235.238,235.48]]},{"t":"¡Líquido! Está entre las dos.","s":241.205,"d":1.869,"v":"ef_dora","w":[["¡Líquido!",241.225,241.905],["Está",242.155,242.325],["entre",242.33,242.555],["las",242.555,242.725],["dos.",242.73,242.995]]},{"t":"¡Correcto! Está entre sus dos temperaturas: líquido. A 25 °C es gas, el dioxígeno del aire.","s":243.723,"d":6.108,"v":"em_alex","w":[["¡Correcto!",243.743,244.283],["Está",244.533,244.673],["entre",244.68,244.873],["sus",244.88,245.023],["dos",245.03,245.163],["temperaturas:",245.213,245.993],["líquido.",246.103,246.773],["A",247.013,247.133],["25",247.135,247.803],["°C",247.802,248.183],["es",248.185,248.333],["gas,",248.335,248.683],["el",248.685,248.783],["dioxígeno",248.785,249.383],["del",249.385,249.583],["aire.",249.585,249.753]]}]},{"id":"resumen","start":250.192,"duration":19.136,"lines":[{"t":"Tres ideas.","s":250.492,"d":0.943,"v":"em_alex","w":[["Tres",250.512,250.852],["ideas.",250.859,251.362]]},{"t":"Uno: sólido, líquido o gaseoso. Al cambiar de estado, sigue siendo la misma sustancia.","s":251.635,"d":5.31,"v":"em_alex","w":[["Uno:",251.655,251.995],["sólido,",251.997,252.635],["líquido",252.642,253.065],["o",253.067,253.115],["gaseoso.",253.117,253.865],["Al",254.115,254.235],["cambiar",254.265,254.675],["de",254.677,254.745],["estado,",254.752,255.225],["sigue",255.227,255.495],["siendo",255.502,255.825],["la",255.827,255.945],["misma",255.952,256.295],["sustancia.",256.302,256.865]]},{"t":"Dos: mientras funde o hierve, su temperatura no cambia. Y a 100 kPa, esas dos temperaturas dicen su estado.","s":257.145,"d":6.759,"v":"em_alex","w":[["Dos:",257.165,257.425],["mientras",257.432,257.825],["funde",257.832,258.155],["o",258.157,258.275],["hierve,",258.282,258.785],["su",258.885,258.905],["temperatura",258.912,259.585],["no",259.587,259.655],["cambia.",259.705,260.115],["Y",260.485,260.635],["a",260.637,260.735],["100",260.737,261.265],["kPa,",261.262,261.885],["esas",261.887,262.135],["dos",262.137,262.275],["temperaturas",262.315,263.035],["dicen",263.037,263.355],["su",263.362,263.455],["estado.",263.462,263.825]]},{"t":"Tres: el charco se evaporó, partícula a partícula, desde la superficie y sin hervir.","s":264.104,"d":4.744,"v":"em_alex","w":[["Tres:",264.124,264.484],["el",264.491,264.614],["charco",264.616,265.014],["se",265.016,265.114],["evaporó,",265.116,265.584],["partícula",265.674,266.214],["a",266.221,266.234],["partícula,",266.274,266.964],["desde",267.124,267.424],["la",267.426,267.544],["superficie",267.551,268.174],["y",268.176,268.274],["sin",268.276,268.444],["hervir.",268.451,268.764]]}]},{"id":"proximo","start":269.328,"duration":18.733,"lines":[{"t":"Profe, ¿y yo puedo hacer ese experimento? ¿Puedo encender el mechero?","s":269.978,"d":3.713,"v":"ef_dora","w":[["Profe,",269.998,270.408],["¿y",270.417,270.508],["yo",270.517,270.608],["puedo",270.678,270.938],["hacer",270.942,271.238],["ese",271.242,271.408],["experimento?",271.418,272.138],["¿Puedo",272.388,272.618],["encender",272.627,273.018],["el",273.027,273.118],["mechero?",273.127,273.618]]},{"t":"Lo vemos en el próximo capítulo: cómo se trabaja seguro en el laboratorio.","s":274.341,"d":4.284,"v":"em_alex","w":[["Lo",274.361,274.501],["vemos",274.503,274.871],["en",274.878,274.971],["el",274.978,275.041],["próximo",275.091,275.531],["capítulo:",275.561,276.291],["cómo",276.401,276.701],["se",276.703,276.821],["trabaja",276.828,277.301],["seguro",277.303,277.721],["en",277.728,277.801],["el",277.803,277.901],["laboratorio.",277.903,278.551]]},{"t":"Mientras tanto, saca un vaso de agua fría del refrigerador: se moja por fuera.","s":278.825,"d":4.485,"v":"em_alex","w":[["Mientras",278.845,279.185],["tanto,",279.245,279.705],["saca",279.712,279.985],["un",279.987,280.085],["vaso",280.087,280.385],["de",280.387,280.505],["agua",280.512,280.785],["fría",280.787,281.055],["del",281.062,281.205],["refrigerador:",281.212,282.075],["se",282.175,282.405],["moja",282.412,282.665],["por",282.715,282.955],["fuera.",282.962,283.235]]},{"t":"No es agua que atraviesa el vidrio. Es vapor del aire que se condensa.","s":283.511,"d":4.07,"v":"em_alex","w":[["No",283.531,283.691],["es",283.698,283.891],["agua",283.898,284.081],["que",284.111,284.241],["atraviesa",284.248,284.771],["el",284.773,284.891],["vidrio.",284.898,285.411],["Es",285.661,285.901],["vapor",285.908,286.231],["del",286.233,286.451],["aire",286.458,286.631],["que",286.671,286.831],["se",286.833,286.911],["condensa.",286.941,287.501]]}]},{"id":"outro","start":288.061,"duration":7.0,"lines":[]}]};
+const DUR = M.duration;
+const S = {}; M.scenes.forEach(s => S[s.id] = s);
+const LABEL = {intro:'Apertura',frio:'Pregunta inicial',titulo:'Título',repaso:'Lo que ya sabes',pregunta:'La pregunta de hoy',estados:'Estados y cambios de estado',experimento:'Experimento: calentar hielo',regla:'Dos temperaturas, un estado',charco:'¿Y el charco?',ojo:'¡Ojo! Error común',reto:'Reto',resumen:'Resumen',proximo:'Próximo capítulo',outro:'Cierre'};
+const KIND = {intro:'--dim',frio:'--doc',titulo:'--dim',repaso:'--est',pregunta:'--est',estados:'--chalk',experimento:'--prof',regla:'--chalk',charco:'--electron',ojo:'--warn',reto:'--est',resumen:'--electron',proximo:'--doc',outro:'--dim'};
+const SECT = {repaso:'Lo que ya sabes',pregunta:'La pregunta',estados:'Explicación',experimento:'Experimento',regla:'Explicación',charco:'Explicación',ojo:'¡Ojo!',reto:'Reto',resumen:'Resumen',proximo:'Próximo'};
+const WHO = {em_alex:['Profe','--prof',''],ef_dora:['Sofía','--est',''],em_santa:['Narrador','--doc','doc']};
+
+
+/* ---------- timing helpers: everything reads the manifest ---------- */
+const cl = x => Math.max(0, Math.min(1, x));
+const sm = x => { x = cl(x); return x * x * (3 - 2 * x); };
+const eo = x => 1 - Math.pow(1 - cl(x), 3);
+const r = (t, a, d = .5, f = sm) => f((t - a) / d);           // 0→1 ramp starting at a
+const win = (t, a, b, fi = .4, fo = .4) => Math.min(r(t, a, fi), 1 - r(t, b - fo, fo)); // visible between a and b
+const L = (id, i) => S[id].lines[i].s;
+const LE = (id, i) => { const l = S[id].lines[i]; return l.s + l.d; };
+const norm = w => w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
+function W(id, i, word, nth = 0) {
+  const ws = S[id].lines[i].w, k = norm(word); let n = 0;
+  for (const w of ws) if (norm(w[0]).startsWith(k)) { if (n++ === nth) return w[1]; }
+  console.warn('word not found', id, i, word); return S[id].lines[i].s;
+}
+const SS = id => S[id].start, SEND = id => S[id].start + S[id].duration;
+const q = s => document.querySelector(s);
+const $ = id => document.getElementById(id);
+function op(el, v) { el.style.opacity = v.toFixed(3); }
+
+/* ---------- three.js ---------- */
+const stage = $('stage');
+const R3 = new THREE.WebGLRenderer({antialias: true, alpha: false, preserveDrawingBuffer: true});
+R3.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+R3.setClearColor(0x0c1318, 1);
+stage.prepend(R3.domElement);
+const scn = new THREE.Scene();
+scn.fog = new THREE.Fog(0x0c1318, 14, 40);
+const cam = new THREE.PerspectiveCamera(35, 16 / 9, .05, 300);
+scn.add(new THREE.AmbientLight(0xffffff, .55));
+const key = new THREE.DirectionalLight(0xfff4e6, .85); key.position.set(4, 6, 8); scn.add(key);
+const rim = new THREE.DirectionalLight(0x6fc8ff, .45); rim.position.set(-6, -2, -4); scn.add(rim);
+function resize() { const w = stage.clientWidth, h = stage.clientHeight; R3.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(stage);
+
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const C = h => new THREE.Color(h);
+const COL = {proton: C('#f0685a'), neutron: C('#a9b4ba'), electron: C('#5cc8e6'), O: C('#e5484d'), H: C('#eef0f2'), water: C('#58b6e8'), alc: C('#b9a8ee'), chalk: C('#ece7da'), star: C('#fff3d6')};
+const sph = new THREE.SphereGeometry(1, 24, 16);
+const mat = (c, o = {}) => new THREE.MeshStandardMaterial(Object.assign({color: c, roughness: .45, metalness: .05}, o));
+const tmp = new THREE.Object3D();
+const groups = {};
+function G(name) { const g = new THREE.Group(); g.visible = false; scn.add(g); groups[name] = g; return g; }
+const tri = x => { x = x - Math.floor(x); return x < .5 ? 4 * x - 1 : 3 - 4 * x; }; // -1..1 bounce
+
+/* repaso: particles with space between them (same particle style as Cap. 1) */
+const gLat = G('lat');
+const latP = [];
+for (let x = 0; x < 4; x++) for (let y = 0; y < 4; y++) for (let z = 0; z < 4; z++) latP.push(new THREE.Vector3((x - 1.5) * .75, (y - 1.5) * .75, (z - 1.5) * .75));
+const latM = new THREE.InstancedMesh(sph, mat(0x58b6e8, {roughness: .3}), latP.length); gLat.add(latM);
+const latBox = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(3.2, 3.2, 3.2)), new THREE.LineBasicMaterial({color: 0x5b6d79})); gLat.add(latBox);
+
+
+function setInst(m, i, p, s, col) { tmp.position.copy(p); tmp.scale.setScalar(s); tmp.rotation.set(0, 0, 0); tmp.updateMatrix(); m.setMatrixAt(i, tmp.matrix); if (col) m.setColorAt(i, col); }
+const scs = {}; document.querySelectorAll('.sc').forEach(e => scs[e.dataset.s] = e);
+const setA = (id, k, v) => $(id).setAttribute(k, v);
+const NS = 'http://www.w3.org/2000/svg';
+function mk(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+const hh = (i, k) => { const x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return x - Math.floor(x); };
+const bounce = v => { v = ((v % 2) + 2) % 2; return v < 1 ? v : 2 - v; };
+const lerp = (a, b, u) => a + (b - a) * u;
+const inS = (id, t) => t > SS(id) - .5 && t < SEND(id) + .5;
+const rv = (id, t, a, d = .4) => op($(id), r(t, a, d));
+const wv = (id, t, a, b, fi = .3, fo = .3) => op($(id), win(t, a, b, fi, fo));
+const minus = n => (n < 0 ? '−' : '') + String(Math.abs(n)).replace('.', ',');
+
+/* ---------- parametric particle model: state 0 = sólido, 1 = líquido, 2 = gas (reused in estados, experimento, regla) ---------- */
+function PBox(parent, n, r) { const c = []; for (let i = 0; i < n; i++) c.push(mk('circle', {r, fill: '#58b6e8', stroke: '#0c1318', 'stroke-width': 1.5}, parent)); return {c, n, r}; }
+function boxPos(i, s, t, bw, bh, r, vf = 1) {
+  const sp = 2.15 * r, x0 = (bw - 6 * sp) / 2 + sp / 2, col = i % 6, row = (i / 6) | 0;
+  const A = .12 * r;
+  const so = [x0 + col * sp + A * Math.sin(9 * t + i * 1.7), bh - 1.2 * r - row * sp + A * Math.cos(10 * t + i * 2.3)];
+  const lp = 2.2 * r, l0 = (bw - 6 * lp) / 2 + lp / 2, lc = i % 6, lr = (i / 6) | 0;
+  const lq = [l0 + lc * lp + (lr % 2 ? .25 : -.2) * lp + .3 * r * Math.sin(1.7 * t + i * 2.1), bh - 1.2 * r - lr * 2.1 * r + .25 * r * Math.sin(2.3 * t + i * 1.3)];
+  const spd = (110 + 130 * hh(i, 5)) * (r / 17) * vf, an = hh(i, 6) * 6.2832, W2 = bw - 2 * r, H2 = bh - 2 * r;
+  const gs = [r + bounce(hh(i, 1) * 2 + Math.cos(an) * spd * t / W2) * W2, r + bounce(hh(i, 2) * 2 + Math.sin(an) * spd * t / H2) * H2];
+  if (s <= 1) { const u = sm(s); return [lerp(so[0], lq[0], u), lerp(so[1], lq[1], u)]; }
+  const u = sm(s - 1); return [lerp(lq[0], gs[0], u), lerp(lq[1], gs[1], u)];
+}
+function updBox(B, s, t, bw, bh, nvis, vf = 1) {
+  const fill = '#58b6e8'; // one colour for water in every state; the state is marked by the box and its label
+  const P = []; for (let i = 0; i < B.n; i++) P.push(boxPos(i, s, t, bw, bh, B.r, vf));
+  if (s > 1) { const r = B.r, n = Math.min(B.n, s >= 1.5 ? nvis : B.n); for (let it = 0; it < 3; it++) for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) { let dx = P[j][0] - P[i][0], dy = P[j][1] - P[i][1], d = Math.hypot(dx, dy) || .01; if (d < 2.05 * r) { const k = (2.05 * r - d) / 2 / d; P[i][0] -= dx * k; P[i][1] -= dy * k; P[j][0] += dx * k; P[j][1] += dy * k; } } for (let i = 0; i < n; i++) { P[i][0] = Math.max(r, Math.min(bw - r, P[i][0])); P[i][1] = Math.max(r, Math.min(bh - r, P[i][1])); } }
+  for (let i = 0; i < B.n; i++) {
+    const p = P[i], vis = i < nvis ? 1 : 1 - sm(s - 1), e = B.c[i];
+    e.setAttribute('cx', p[0].toFixed(1)); e.setAttribute('cy', p[1].toFixed(1)); e.setAttribute('r', (B.r * vis).toFixed(1)); e.setAttribute('fill', fill);
+  }
+}
+const stB = [0, 1, 2].map(k => PBox($('stp' + k), 24, 17));
+const zB = PBox($('xZp'), 24, 15);
+const rB = [0, 1, 2].map(k => PBox($('rpp' + k), 24, 11));
+
+/* ---------- decor built once ---------- */
+(function () {
+  const g = $('fBld'), wg = mk('g', {id: 'fWin'}); const B = [[40, 220, 300], [250, 170, 380], [430, 230, 250], [680, 150, 320], [860, 210, 280], [1060, 120, 350], [1360, 150, 300], [1500, 130, 240]];
+  B.forEach((b, k) => { mk('rect', {x: b[0], y: 560 - b[2], width: b[1], height: b[2], fill: '#111c24', stroke: '#26363f', 'stroke-width': 2}, g);
+    for (let x = b[0] + 20; x < b[0] + b[1] - 30; x += 40) for (let y = 560 - b[2] + 24; y < 520; y += 54) if (hh(x + k, y) > .55) mk('rect', {x, y, width: 22, height: 30, fill: '#ffd98a', opacity: .75}, wg); });
+  g.appendChild(wg);
+  for (let i = 0; i < 5; i++) $('fVap').appendChild(mk('path', {d: ''}));
+  const fz = $('fzF'); for (let i = 0; i < 26; i++) { const e = mk('g', {transform: `translate(${956 + hh(i, 1) * 88},${606 + hh(i, 2) * 108}) rotate(${hh(i, 3) * 90})`}, fz); mk('line', {x1: -7, y1: 0, x2: 7, y2: 0}, e); mk('line', {x1: 0, y1: -7, x2: 0, y2: 7}, e); }
+  const ic = $('xIce'); for (let j = 0; j < 12; j++) mk('rect', {x: -31, y: -31, width: 62, height: 62, rx: 6}, ic);
+  const bb = $('xBub'); for (let j = 0; j < 14; j++) mk('circle', {r: 5}, bb);
+  const pb = $('cBub'); for (let j = 0; j < 26; j++) mk('circle', {r: 6}, pb);
+  const rp = $('cRp'); for (let i = 0; i < 60; i++) mk('circle', {r: 12, fill: '#58b6e8', stroke: '#0c1318', 'stroke-width': 1.5}, rp);
+  const es = $('cEsc'); for (let i = 0; i < 12; i++) mk('circle', {r: 10}, es);
+  const od = $('oDots'); for (let i = 0; i < 34; i++) mk('circle', {r: 4 + hh(i, 9) * 2}, od);
+  const op1 = $('oPl'); for (let i = 0; i < 20; i++) mk('circle', {fill: 'url(#plG)'}, op1);
+  const dr = $('cDry'); for (let i = 0; i < 6; i++) mk('circle', {r: 5}, dr);
+  const pd = $('pxDr'); for (let i = 0; i < 18; i++) mk('circle', {r: 0}, pd);
+  const pv = $('pxVp'); for (let i = 0; i < 12; i++) mk('circle', {r: 6}, pv);
+  const cy = $('cyD'); for (let i = 0; i < 14; i++) mk('circle', {r: 5}, cy);
+})();
+function wavy(x0, y0, y1, amp, t, ph, step = 16) { let d = ''; for (let y = y0; (y0 > y1 ? y >= y1 : y <= y1); y += (y0 > y1 ? -step : step)) d += (d ? 'L' : 'M') + (x0 + amp * Math.sin(y * .035 + t * 2.2 + ph)).toFixed(1) + ',' + y.toFixed(1); return d; }
+function flame(cx, base, w, h, t) { const f = Math.sin(t * 17) * 5 + Math.sin(t * 29) * 3; return `M${cx - w},${base} Q${cx - w * 1.15},${base - h * .55} ${cx + f * .4},${base - h - f} Q${cx + w * 1.15},${base - h * .55} ${cx + w},${base}Z`; }
+
+/* heating curve: schematic time axis (s units), plateau of boiling ≈ 7 × that of fusion (334 J/g vs 2 257 J/g at constant power) */
+const SA = .13, SF = 2.13, SL = 4.63, SE = 18.23; // ice heats ≈ 2× faster than liquid water (c 2,1 vs 4,18 J/(g·°C)); plateaus 2 : 13,6 = 1 : 6,8 (334 vs 2 257 J/g)
+const gx = s => 700 + 800 * s / SE, gy = T => 660 - (T + 10) / 120 * 530;
+const Ts = s => s < SA ? -10 + 10 * s / SA : s < SF ? 0 : s < SL ? 40 * (s - SF) : 100;
+function segPath(a, b, s) { const e = Math.min(b, s); if (e <= a) return ''; let d = ''; const n = Math.max(2, Math.ceil((e - a) * 8)); for (let i = 0; i <= n; i++) { const ss = a + (e - a) * i / n; d += (i ? 'L' : 'M') + gx(ss).toFixed(1) + ',' + gy(Ts(ss)).toFixed(1); } return d; }
+function keyS(t) { const K = [[109.0, 0], [113.0, SA], [116.0, .8], [117.1, 1.2], [121.0, 1.2], [124.0, SF], [124.6, SF], [126.5, SL], [126.7, SL], [147.0, SE]]; if (t <= K[0][0]) return 0; for (let i = 1; i < K.length; i++) if (t <= K[i][0]) return lerp(K[i - 1][1], K[i][1], (t - K[i - 1][0]) / (K[i][0] - K[i - 1][0])); return SE; }
+const pulse = (t, a, b) => win(t, a, b, .15, .5);
+
+function render(t) {
+  for (const k in groups) groups[k].visible = false;
+  let camPos = new THREE.Vector3(0, 0, 10), look = new THREE.Vector3(0, 0, 0);
+  for (const s of M.scenes) {
+    const a = win(t, s.start, s.start + s.duration, .35, .35);
+    scs[s.id].style.opacity = a.toFixed(3);
+    scs[s.id].style.visibility = a > 0 ? 'visible' : 'hidden';
+  }
+
+  /* intro */
+  if (t < SEND('intro') + .5) {
+    const cap = $('cap55'); const fy = 1 - eo((t - .35) / 1.0);
+    cap.setAttribute('transform', `translate(${-22 * fy},${108 * fy})`);
+    $('loud').style.clipPath = `inset(0 ${100 - 100 * sm((t - 1.0) / .6)}% 0 0)`;
+    const ro = $('ro'); op(ro, r(t, 1.2, .15)); ro.textContent = String(Math.round(55 * eo((t - 1.25) / 1.1))).padStart(2, '0');
+    $('ident').style.opacity = t < 4.5 ? 1 : 0;
+    [...$('ident').children].forEach(c => c.style.opacity = (1 - r(t, 3.2, .35)).toFixed(3));
+    const mk_ = win(t, 4.7, 8.0, .6, .5); op($('mark'), mk_);
+    $('hex').setAttribute('stroke-dashoffset', (1 - eo((t - 4.8) / 1.4)).toFixed(3));
+    const ang = (t - 4.8) * 2.2; $('hexe').setAttribute('cx', (58 * Math.cos(ang)).toFixed(1)); $('hexe').setAttribute('cy', (58 * Math.sin(ang)).toFixed(1));
+    op($('marktag'), r(t, 6.0, .6));
+  }
+
+  /* frio: rain, puddle, sun, the puddle is gone */
+  if (inS('frio', t)) {
+    const a0 = SS('frio');
+    const rainI = r(t, a0 + .1, .6) * (1 - r(t, W('frio', 1, 'sale') - .4, .9));
+    let d = ''; for (let i = 0; i < 80; i++) { const x = hh(i, 1) * 1700 - 40, y = ((hh(i, 2) * 900 + t * (700 + 300 * hh(i, 3))) % 940) - 20; d += `M${x.toFixed(0)},${y.toFixed(0)}l-9,28`; }
+    setA('fRain', 'd', d); op($('fRain'), .65 * rainI);
+    const dayK = r(t, W('frio', 1, 'sale') - .1, 2.2);
+    op($('fDay'), dayK); op($('fLamp'), 1 - dayK); op($('fWin'), .9 - .65 * dayK);
+    setA('fClouds', 'transform', `translate(${380 * dayK},0)`); op($('fClouds'), 1 - .85 * dayK);
+    setA('fSun', 'transform', `translate(1330,${560 - 360 * eo((t - W('frio', 1, 'sale')) / 2)})`); op($('fSun'), dayK);
+    setA('fSunR', 'transform', `rotate(${t * 12})`);
+    const grow = r(t, a0 + 1.0, 2.6, eo) , shrink = r(t, W('frio', 1, 'charco'), 1.6, sm);
+    const k = grow * (1 - shrink); setA('fPud', 'rx', (370 * k).toFixed(1)); setA('fPud', 'ry', (58 * k).toFixed(1)); setA('fPudH', 'rx', (370 * k).toFixed(1)); setA('fPudH', 'ry', (58 * k).toFixed(1));
+    const vp = $('fVap').children; for (let i = 0; i < 5; i++) vp[i].setAttribute('d', wavy(520 + i * 95, 650, 360, 16, t, i * 1.3));
+    op($('fVap'), .3 * win(t, W('frio', 1, 'sale') + .4, L('frio', 2) + .3, .9, 1.2));
+    wv('fl0', t, W('frio', 0, 'llueve'), W('frio', 0, 'charco') - .1);
+    wv('fl1', t, W('frio', 0, 'charco') - .1, W('frio', 1, 'sale') + .8);
+    wv('fl2', t, W('frio', 1, 'siguiente') - .1, L('frio', 2) - .1);
+    rv('fl3', t, W('frio', 2, 'tragante') - .1); rv('fX', t, W('frio', 2, 'tragante') + .1, .25);
+    op($('fq'), r(t, W('frio', 2, 'donde') - .15, .5));
+  }
+
+  /* titulo */
+  if (inS('titulo', t)) {
+    const a = SS('titulo');
+    op($('t1'), r(t, a + .1, .4)); op($('t2'), r(t, a + .35, .5)); $('t2').style.transform = `translateY(${(1 - eo((t - a - .35) / .6)) * 2}cqw)`;
+    op($('t3'), r(t, a + 1.1, .5));
+  }
+
+  /* repaso */
+  if (inS('repaso', t)) {
+    const g = groups.lat; g.visible = true;
+    const app = r(t, SS('repaso') + .2, .8), amp = .05 + .22 * r(t, W('repaso', 2, 'mover') - .1, .6);
+    latP.forEach((p, i) => setInst(latM, i, p.clone().add(new THREE.Vector3(Math.sin(t * (5 + 5 * amp * 3) + i) * amp, Math.cos(t * (4.3 + 5 * amp * 3) + i * 2) * amp, Math.sin(t * 3.7 + i) * amp)), .15 * app, null));
+    latM.instanceMatrix.needsUpdate = true;
+    g.position.set(2.6, .5, 0); g.rotation.set(.35, t * .3, 0); camPos.set(0, 0, 12);
+    const rp = document.querySelectorAll('.rp');
+    [L('repaso', 0), L('repaso', 1)].forEach((a, k) => { op(rp[k], r(t, a - .1, .4)); rp[k].style.transform = `translateX(${(1 - eo((t - a + .1) / .5)) * -2}cqw)`; });
+    const hf = pulse(t, W('repaso', 0, 'fusion') - .1, W('repaso', 0, 'fusion') + .8), he = pulse(t, W('repaso', 0, 'ebullicion') - .1, W('repaso', 0, 'ebullicion') + .9);
+    $('rpf').style.color = hf > .5 ? 'var(--est)' : ''; $('rpe').style.color = he > .5 ? 'var(--warn)' : '';
+    op($('rpk'), r(t, W('repaso', 2, 'mover') - .2, .4)); $('rpk').style.transform = `translate(-50%,-50%) scale(${1.25 - .25 * eo((t - W('repaso', 2, 'mover') + .2) / .4)})`;
+  }
+
+  /* pregunta */
+  if (inS('pregunta', t)) {
+    rv('pk', t, L('pregunta', 0)); op($('pq'), r(t, L('pregunta', 0) + .2, .5)); rv('pq2', t, W('pregunta', 0, 'sol') - .1);
+    ['estados', 'cambios', 'charco'].forEach((w, k) => { const a = W('pregunta', 2, w); op($('ag' + k), r(t, a - .1, .4)); $('ag' + k).style.transform = `translateY(${(1 - eo((t - a) / .5)) * 2}cqw)`; });
+  }
+
+  /* estados: three boxes (reusable PBox), change-of-state arrows, naftalina, escarcha */
+  if (inS('estados', t)) {
+    const kw = [W('estados', 0, 'solido'), W('estados', 0, 'liquido'), W('estados', 0, 'gaseoso')];
+    const ex = [W('estados', 1, 'hielo'), W('estados', 1, 'liquida'), W('estados', 1, 'vapor')];
+    const an = [W('estados', 2, 'ordenadas'), W('estados', 3, 'deslizan'), W('estados', 4, 'rapido')];
+    const grp = $('stG').children;
+    for (let k = 0; k < 3; k++) {
+      op(grp[k], r(t, W('estados', 0, 'tres'), .5));
+      op($('stt' + k), r(t, kw[k] - .1, .35)); op($('stp' + k), r(t, kw[k] - .1, .4));
+      op($('ste' + k), r(t, ex[k] - .1, .35)); op($('stm' + k), r(t, kw[k], .5));
+      const a1 = an[k] - .15, b1 = LE('estados', 2 + k) + .1;
+      op($('sta' + k), win(t, a1, b1, .3, .3)); op($('stg' + k), .85 * win(t, kw[k] - .1, kw[k] + .9, .15, .4) + .85 * win(t, a1, b1, .3, .3));
+      updBox(stB[k], k, t, 440, 300, k === 2 ? 9 : 24);
+    }
+    const kk = eo((t - W('estados', 5, 'cambio') + .1) / 1.0);
+    [47, 580, 1113].forEach((x0, k) => { const cx = x0 + 220; grp[k].setAttribute('transform', `translate(${cx},${(320 - 80 * kk).toFixed(1)}) scale(${(1 - .4 * kk).toFixed(3)}) translate(${-cx},-320) translate(${x0},170)`); });
+    op($('stH'), r(t, W('estados', 5, 'cambio'), .5));
+    const aw = [W('estados', 6, 'fusion'), W('estados', 6, 'solidificacion'), W('estados', 7, 'vaporizacion'), W('estados', 7, 'condensacion'), W('estados', 8, 'progresiva'), W('estados', 8, 'regresiva')];
+    for (let k = 0; k < 6; k++) { const a = r(t, aw[k] - .15, .35); op($('ar' + k), a); op($('al' + k), a); $('ar' + k).setAttribute('stroke-width', (5 + 4 * pulse(t, aw[k], aw[k] + .8)).toFixed(1)); }
+    op($('stQ'), win(t, W('estados', 9, 'directo') - .1, LE('estados', 9) + .5, .25, .3));
+    const dir = pulse(t, W('estados', 9, 'directo'), LE('estados', 9)); if (dir > 0) $('ar4').setAttribute('stroke-width', (5 + 5 * dir).toFixed(1));
+    const nf = win(t, W('estados', 10, 'naftalina') - .1, L('estados', 11) - .1, .35, .35); op($('nfG'), nf);
+    const sh = r(t, W('estados', 10, 'achica'), 2.4);
+    setA('nfB', 'r', (46 - 32 * sh).toFixed(1)); op($('nfT'), nf * r(t, W('estados', 10, 'achica') - .1, .4));
+    let dv = ''; for (let i = 0; i < 3; i++) dv += wavy(270 + i * 30, 610, 550, 7, t, i * 1.7, 10); setA('nfV', 'd', dv); op($('nfV'), .35 * sh * nf);
+    const fz = win(t, W('estados', 10, 'escarcha') - .1, L('estados', 11) - .1, .35, .35); op($('fzG'), fz);
+    op($('fzF'), r(t, W('estados', 10, 'forma'), 1.6)); op($('fzT'), fz * r(t, W('estados', 10, 'escarcha') - .1, .4));
+    op($('stH2O'), win(t, W('estados', 11, 'sustancia') - .1, LE('estados', 11) + .6, .3, .4));
+    op($('stamp1'), r(t, W('estados', 11, 'fenomenos') - .1, .25)); $('stamp1').style.transform = `translate(-50%,-50%) rotate(-3deg) scale(${1.3 - .3 * eo((t - W('estados', 11, 'fenomenos') + .1) / .25)})`;
+  }
+
+  /* experimento: beaker + live heating curve + zoom */
+  if (inS('experimento', t)) {
+    const s = keyS(t), T = Ts(s), m = cl((s - SA) / 2), bo = cl((s - SL + .2) / .6);
+    op($('xGraph'), r(t, L('experimento', 0) + .2, .6));
+    const zoomIn = win(t, L('experimento', 5) - .15, L('experimento', 7) - .1, .45, .45), conc = r(t, L('experimento', 7) - .1, .5);
+    op($('xBeaker'), (1 - r(t, L('experimento', 5) - .2, .4)));
+    op($('xZoom'), zoomIn); op($('xConc'), conc);
+    // thermometer, readout
+    op($('xRead').parentNode === $('xBeaker') ? $('xRead') : $('xRead'), r(t, W('experimento', 0, 'hielo'), .3));
+    const Tr = Math.round(T); $('xRead').textContent = (s >= SL ? '≈ ' : '') + minus(Tr) + ' °C';
+    $('xRead').setAttribute('fill', s >= SA && s <= SF ? '#8fdcae' : s >= SL ? '#ff9a6a' : '#ece7da');
+    const mh = 8 + 310 * cl((T + 10) / 120); setA('xMerc', 'y', (586 - mh).toFixed(1)); setA('xMerc', 'height', mh.toFixed(1));
+    rv('xLv', t, W('experimento', 0, 'vaso')); rv('xLtr', t, W('experimento', 0, 'vaso') + .3); rv('xLt', t, W('experimento', 0, 'termometro'));
+    // water, ice
+    const HH = 140, wl = 630 - m * HH + .5 * HH * cl((s - SL) / 13.6); setA('xWater', 'y', wl.toFixed(1)); setA('xWater', 'height', 240);
+    const ic = $('xIce').children; op($('xIce'), r(t, W('experimento', 0, 'hielo') - .2, .5));
+    for (let j = 0; j < 12; j++) {
+      const bx = 170 + (j % 3) * 66, by = 598 - ((j / 3) | 0) * 66, fx = 160 + j * 22 + 6 * Math.sin(t * 1.3 + j), fy = 630 - m * HH - 10 + 4 * Math.sin(t * 1.7 + j * 2);
+      const x = lerp(bx, fx, m), y = lerp(by, fy, m), sc = Math.sqrt(Math.max(0, 1 - m)); ic[j].setAttribute('opacity', m >= 1 ? 0 : 1);
+      ic[j].setAttribute('transform', `translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${(j * 17 - 25) * (1 - m) + 8 * Math.sin(t + j)}) scale(${sc.toFixed(3)})`);
+    }
+    // bubbles + steam + stirrer + flame
+    const bb = $('xBub').children; const top = Math.min(wl, 600);
+    op($('xBub'), bo);
+    for (let j = 0; j < 14; j++) { const y = 625 - ((t * (50 + 70 * hh(j, 3)) + hh(j, 2) * 400) % Math.max(60, 625 - top)); bb[j].setAttribute('cx', (150 + hh(j, 1) * 270 + 6 * Math.sin(t * 3 + j)).toFixed(1)); bb[j].setAttribute('cy', y.toFixed(1)); bb[j].setAttribute('r', (4 + 7 * hh(j, 4)).toFixed(1)); }
+    setA('xSteam', 'd', wavy(180, 305, 275, 8, t, 0, 8) + wavy(230, 305, 272, 8, t, 2, 8)); op($('xSteam'), .35 * bo);
+    const sx = 28 * Math.sin(t * 5) * r(t, W('experimento', 0, 'agitamos') - .3, .4);
+    setA('xStir', 'x2', (250 + sx).toFixed(1)); setA('xStir', 'x1', (335 - sx * .3).toFixed(1));
+    const fl = r(t, W('experimento', 0, 'calentamos') - .1, .4); op($('xBurner'), fl);
+    setA('xFlame', 'd', flame(275, 692, 16, 55 + 10 * bo, t)); setA('xFlame2', 'd', flame(275, 692, 8, 28, t * 1.3));
+    // curve
+    const sg = [[0, SA], [SA, SF], [SF, SL], [SL, SE]];
+    sg.forEach((q, i) => setA('gp' + i, 'd', segPath(q[0], q[1], s)));
+    if (t > 109) { const dot = $('gDot'); dot.setAttribute('cx', gx(s).toFixed(1)); dot.setAttribute('cy', gy(Ts(s)).toFixed(1)); op(dot, r(t, 109, .3)); } else op($('gDot'), 0);
+    rv('gl1', t, W('experimento', 1, 'hielo') - .8); rv('gl2', t, W('experimento', 4, 'agua') - .2); rv('gl3', t, W('experimento', 4, 'rato') - .1);
+    setA('gh0', 'd', segPath(SA, SF, SE)); setA('gh1', 'd', segPath(SL, SE, SE));
+    const f0 = Math.max(pulse(t, W('experimento', 5, 'fusion') - .2, W('experimento', 5, 'suelta')), pulse(t, W('experimento', 7, 'funde') - .1, W('experimento', 7, 'funde') + 1.0));
+    const f1 = Math.max(pulse(t, W('experimento', 6, 'vaporizar') - .1, W('experimento', 6, 'agua') + .8), pulse(t, W('experimento', 7, 'hierve') - .1, W('experimento', 7, 'hierve') + 1.2));
+    op($('gh0'), .35 * f0); op($('gh1'), .3 * f1);
+    // prediction
+    const pa = W('experimento', 2, 'predice') - .1, pe = L('experimento', 4) - .2;
+    op($('xPred'), win(t, pa, pe, .35, .5));
+    const hl = (id, w) => { const e = $(id), on = pulse(t, w - .05, w + .6) > .5; e.style.color = on ? 'var(--est)' : ''; e.style.background = on ? 'rgba(242,184,75,.16)' : ''; };
+    const ans = t >= W('experimento', 3, 'queda');
+    ['px0', 'px1', 'px2'].forEach((id, k) => { const e = $(id); if (ans) { e.style.color = k === 2 ? 'var(--prof)' : 'var(--line)'; e.style.background = k === 2 ? 'rgba(143,220,174,.16)' : ''; } else hl(id, W('experimento', 2, ['sube', 'baja', 'igual'][k])); });
+    const g0 = LE('experimento', 2), g1 = L('experimento', 3), rem = g1 - t;
+    op($('xClock'), t >= g0 - .05 && t < g1 ? 1 : 0);
+    $('xClk').setAttribute('stroke-dashoffset', cl((t - g0) / (g1 - g0)).toFixed(3)); $('xClkn').textContent = String(Math.max(1, Math.ceil(rem / 0.75)));
+    // zoom
+    const zs = r(t, W('experimento', 5, 'suelta') - .2, 1.5, cl) + r(t, W('experimento', 6, 'separarlas'), 2.2, cl);
+    updBox(zB, zs, t, 520, 370, 24, .4);
+    const vap = t >= W('experimento', 6, 'vaporizar') - .1; $('xZt').textContent = vap ? 'vaporización · se separan' : 'fusión · se sueltan';
+    $('xZt').setAttribute('fill', vap ? '#ff9a6a' : '#8fdcae');
+    op($('xZn'), win(t, W('experimento', 5, 'acelera') - .1, W('experimento', 5, 'suelta') + .6, .3, .4));
+    const v0 = W('experimento', 6, 'vaporizar'), f_ = W('experimento', 6, 'fundir');
+    setA('xb2', 'width', (451 * eo((t - v0) / 1.6)).toFixed(1)); op($('xb2t'), r(t, v0 + .6, .4));
+    setA('xb1', 'width', (67 * eo((t - f_) / .6)).toFixed(1)); op($('xb1t'), r(t, f_ + .3, .3));
+    op($('xb7'), r(t, W('experimento', 6, 'siete') - .1, .3));
+    // conclusion
+    [['xc0', W('experimento', 7, 'conclusion') - .1], ['xc1', W('experimento', 7, 'temperatura') - .1], ['xc2', W('experimento', 8, 'fijos') - .1], ['xc3', W('experimento', 8, 'caracterizan') - .1], ['xc4', W('experimento', 8, 'caracterizan') + .9]].forEach(q => rv(q[0], t, q[1]));
+  }
+
+  /* regla: temperature line */
+  if (inS('regla', t)) {
+    rv('rHead', t, L('regla', 0) + .1); op($('rHead'), r(t, L('regla', 0) + .1, .4) * (1 - r(t, W('regla', 1, 'debajo') - .2, .4)));
+    rv('rMarks', t, W('regla', 0, 'dos') - .1); rv('rP', t, W('regla', 0, 'kpa') - .2);
+    const zt = [W('regla', 1, 'solida'), W('regla', 2, 'liquida'), W('regla', 1, 'gaseosa')];
+    ['A', 'B', 'C'].forEach((z, k) => { const a = r(t, zt[k] - .15, .4); op($('rz' + z), .78 * a); op($('rt' + z), a); op($('rP' + k), a); });
+    op($('rzB'), .78 * r(t, zt[1] - .15, .4) * (1 - .35 * pulse(t, W('regla', 3, 'liquida') - .1, LE('regla', 3) + .3)));
+    op($('rNo'), r(t, zt[0], .4));
+    for (let k = 0; k < 3; k++) updBox(rB[k], k, t, 300, 140, k === 2 ? 8 : 24);
+    rv('rW', t, W('regla', 3, 'agua') - .1); rv('rN0', t, W('regla', 3, '0') - .1); rv('rN1', t, W('regla', 3, '100') - .1);
+  }
+
+  /* charco: ebullición vs evaporación, then the cycle */
+  if (inS('charco', t)) {
+    const eb = W('charco', 2, 'ebullicion'), ev = W('charco', 3, 'evaporacion'), cyc = L('charco', 7) - .15;
+    op($('c0'), win(t, SS('charco') + .2, eb - .1, .5, .4)); op($('c0q'), r(t, W('charco', 0, 'charco') - .1, .3) * (.6 + .4 * Math.abs(Math.sin(t * 3))));
+    op($('cTitle'), win(t, W('charco', 1, 'vaporizacion') - .1, cyc, .35, .35));
+    op($('cDiv'), win(t, eb, cyc, .4, .4));
+    // left pot
+    const on = win(t, eb - .1, cyc, .4, .4); op($('cL'), on); op($('cLh'), on); rv('cLh1', t, W('charco', 2, 'todo') - .1);
+    const bb = $('cBub').children; for (let j = 0; j < 26; j++) { const y = 595 - ((t * (60 + 90 * hh(j, 3)) + hh(j, 2) * 400) % 175); bb[j].setAttribute('cx', (240 + hh(j, 1) * 360 + 5 * Math.sin(t * 3 + j)).toFixed(1)); bb[j].setAttribute('cy', y.toFixed(1)); bb[j].setAttribute('r', (5 + 8 * hh(j, 4)).toFixed(1)); }
+    setA('cFl', 'd', flame(415, 684, 45, 62, t));
+    setA('cSteam', 'd', wavy(330, 370, 270, 12, t, 0, 10) + wavy(415, 370, 255, 12, t, 2, 10) + wavy(500, 370, 270, 12, t, 4, 10));
+    rv('cl1', t, W('charco', 2, 'olla') - .1); op($('cl1'), win(t, W('charco', 2, 'olla') - .1, cyc, .3, .3));
+    // right slab
+    const onR = win(t, ev - .1, cyc, .4, .4); op($('cR'), onR); op($('cRh'), onR); rv('cRh1', t, W('charco', 3, 'superficie') - .1);
+    const rp = $('cRp').children;
+    for (let i = 0; i < 60; i++) {
+      const col = i % 20, row = (i / 20) | 0, fast = row === 0 && (col === 4 || col === 9 || col === 14), hot = fast ? pulse(t, W('charco', 4, 'algunas') - .1, W('charco', 4, 'escapan') + .6) : 0;
+      const jx = (.25 + .9 * hot) * 12 * Math.sin((1.7 + 4 * hot) * t + i * 2.1), jy = (.1 + .5 * hot) * 12 * Math.sin((2.3 + 4 * hot) * t + i * 1.3);
+      rp[i].setAttribute('cx', (895 + 30 * col + (row % 2) * 8 + jx).toFixed(1)); rp[i].setAttribute('cy', (584 + 31 * row + jy).toFixed(1)); rp[i].setAttribute('fill', '#58b6e8'); rp[i].setAttribute('stroke', hot > .5 ? '#ff9a6a' : '#0c1318'); rp[i].setAttribute('stroke-width', hot > .5 ? 3.5 : 1.5);
+    }
+    const es = $('cEsc').children, t0e = W('charco', 4, 'escapan'), acc = W('charco', 6, 'aceleran');
+    for (let e = 0; e < 12; e++) {
+      const el = es[e], layer = e < 6 ? 0 : 1, ph = (t - t0e - (e % 6) * .55 - layer * .25) / 3.6;
+      if (ph < 0 || (layer === 1 && t < acc) || t > cyc) { el.setAttribute('opacity', 0); continue; }
+      const f = ph - Math.floor(ph), col = 2 + ((e * 7) % 16);
+      el.setAttribute('cx', (895 + 30 * col + 36 * Math.sin(f * 5 + e) + f * 24).toFixed(1)); el.setAttribute('cy', (565 - f * 270).toFixed(1));
+      const vis = f < .25;
+      el.setAttribute('r', (vis ? 11 : 9).toFixed(1)); el.setAttribute('fill', '#58b6e8'); el.setAttribute('fill-opacity', vis ? 1 : .3); el.setAttribute('stroke', vis ? '#ff9a6a' : '#bfe6f7'); el.setAttribute('stroke-width', vis ? 1.5 : 2.5); el.setAttribute('stroke-dasharray', vis ? '' : '4 4');
+      el.setAttribute('opacity', (Math.min(1, f / .08) * Math.min(1, (1 - f) / .25)).toFixed(2));
+    }
+    wv('cl2', t, W('charco', 4, 'algunas') - .1, t0e + .2); wv('cl3', t, W('charco', 3, 'lenta') - .1, L('charco', 4) - .1);
+    wv('cl4', t, W('charco', 5, 'vapor') - .1, W('charco', 6, 'sol') - .1);
+    const sun = r(t, W('charco', 6, 'sol') - .1, .4), wind = r(t, W('charco', 6, 'viento') - .1, .4);
+    op($('cSun'), sun * onR); setA('cSun', 'transform', `translate(960,300) rotate(${t * 20})`); op($('cWind'), wind * onR);
+    setA('cWind', 'transform', `translate(${6 * Math.sin(t * 4)},45)`);
+    wv('cl5', t, W('charco', 6, 'aceleran') - .1, W('charco', 6, 'ropa') + .3);
+    op($('cLine'), r(t, W('charco', 6, 'ropa') - .2, .4) * onR);
+    const dr = $('cDry').children; for (let i = 0; i < 6; i++) { const f = ((t - W('charco', 6, 'ropa') + i * .4) / 1.4) % 1; dr[i].setAttribute('cx', 1260 + (i % 3) * 100 + 8 * Math.sin(i)); dr[i].setAttribute('cy', (450 + f * 70).toFixed(1)); dr[i].setAttribute('opacity', (t > W('charco', 6, 'ropa') ? (1 - f) * .8 : 0).toFixed(2)); }
+    // cycle
+    op($('cCy'), win(t, cyc, SEND('charco') - .05, .4, .3));
+    const up = r(t, W('charco', 7, 'sube') - .1, 1.6, cl), vv = $('cyV'); let vd = ''; for (let i = 0; i < 4; i++) vd += wavy(580 + i * 60, 620, 620 - 290 * up, 14, t, i * 1.4, 14); vv.innerHTML = `<path d="${vd}"/>`; op(vv, .4 * (1 - .4 * r(t, W('charco', 7, 'nubes'), 1)));
+    op($('cyCloud'), r(t, W('charco', 7, 'condensa'), 1.6) * .95);
+    const cd = $('cyD').children; for (let i = 0; i < 14; i++) { cd[i].setAttribute('cx', (700 + hh(i, 1) * 230).toFixed(1)); cd[i].setAttribute('cy', (240 + hh(i, 2) * 50).toFixed(1)); cd[i].setAttribute('opacity', (r(t, W('charco', 7, 'gotitas'), .5) * .9).toFixed(2)); }
+    const rn = r(t, W('charco', 7, 'lluvia') - .1, .3); let rd = ''; for (let k = 0; k < 9; k++) { const y = 330 + ((t * 420 + k * 70) % 300), x = 840 + k * 24; if (y < 640) rd += `M${x},${y.toFixed(0)}l-4,18`; } setA('cyR', 'd', rd); op($('cyR'), rn);
+    rv('cy1', t, W('charco', 7, 'vapor') - .1); rv('cy2', t, W('charco', 7, 'nubes') - .2); rv('cy3', t, W('charco', 7, 'lluvia') - .1);
+  }
+
+  /* ojo: the white plume is liquid droplets */
+  if (inS('ojo', t)) {
+    setA('oFl', 'd', flame(490, 715, 50, 55, t));
+    const pl = $('oPl').children, pin = r(t, L('ojo', 0) + .3, .8);
+    for (let i = 0; i < 20; i++) { const u = i / 19; pl[i].setAttribute('cx', (790 + 220 * u + 18 * Math.sin(t * 1.3 + i)).toFixed(1)); pl[i].setAttribute('cy', (285 - 175 * u + 8 * Math.cos(t * 1.7 + i * 2)).toFixed(1)); pl[i].setAttribute('r', ((40 + 40 * u) * pin).toFixed(1)); }
+    const od = $('oDots').children, gd = r(t, W('ojo', 2, 'gotitas'), .6);
+    for (let i = 0; i < 34; i++) { const u = hh(i, 1), a = hh(i, 2) * 6.28, rr = hh(i, 3) * 70 + 20, cx = 790 + 220 * u + Math.cos(a + t * .6) * rr * .6, cy = 285 - 175 * u + Math.sin(a + t * .5) * rr * .5; od[i].setAttribute('cx', cx.toFixed(1)); od[i].setAttribute('cy', cy.toFixed(1)); od[i].setAttribute('opacity', (gd * .9).toFixed(2)); }
+    $('oDots').setAttribute('fill', '#3f8fc4');
+    wv('oS', t, W('ojo', 0, 'vapor') - .1, W('ojo', 2, 'gotitas') + .5, .3, .3);
+    op($('oX'), r(t, W('ojo', 1, 'no') - .05, .2) * (1 - r(t, W('ojo', 2, 'gotitas') + .3, .3)));
+    const st = W('ojo', 1, 'ojo'); op($('stamp'), win(t, st - .1, L('ojo', 2), .2, .4)); $('stamp').style.transform = `rotate(-8deg) scale(${1.4 - .4 * eo((t - st + .1) / .25)})`;
+    rv('oC', t, W('ojo', 2, 'gotitas') - .1); rv('oG', t, W('ojo', 2, 'vapor') - .1); op($('oGap'), r(t, W('ojo', 2, 'vapor') - .1, .4) * (.7 + .3 * Math.sin(t * 5)));
+    rv('oF', t, W('ojo', 2, 'aire') - .1);
+  }
+
+  /* reto */
+  if (inS('reto', t)) {
+    const c0 = LE('reto', 0), c1 = L('reto', 1);
+    const k = cl((t - c0) / (c1 - c0));
+    $('clk').setAttribute('stroke-dashoffset', t < c0 ? 0 : k.toFixed(3));
+    $('clkn').textContent = t < c0 ? '5' : t < c1 ? String(Math.max(1, Math.ceil(5 * (1 - k)))) : '✓';
+    const rev = r(t, L('reto', 1) - .1, .3);
+    document.querySelectorAll('.rq').forEach(e => { const ok = e.dataset.ok === '1'; e.style.color = rev > .5 ? (ok ? 'var(--prof)' : 'var(--line)') : 'var(--chalk)'; e.style.background = rev > .5 && ok ? 'rgba(143,220,174,.14)' : 'transparent'; });
+    op($('tAll'), r(t, L('reto', 2) - .1, .5));
+    rv('tM', t, W('reto', 2, 'entre') - .1);
+    op($('tzB'), .35 + .45 * pulse(t, W('reto', 2, 'liquido') - .1, W('reto', 2, 'liquido') + 1.5));
+    rv('tG', t, W('reto', 2, '25') - .1);
+  }
+
+  /* resumen */
+  if (inS('resumen', t)) {
+    const rs = document.querySelectorAll('.rs');
+    [L('resumen', 1), L('resumen', 2), L('resumen', 3)].forEach((a, k) => { op(rs[k], r(t, a - .1, .4)); rs[k].style.transform = `translateY(${(1 - eo((t - a + .1) / .5)) * 2}cqw)`; });
+  }
+
+  /* proximo: Sofía, next chapter, the cold glass */
+  if (inS('proximo', t)) {
+    rv('pxS', t, L('proximo', 0) - .1); $('pxM').style.color = pulse(t, W('proximo', 0, 'mechero') - .1, W('proximo', 0, 'mechero') + 1) > .5 ? 'var(--est)' : 'var(--warn)';
+    rv('nx', t, W('proximo', 1, 'proximo') - .2);
+    op($('pxG'), r(t, W('proximo', 2, 'vaso') - .2, .5)); rv('px1l', t, W('proximo', 2, 'fria') - .1); rv('px2l', t, W('proximo', 2, 'moja') - .1);
+    const d0 = W('proximo', 2, 'moja'), dd = $('pxDr').children;
+    for (let i = 0; i < 18; i++) { const a = d0 + i * .26, g = r(t, a, 1.0, eo); { const yy = 430 + hh(i, 2) * 265, wl_ = 960 + 22 * (yy - 330) / 370, rr_ = 6 + 7 * hh(i, 3); const xx = i % 2 === 0 ? (i % 4 === 0 ? wl_ - 4 - rr_ * .6 : 1240 - 22 * (yy - 330) / 370 + 4 + rr_ * .6) : 995 + hh(i, 1) * 215; dd[i].setAttribute('cx', xx.toFixed(1)); dd[i].setAttribute('cy', yy.toFixed(1)); } dd[i].setAttribute('r', (g * (6 + 7 * hh(i, 3))).toFixed(1)); }
+    op($('pxFog'), r(t, d0, 4.6, cl)); const pu = r(t, d0 + 1, 4.5, cl); setA('pxPud', 'rx', (95 * pu).toFixed(1)); setA('pxPud', 'ry', (9 * pu).toFixed(1));
+    const cx = W('proximo', 3, 'atraviesa');
+    op($('pxCross'), win(t, cx - .1, W('proximo', 3, 'vapor') - .2, .25, .3)); wv('px3l', t, cx - .1, W('proximo', 3, 'vapor') - .2);
+    const v0 = W('proximo', 3, 'vapor'), vp = $('pxVp').children; op($('pxMod'), r(t, v0, .4));
+    for (let i = 0; i < 12; i++) { const f = ((t - v0) * .5 + i / 12) % 1, x = 760 + f * 215; vp[i].setAttribute('cx', x.toFixed(1)); vp[i].setAttribute('cy', (440 + 240 * hh(i, 2) + 10 * Math.sin(t * 3 + i)).toFixed(1)); vp[i].setAttribute('opacity', (t > v0 ? .8 * Math.min(1, f * 5) * (1 - r(t, v0 + 5, 1)) : 0).toFixed(2)); }
+    rv('px4l', t, W('proximo', 3, 'condensa') - .2);
+  }
+
+  /* chrome: bug, section tag, captions */
+  const cur = M.scenes.find(s => t >= s.start && t < s.start + s.duration) || M.scenes[M.scenes.length - 1];
+  const inBook = cur.id === 'intro' || cur.id === 'outro' || cur.id === 'titulo';
+  op($('bug'), inBook ? 0 : .9);
+  const st = SECT[cur.id]; const sect = $('sect');
+  if (st) { sect.textContent = st; sect.style.color = `var(${KIND[cur.id]})`; op(sect, win(t, cur.start, cur.start + cur.duration, .4, .3)); } else op(sect, 0);
+  captions(t, cur);
+
+  cam.position.copy(camPos); cam.lookAt(look);
+  R3.render(scn, cam);
+}
+
+
+let capKey = '';
+function captions(t, sc) {
+  let line = null, li = -1;
+  for (const s of M.scenes) for (let i = 0; i < s.lines.length; i++) { const l = s.lines[i]; if (t >= l.s - .1 && t <= l.s + l.d + .35) { line = l; li = s.id + i; } }
+  const cap = $('cap');
+  if (!line) { op(cap, 0); return; }
+  op(cap, 1);
+  if (capKey !== li) {
+    capKey = li;
+    const [name, color, cls] = WHO[line.v];
+    cap.style.setProperty('--c', `var(${color})`);
+    cap.className = 'cap ' + cls; $('who').textContent = name;
+    $('txt').innerHTML = line.w.map(w => `<span>${w[0]}</span>`).join(' ');
+  }
+  const sp = $('txt').children;
+  line.w.forEach((w, i) => { sp[i].className = t >= w[2] ? 'on' : t >= w[1] - .02 ? 'now' : ''; });
+}
+
+/* back to the course map when opened from the Química 8+ app */
+try { if (document.referrer && new URL(document.referrer).origin === location.origin) { $('back').hidden = false; $('back').onclick = e => { e.preventDefault(); history.back(); }; } } catch (e) {}
+/* ---------- player ---------- */
+const au = $('au');
+let playing = false, useAudio = true, clock0 = 0, t0 = 0, T = S.titulo.start + 2.2; const REST = T; // rest frame: the title card
+const fmt = s => { s = Math.max(0, s); return Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0'); };
+$('dur').textContent = fmt(DUR) + ' min';
+au.addEventListener('error', () => { useAudio = false; });
+function now() { if (!playing) return T; if (useAudio && !au.paused) return au.currentTime; return t0 + rate * (performance.now() - clock0) / 1000; }
+function seek(t) {
+  T = Math.max(0, Math.min(DUR, t));
+  if (useAudio) { try { au.currentTime = T; } catch (e) {} }
+  t0 = T; clock0 = performance.now();
+  if (!playing) frame();
+}
+async function play() {
+  $('veil').hidden = true;
+  if (T >= DUR - .05) T = 0;
+  playing = true; t0 = T; clock0 = performance.now();
+  if (useAudio) { try { au.currentTime = T; await au.play(); } catch (e) { useAudio = false; } }
+  $('play').textContent = '❚❚ Pausa';
+}
+function pause() { T = now(); playing = false; au.pause(); $('play').textContent = '▶ Reproducir'; }
+$('play').onclick = () => playing ? pause() : play();
+$('veil').onclick = () => { if (T === REST) T = 0; play(); };
+document.querySelectorAll('.pick').forEach(b => b.onclick = e => { e.stopPropagation(); document.querySelectorAll('.pick').forEach(x => x.classList.toggle('sel', x === b)); });
+const SPEEDS = [1, 1.25, 1.5, 2]; let rate = 1;
+function setRate(v) { T = now(); rate = v; au.playbackRate = v; au.preservesPitch = true; t0 = T; clock0 = performance.now(); $('spd').textContent = String(v).replace('.', ',') + '×'; }
+$('spd').onclick = () => setRate(SPEEDS[(SPEEDS.indexOf(rate) + 1) % SPEEDS.length]);
+$('cc').onclick = () => { const on = $('cc').getAttribute('aria-pressed') !== 'true'; $('cc').setAttribute('aria-pressed', on); stage.classList.toggle('off', !on); };
+au.addEventListener('ended', () => { playing = false; T = DUR; $('play').textContent = '▶ Reproducir'; });
+
+// scrubber and chapter map
+const track = $('track'), chap = $('chap');
+M.scenes.forEach(s => {
+  const seg = document.createElement('div'); seg.className = 'seg'; seg.style.flex = s.duration; seg.style.setProperty('--bt', `var(${KIND[s.id]})`); seg.title = LABEL[s.id]; track.appendChild(seg);
+  const li = document.createElement('li'); const b = document.createElement('button'); b.style.setProperty('--bt', `var(${KIND[s.id]})`);
+  b.innerHTML = `<span class="t">${fmt(s.start)}</span><span>${LABEL[s.id]}</span>`; b.dataset.s = s.id;
+  b.onclick = () => { $('veil').hidden = true; seek(s.start + .01); if (!playing) play(); };
+  li.appendChild(b); chap.appendChild(li);
+});
+const bar = $('bar');
+function barSeek(e) { const rc = bar.getBoundingClientRect(); seek(cl((e.clientX - rc.left) / rc.width) * DUR); $('veil').hidden = true; }
+let drag = false;
+bar.addEventListener('pointerdown', e => { drag = true; bar.setPointerCapture(e.pointerId); barSeek(e); });
+bar.addEventListener('pointermove', e => { if (drag) barSeek(e); });
+bar.addEventListener('pointerup', () => drag = false);
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); playing ? pause() : play(); }
+  if (e.code === 'ArrowRight') seek(now() + 5);
+  if (e.code === 'ArrowLeft') seek(now() - 5);
+});
+
+let lastChap = '';
+function frame() {
+  const t = now();
+  render(t);
+  const p = t / DUR * 100;
+  $('head').style.left = `calc(${p}% - 1px)`; $('fill').style.width = p + '%';
+  $('time').textContent = fmt(t) + ' / ' + fmt(DUR);
+  bar.setAttribute('aria-valuenow', Math.round(t)); bar.setAttribute('aria-valuemax', Math.round(DUR));
+  const cur = M.scenes.find(s => t >= s.start && t < s.start + s.duration);
+  if (cur && cur.id !== lastChap) { lastChap = cur.id; chap.querySelectorAll('button').forEach(b => b.classList.toggle('cur', b.dataset.s === cur.id)); }
+}
+function loop() { if (playing) { frame(); if (!useAudio && now() >= DUR) pause(); } requestAnimationFrame(loop); }
+resize(); frame(); requestAnimationFrame(loop);
+// deterministic hook for frame capture (720p export later): window.__q9.render(seconds)
+window.__q9 = {render: t => { T = t; playing = false; render(t); }, duration: DUR};
+</script>
+</body></html>
